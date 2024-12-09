@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ale's Haikus</title>
+
+    <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
+    <link rel="manifest" href="/static/site.webmanifest" />
+
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e8dff5;
+            margin: 0;
+            padding: 0;
+            width: 100vw; /* Larghezza esattamente pari alla larghezza del viewport */
+            height: 100vh; /* Altezza uguale all'altezza dello schermo */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fcf4dd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+        h1 {
+            color: #333;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: normal;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        footer {
+            background-color: #e8dff5;
+            width: 100%;
+            height: auto;
+            padding: 50px;
+            text-align: center;
+            color: gray;
+        }
+
+        button {
+            background: #D3C0F9;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #B28DFF;
+        }
+
+        .popup {
+            display: none;
+            position: absolute;
+            background-color: #cdb4db;
+            color: #f8edeb;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        .result p {
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .correct {
+            background: #e0f8e0;
+            color: #2c662d;
+        }
+
+        .error {
+            background: #f8e0e0;
+            color: #662c2c;
+        }
+
+        .content {
+            flex: 1; /* Occupa lo spazio rimanente */
+            display: flex;
+            justify-content: center; /* Centra il contenuto orizzontalmente */
+            align-items: center; /* Centra il contenuto verticalmente */
+        }
+    </style>
+
+</head>
+<body>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Popup per "sofisticatissimi algoritmi"
+        const triggerAlg = document.getElementById('popup-trigger-alg');
+        const popupAlg = document.getElementById('popup-alg');
+
+        triggerAlg.addEventListener('click', (event) => {
+            const rect = triggerAlg.getBoundingClientRect();
+            popupAlg.style.left = `${rect.left}px`;
+            popupAlg.style.top = `${rect.bottom + window.scrollY}px`;
+            popupAlg.style.display = popupAlg.style.display === 'none' || popupAlg.style.display === '' ? 'block' : 'none';
+        });
+
+        // Popup per "qualcosa non và?"
+        const triggerBug = document.getElementById('popup-trigger-bug');
+        const popupBug = document.getElementById('popup-bug');
+
+        triggerBug.addEventListener('click', (event) => {
+            const rect = triggerBug.getBoundingClientRect();
+            popupBug.style.left = `${rect.left}px`;
+            popupBug.style.top = `${rect.bottom + window.scrollY}px`;
+            popupBug.style.display = popupBug.style.display === 'none' || popupBug.style.display === '' ? 'block' : 'none';
+        });
+
+        // Nascondi entrambi i popup se si clicca altrove
+        document.addEventListener('click', (event) => {
+            if (!popupAlg.contains(event.target) && event.target !== triggerAlg) {
+                popupAlg.style.display = 'none';
+            }
+            if (!popupBug.contains(event.target) && event.target !== triggerBug) {
+                popupBug.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+
+    <div class="container">
+        <h1>Verifica il tuo Haiku</h1>
+        <h4>Grazie a <ins><span id="popup-trigger-alg" style="color: #9d6b53; cursor: pointer;">sofisticatissimi algoritmi</span></ins> controllerò la metrica con elevata precisione! <br>(｡◕‿‿◕｡)</h4>
+        <div id="popup-alg" class="popup">nel codice usato, sono implementate diverse funzioni per garantire il rispetto
+        di tutte le regole di sillabazione italiana (dittonghi, trittonghi, iati, digrammi e trigrammi)
+        inoltre è consentito l'uso di caratteri accentati (a differenza di altri siti 	¯\_( ͡° ͜ʖ ͡°)_/¯)</div>
+
+        <form method="POST">
+            <label for="haiku">Inserisci i tre versi del tuo Haiku:</label>
+            <br>
+            <textarea id="haiku" name="haiku" rows="7" style="width:270px; height:100px;" placeholder="Scrivi qui ;)" required>{{ haiku }}</textarea>
+            <br>
+            <button type="submit">Verifica</button>
+        </form>
+        {% if message %}
+        <div class="result">
+            <p class="{{ 'correct' if message.startswith('Il tuo haiku è perfetto! :3') else 'error' }}">
+                {{ message|safe }}
+            </p>
+        </div>
+        {% endif %}
+        <ins><span id="popup-trigger-bug" style="color: #9d6b53; cursor: pointer; text-align: right;">qualcosa non và?</span></ins>
+        <div id="popup-bug" class="popup">per segnalare bug, parole non sillabate correttamente o qualsiasi tipo di problema, non esitare a contattarmi su Github o Instagram @aleloizz :)</div>
+    </div>
+    <footer>
+        <p>made with love by <a href="https://github.com/aleloizz" style="color:#9d69ba">aleloizz</a></p>
+    </footer>
+</body>
+</html>
