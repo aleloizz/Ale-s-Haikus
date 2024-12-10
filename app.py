@@ -3,9 +3,16 @@ from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
 
 @app.before_request
-def enforce_https():
-    if request.url.startswith('http://'):
-        return redirect(request.url.replace('http://', 'https://'), code=301)
+def enforce_https_and_www():
+    url = request.url
+    if url.startswith("http://"):
+        url = url.replace("http://", "https://", 1)
+    if not url.startswith("https://www."):
+        url = url.replace("https://", "https://www.", 1)
+    if url != request.url:
+        return redirect(url, code=301)
+    
+    
 # Lista di eccezioni
 eccezioni = {
     "poesia": 4,
