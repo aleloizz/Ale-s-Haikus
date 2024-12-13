@@ -164,8 +164,10 @@ def is_trittongo(c1, c2, c3):
     """
     c1, c2, c3 = c1.lower(), c2.lower(), c3.lower()
     return (c1 == 'i' and is_vocale(c2) and c3 == 'u') or \
-           (c1 == 'u' and is_vocale(c2) and c3 == 'i')
-
+           (c1 == 'u' and is_vocale(c2) and c3 == 'i') or \
+           (c1 == 'i' and is_vocale(c2) and c3 == 'i') or \
+           (c1 == 'u' and is_vocale(c2) and c3 == 'u') 
+           
 
 def is_digramma(c1, c2):
     """
