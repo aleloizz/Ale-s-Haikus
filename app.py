@@ -154,7 +154,9 @@ def is_dittongo(c1, c2):
     """
     c1, c2 = c1.lower(), c2.lower()
     dittonghi = {("i", "a"), ("i", "e"), ("i", "o"), ("i", "u"),
-                 ("u", "a"), ("u", "e"), ("u", "o")}
+                 ("u", "a"), ("u", "e"), ("u", "o"), ("u", "i"),
+                 ("a", "i"), ("a", "u"), ("e", "i"), ("e", "u"),
+                 ("o", "i"), ("o", "u")}
     return (c1, c2) in dittonghi and not is_iato(c1, c2)
 
 
