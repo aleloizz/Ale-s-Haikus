@@ -159,10 +159,42 @@ def is_dittongo(c1, c2):
     Controlla se due caratteri formano un dittongo.
     """
     c1, c2 = c1.lower(), c2.lower()
-    dittonghi = {("i", "a"), ("i", "e"), ("i", "o"), ("i", "u"),
-                 ("u", "a"), ("u", "e"), ("u", "o"), ("u", "i"),
-                 ("a", "i"), ("a", "u"), ("e", "i"), ("e", "u"),
-                 ("o", "i"), ("o", "u")}
+
+    # Dittonghi crescenti (vocale debole + vocale forte)
+    crescenti = {
+        ("i", "a"), ("i", "e"), ("i", "o"), ("i", "u"),
+        ("u", "a"), ("u", "e"), ("u", "o")
+    }
+
+    # Dittonghi discendenti (vocale forte + vocale debole)
+    discendenti = {
+        ("a", "i"), ("a", "u"), ("e", "i"), ("e", "u"),
+        ("o", "i"), ("o", "u")
+    }
+
+    # Dittonghi deboli (tra due vocali deboli)
+    deboli = {
+        ("i", "u"), ("u", "i")
+    }
+
+    # Considera anche le vocali accentate
+    accentate_crescenti = {
+        ("i", "à"), ("i", "è"), ("i", "é"), ("i", "ò"), ("i", "ó"), ("i", "ù"),
+        ("u", "à"), ("u", "è"), ("u", "é"), ("u", "ò"), ("u", "ó"), ("u", "ù")
+    }
+
+    accentate_discendenti = {
+        ("à", "i"), ("à", "u"), ("è", "i"), ("è", "u"), ("é", "i"), ("é", "u"),
+        ("ò", "i"), ("ò", "u"), ("ó", "i"), ("ó", "u"), ("ù", "i"), ("ù", "u")
+    }
+
+    accentate_deboli = {
+        ("ì", "ù"), ("ù", "ì")
+    }
+
+    # Unione di tutti i dittonghi
+    dittonghi = crescenti | discendenti | deboli | accentate_crescenti | accentate_discendenti | accentate_deboli
+
     return (c1, c2) in dittonghi and not is_iato(c1, c2)
 
 
