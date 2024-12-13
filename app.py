@@ -17,12 +17,18 @@ def enforce_https_and_www():
         return redirect(url, code=301)
     
     
-# Lista di eccezioni
+# Lista di eccezioni (ambiguità tra iato e dittongo)
 eccezioni = {
     "poesia": 4,
     "eroico": 3,
     "eroiche": 3,
     "aerei": 3,
+    "qui": 1,
+    "più": 1,
+    "qui": 1,
+    "cui": 1,
+    "lui": 1,
+    "sui": 1,
 }
 
 def conta_sillabe(stringa):
@@ -138,8 +144,8 @@ def is_iato(c1, c2):
     """
     Controlla se due caratteri formano uno iato.
     """
-    vocali_forti = "aeo"
-    vocali_deboli = "iu"
+    vocali_forti = "aeoàèòáéó"
+    vocali_deboli = "iuìùíú"
     return (
         (c1 in vocali_forti and c2 in vocali_forti) or  # Due vocali forti (o-e)
         (c1 in vocali_deboli and c2 in vocali_deboli) or  # Due vocali deboli (i-u)
