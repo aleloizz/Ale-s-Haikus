@@ -126,6 +126,16 @@
 <body>
 
     <script>
+        document.getElementById('copy-button').addEventListener('click', function() {
+            const haikuTextarea = document.getElementById('haiku');
+            haikuTextarea.select();
+            document.execCommand('copy');
+            alert('Testo copiato negli appunti!');
+        });
+    </script>
+
+    <script>
+
     document.addEventListener('DOMContentLoaded', () => {
         // Popup per "sofisticatissimi algoritmi"
         const triggerAlg = document.getElementById('popup-trigger-alg');
@@ -170,12 +180,16 @@
         inoltre è consentito l'uso di caratteri accentati (a differenza di altri siti 	¯\_( ͡° ͜ʖ ͡°)_/¯)</div>
 
         <form method="POST">
-            <label for="haiku">Inserisci i tre versi del tuo Haiku:</label>
+            <label for="haiku">
+                Inserisci i tre versi del tuo Haiku:
+                <button type="button" id="copy-button" style="margin-left: 10px; font-size: 0.8em;">📋 Copia</button>
+            </label>
             <br>
             <textarea id="haiku" name="haiku" rows="7" style="width:270px; height:100px;" placeholder="Scrivi qui ;)" required>{{ haiku }}</textarea>
             <br>
             <button type="submit">Verifica</button>
         </form>
+        
         {% if message %}
         <div class="result">
             <p class="{{ 'correct' if message.startswith('Il tuo haiku è perfetto! :3') else 'error' }}">
