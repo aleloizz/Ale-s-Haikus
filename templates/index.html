@@ -50,10 +50,25 @@
         }
 
         label {
-            display: block;
             font-weight: normal;
             margin-bottom: 10px;
             color: #555;
+            display: flex;
+            align-items: center; /* Allinea verticalmente gli elementi */
+            justify-content: space-between; /* Spazia gli elementi orizzontalmente */
+            gap: 10px; /* Distanza tra la label e il pulsante */
+            margin-bottom: 10px;
+        }
+
+        #copy-button {
+            background: #D3C0F9;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap; /* Evita la rottura del testo */
         }
 
         input[type="text"] {
