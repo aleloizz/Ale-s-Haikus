@@ -50,29 +50,34 @@
         }
 
         label {
-            font-weight: normal;
+            display: block;
+            text-align: center;
             margin-bottom: 10px;
-            color: #555;
-            display: flex;
-            align-items: center; /* Allinea verticalmente gli elementi */
-            justify-content: space-between; /* Spazia gli elementi orizzontalmente */
-            gap: 10px; /* Distanza tra la label e il pulsante */
-            margin-bottom: 10px;
+            font-size: 14px;
         }
 
         #copy-button {
+            display: block;
+            margin: 10px auto; /* Centra orizzontalmente il pulsante */
             background: #D3C0F9;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            white-space: nowrap; /* Evita la rottura del testo */
+            text-align: center;
         }
 
         #copy-button:hover {
             background: #B28DFF;
+        }
+
+        textarea {
+            display: block;
+            margin: 0 auto 10px auto; /* Centra e aggiunge spazio sotto */
+            width: 90%;
+            max-width: 270px;
         }
 
         input[type="text"] {
@@ -206,13 +211,11 @@
         inoltre è consentito l'uso di caratteri accentati (a differenza di altri siti 	¯\_( ͡° ͜ʖ ͡°)_/¯)</div>
 
         <form method="POST">
-            <label for="haiku">
-                Inserisci i tre versi del tuo Haiku:
-                <br>
-                <button type="button" id="copy-button">📋 Copia</button>
-            </label>
+            <label for="haiku">Inserisci i tre versi del tuo Haiku:</label>
             <br>
             <textarea id="haiku" name="haiku" rows="7" style="width:270px; height:100px;" placeholder="Scrivi qui ;)" required>{{ haiku }}</textarea>
+            <br>
+            <button type="button" id="copy-button">📋 Copia</button>
             <br>
             <button type="submit">Verifica</button>
         </form>
