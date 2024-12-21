@@ -126,50 +126,57 @@
 <body>
 
     <script>
-    document.getElementById('copy-button').addEventListener('click', function() {
-        const haikuTextarea = document.getElementById('haiku');
-        haikuTextarea.select();
-        document.execCommand('copy');
-        alert('Testo copiato negli appunti!');
-    });
-    </script>
-
-    <script>
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Popup per "sofisticatissimi algoritmi"
-        const triggerAlg = document.getElementById('popup-trigger-alg');
-        const popupAlg = document.getElementById('popup-alg');
-
-        triggerAlg.addEventListener('click', (event) => {
-            const rect = triggerAlg.getBoundingClientRect();
-            popupAlg.style.left = `${rect.left}px`;
-            popupAlg.style.top = `${rect.bottom + window.scrollY}px`;
-            popupAlg.style.display = popupAlg.style.display === 'none' || popupAlg.style.display === '' ? 'block' : 'none';
+        document.addEventListener('DOMContentLoaded', () => {
+            // Funzione per il pulsante di copia
+            const copyButton = document.getElementById('copy-button');
+            const haikuTextarea = document.getElementById('haiku');
+            
+            copyButton.addEventListener('click', () => {
+                haikuTextarea.select();
+                navigator.clipboard.writeText(haikuTextarea.value)
+                    .then(() => {
+                        alert('Testo copiato negli appunti!');
+                    })
+                    .catch(err => {
+                        console.error('Errore durante la copia: ', err);
+                        alert('Errore durante la copia del testo.');
+                    });
+            });
+        
+            // Popup per "sofisticatissimi algoritmi"
+            const triggerAlg = document.getElementById('popup-trigger-alg');
+            const popupAlg = document.getElementById('popup-alg');
+        
+            triggerAlg.addEventListener('click', (event) => {
+                const rect = triggerAlg.getBoundingClientRect();
+                popupAlg.style.left = `${rect.left}px`;
+                popupAlg.style.top = `${rect.bottom + window.scrollY}px`;
+                popupAlg.style.display = popupAlg.style.display === 'none' || popupAlg.style.display === '' ? 'block' : 'none';
+            });
+        
+            // Popup per "qualcosa non và?"
+            const triggerBug = document.getElementById('popup-trigger-bug');
+            const popupBug = document.getElementById('popup-bug');
+        
+            triggerBug.addEventListener('click', (event) => {
+                const rect = triggerBug.getBoundingClientRect();
+                popupBug.style.left = `${rect.left}px`;
+                popupBug.style.top = `${rect.bottom + window.scrollY}px`;
+                popupBug.style.display = popupBug.style.display === 'none' || popupBug.style.display === '' ? 'block' : 'none';
+            });
+        
+            // Nascondi entrambi i popup se si clicca altrove
+            document.addEventListener('click', (event) => {
+                if (!popupAlg.contains(event.target) && event.target !== triggerAlg) {
+                    popupAlg.style.display = 'none';
+                }
+                if (!popupBug.contains(event.target) && event.target !== triggerBug) {
+                    popupBug.style.display = 'none';
+                }
+            });
         });
-
-        // Popup per "qualcosa non và?"
-        const triggerBug = document.getElementById('popup-trigger-bug');
-        const popupBug = document.getElementById('popup-bug');
-
-        triggerBug.addEventListener('click', (event) => {
-            const rect = triggerBug.getBoundingClientRect();
-            popupBug.style.left = `${rect.left}px`;
-            popupBug.style.top = `${rect.bottom + window.scrollY}px`;
-            popupBug.style.display = popupBug.style.display === 'none' || popupBug.style.display === '' ? 'block' : 'none';
-        });
-
-        // Nascondi entrambi i popup se si clicca altrove
-        document.addEventListener('click', (event) => {
-            if (!popupAlg.contains(event.target) && event.target !== triggerAlg) {
-                popupAlg.style.display = 'none';
-            }
-            if (!popupBug.contains(event.target) && event.target !== triggerBug) {
-                popupBug.style.display = 'none';
-            }
-        });
-    });
-</script>
+        </script>
+        
 
 
     <div class="container">
