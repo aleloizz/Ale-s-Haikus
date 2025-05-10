@@ -1,237 +1,247 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index, follow">
-    <meta name="description" content="Crea i tuoi haiku, controllando la metrica grazie a questo sito! Libera la tua creatività ed apri il tuo cuore. dedicato a tutti i poeti innamorati e a tutte le loro muse.">
-    <meta name="keywords" content="ale's haikus ,haiku, poesia, poesia breve, amore, love, poetry, art, haikus, giappone, arte poetica">
-    <meta name="author" content="aleloizz">
-
-    <title>Ale's Haikus :3</title>
-
-    <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-    <link rel="shortcut icon" href="/static/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
-    <link rel="manifest" href="/static/site.webmanifest" />
-
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #e8dff5;
-            margin: 0;
-            padding: 0;
-            width: 100vw; /* Larghezza esattamente pari alla larghezza del viewport */
-            height: 100vh; /* Altezza uguale all'altezza dello schermo */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            background: #fcf4dd;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 320px;
-            width: 100%;
-            text-align: center;
-            margin: auto;
-        }
-
-        h1 {
-            color: #333;
-            font-weight: bold;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        #copy-button {
-            display: block;
-            margin: 10px auto; /* Centra orizzontalmente il pulsante */
-            background: #D3C0F9;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        #copy-button:hover {
-            background: #B28DFF;
-        }
-
-        textarea {
-            display: block;
-            margin: 0 auto 10px auto; /* Centra e aggiunge spazio sotto */
-            width: 90%;
-            max-width: 270px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        footer {
-            background-color: #e8dff5;
-            width: 100%;
-            height: auto;
-            padding: 50px;
-            text-align: center;
-            color: gray;
-        }
-
-        button {
-            background: #D3C0F9;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background: #B28DFF;
-        }
-
-        .popup {
-            display: none;
-            position: absolute;
-            background-color: #cdb4db;
-            color: #f8edeb;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-        }
-
-        .result p {
-            padding: 10px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-
-        .correct {
-            background: #e0f8e0;
-            color: #2c662d;
-        }
-
-        .error {
-            background: #f8e0e0;
-            color: #662c2c;
-        }
-
-        .content {
-            flex: 1; /* Occupa lo spazio rimanente */
-            display: flex;
-            justify-content: center; /* Centra il contenuto orizzontalmente */
-            align-items: center; /* Centra il contenuto verticalmente */
-        }
-    </style>
-
-</head>
-<body>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Funzione per il pulsante di copia
-            const copyButton = document.getElementById('copy-button');
-            const haikuTextarea = document.getElementById('haiku');
-            
-            copyButton.addEventListener('click', () => {
-                haikuTextarea.select();
-                navigator.clipboard.writeText(haikuTextarea.value)
-                    .then(() => {
-                        alert('Testo copiato negli appunti!');
-                    })
-                    .catch(err => {
-                        console.error('Errore durante la copia: ', err);
-                        alert('Errore durante la copia del testo.');
-                    });
-            });
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, maximum-scale=1, viewport-fit=cover">
+        <meta name="theme-color" content="#faf7ff">
+        <meta name="robots" content="index, follow">
+        <meta name="description" content="Crea e verifica haiku, tanka e tante altre forme poetiche con questo avanzato analizzatore metrico. Lasciati ispirare e libera il poeta che è in tè.">
+        <meta property="og:title" content="Ale's Haikus 2.0">
+        <meta property="og:description" content="Analizzatore avanzato per poesie di ogni tipo">
+        <meta property="og:image" content="https://www.aleshaikus.me/static/og-image.jpg">
         
-            // Popup per "sofisticatissimi algoritmi"
-            const triggerAlg = document.getElementById('popup-trigger-alg');
-            const popupAlg = document.getElementById('popup-alg');
-        
-            triggerAlg.addEventListener('click', (event) => {
-                const rect = triggerAlg.getBoundingClientRect();
-                popupAlg.style.left = `${rect.left}px`;
-                popupAlg.style.top = `${rect.bottom + window.scrollY}px`;
-                popupAlg.style.display = popupAlg.style.display === 'none' || popupAlg.style.display === '' ? 'block' : 'none';
-            });
-        
-            // Popup per "qualcosa non và?"
-            const triggerBug = document.getElementById('popup-trigger-bug');
-            const popupBug = document.getElementById('popup-bug');
-        
-            triggerBug.addEventListener('click', (event) => {
-                const rect = triggerBug.getBoundingClientRect();
-                popupBug.style.left = `${rect.left}px`;
-                popupBug.style.top = `${rect.bottom + window.scrollY}px`;
-                popupBug.style.display = popupBug.style.display === 'none' || popupBug.style.display === '' ? 'block' : 'none';
-            });
-        
-            // Nascondi entrambi i popup se si clicca altrove
-            document.addEventListener('click', (event) => {
-                if (!popupAlg.contains(event.target) && event.target !== triggerAlg) {
-                    popupAlg.style.display = 'none';
-                }
-                if (!popupBug.contains(event.target) && event.target !== triggerBug) {
-                    popupBug.style.display = 'none';
-                }
-            });
-        });
+        <title>Ale's Haikus | analizza le tue migliori poesie</title>
+    
+        <!-- Favicons -->
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+        <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+        <meta name="msapplication-TileColor" content="#faf7ff">
+        <meta name="msapplication-TileImage" content="{{ url_for('static', filename='ms-icon-144x144.png') }}">
+        <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}">
+        <meta name="theme-color" content="#faf7ff">
+    
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Icone Bootstrap -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- Stili personalizzati -->
+
+        <!--<link rel="stylesheet" href="../static/css/main.css">
+        <script src="../static/js/app.js"></script> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+
+        <!-- Schema.org markup -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Ale's Poetry Analyzer",
+          "applicationCategory": "LiteraryTool",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }
         </script>
-        
 
+        <style>
+            body.loading {
+              background: #fbbda3 !important;
+            }
+        </style>
 
-    <div class="container">
-        <h1>Verifica il tuo Haiku</h1>
-        <h4>Grazie a <ins><span id="popup-trigger-alg" style="color: #9d6b53; cursor: pointer;">sofisticatissimi algoritmi</span></ins> controllerò la metrica con elevata precisione! <br>(｡◕‿‿◕｡)</h4>
-        <div id="popup-alg" class="popup">nel codice usato, sono implementate diverse funzioni per garantire il rispetto
-        di tutte le regole di sillabazione italiana (dittonghi, trittonghi, iati, digrammi e trigrammi)
-        inoltre è consentito l'uso di caratteri accentati (a differenza di altri siti 	¯\_( ͡° ͜ʖ ͡°)_/¯)</div>
+    </head>
+    
+    <body class="loading">
+        <div class="main-wrapper">
+            <script>
+                // Rimuove la classe loading quando l'immagine è caricata
+                window.addEventListener('load', () => {
+                document.body.classList.remove('loading');
+                });
+            </script>
+            <header>
+                <div class="bg-haiku-primary text-white text-center py-5 header-content">
+                    <div class="container">
+                    <h1 class="display-4">Benvenuto su Ale's Haikus!</h1>
+                    <p class="lead">lo strumento perfetto per controllare la metrica <br> delle tue migliori poesie.</p>
+                    <button type="button" class="btn-more" data-bs-toggle="modal" data-bs-target="#aboutModal">
+                        Scopri di più
+                    </button>
+                    </div>
+                </div>
+            </header>
 
-        <form method="POST">
-            <label for="haiku">Inserisci i tre versi del tuo Haiku:</label>
-            <br>
-            <textarea id="haiku" name="haiku" rows="7" style="width:270px; height:100px;" placeholder="Scrivi qui ;)" required>{{ haiku }}</textarea>
-            <br>
-            <button type="button" id="copy-button">📋 Copia</button>
-            <br>
-            <button type="submit">Verifica</button>
-        </form>
-        
-        {% if message %}
-        <div class="result">
-            <p class="{{ 'correct' if message.startswith('Il tuo haiku è perfetto! :3') else 'error' }}">
-                {{ message|safe }}
-            </p>
+            
+
+            <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                <div id="copyToast" class="toast">
+                <div class="toast-body">Testo copiato! ^_^</div>
+                </div>
+            </div>
+
+            <main class="flex-grow-1 py-5">    
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6 col-md-8">
+                            <div class="card shadow-lg border-0">
+                                <div class="card-body p-4 p-md-5">
+                                    <h2 class="h2 text-white">Cosa scriviamo oggi? :)</h2>
+                                    <!-- Selettore tipo poesia -->
+                                    <div class="mb-4 text-center form-select-container">
+                                        <label class="form-select-label">Nazionalità:</label>
+                                        <div class="position-relative mb-2">
+                                            <select class="form-select nation-label" id="poemNation">
+                                                <option value="giapponesi">Giapponese</option>
+                                                <option value="italiane">Italiana</option>
+                                                <option value="inglesi">Inglese</option>
+                                            </select>
+                                            <div class="select-icon"><i class="bi bi-chevron-down"></i></div>
+                                        </div>
+                                        <label for="poemType" class="form-select-label">Tipo di poesia:</label>
+                                        <div class="position-relative">
+                                            <select class="form-select type-label" id="poemType"></select>
+                                            <div class="select-icon"><i class="bi bi-chevron-down"></i></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Visualizzazione pattern            FIXAREEEEEEEEEEEEEEEEEEEEEEEE-->
+                                    <div class="d-flex justify-content-center gap-2 mb-4" id="patternDisplay">
+                                        <span class="badge bg-haiku-primary">5</span>
+                                        <span class="badge bg-haiku-primary">7</span>
+                                        <span class="badge bg-haiku-primary">5</span>
+                                    </div>
+
+                                    <!-- Textarea unico -->
+                                    <form method="POST" id="poemForm">
+                                        <div class="mb-3 position-relative">
+                                            <label class="form-label fw-light text-muted mb-2">Inserisci la tua poesia <small class="text-muted">(un verso per riga)</small></label>
+                                            <textarea class="form-control border-0 bg-light bg-opacity-10 py-3 px-4 rounded-3 shadow-sm" 
+                                                    id="poemText" 
+                                                    rows="5" 
+                                                    placeholder="Scrivi qui i tuoi versi :3"
+                                                    style="min-height: 150px; 
+                                                            resize: none; 
+                                                            transition: all 0.3s ease;
+                                                            backdrop-filter: blur(8px);"
+                                                            inputmode="text"
+                                                            autocomplete="off"
+                                                            autocorrect="off"
+                                                            autocapitalize="sentences"
+                                                            spellcheck="false"></textarea>
+                                            
+                                        </div>
+
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <button type="button" class="btn btn-haiku btn-secondary" id="copyBtn">
+                                                <i class="bi bi-clipboard"></i> Copia
+                                            </button>
+                                            <button type="submit" class="btn btn-haiku btn-primary" id="submitBtn">
+                                                <i class="bi bi-check-circle"></i> Verifica
+                                            </button>
+                                        </div>
+                                        <input type="hidden" name="poemType" id="hiddenPoemType">
+                                    </form>
+
+                                    <!-- Risultati -->
+                                    <div id="resultContainer" class="mt-4" style="display: none;">
+                                        <div class="alert border-0 rounded-4 p-0 overflow-hidden" role="alert" 
+                                            style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);">
+                                            <div class="p-4">
+                                                <h4 class="alert-heading d-flex align-items-center gap-2 mb-3" id="resultTitle">
+                                                    <i class="bi"></i>
+                                                    <span class="fw-medium"></span>
+                                                </h4>
+                                                <div class="divider mb-3" style="height: 1px;"></div>
+                                                <p id="resultMessage" class="mb-0"></p>
+                                            </div>
+                                            <div class="syllable-details p-4 pt-0" id="syllableDetails"></div>
+                                        </div>
+                                    </div>
+
+                                    <script>                    
+                                        // Aggiorna il campo nascosto quando cambia il select
+                                        document.getElementById('poemType').addEventListener('change', function() {
+                                            document.getElementById('hiddenPoemType').value = this.value;
+                                        });
+
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-haiku-primary text-white py-4 mt-auto">
+                <div class="container text-center">
+                    <p class="mb-0">Made with <i class="bi bi-heart-fill"></i> by 
+                        <a href="https://github.com/aleloizz" class="text-white">aleloizz</a><br>
+                        <small><small>dedicato a tutti i poeti innamorati e a tutte le loro muse</small></small><!--dedicato anche ai cuori spezzati-->
+                    </p>
+                </div>
+            </footer>
+
+            <!-- Modals -->
+            <div class="modal fade" id="aboutModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content glass-card border-0 rounded-4 shadow-lg p-0" style="backdrop-filter: blur(16px); background: rgba(255, 255, 255);">
+                        <div class="modal-header border-0 pb-0" style="background: linear-gradient(90deg, #cca9ff 0%, #ffb18d 100%); ">
+                            <h5 class="modal-title d-flex align-items-center gap-2" style="font-family: 'inter', serif; color: #ffffff;">
+                                <i class="bi bi-stars fs-4"></i>
+                                Che bello vederti!
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                        </div>
+                        <div class="modal-body pt-3 pb-4 px-4" style="font-size: 1.08em;">
+                            <div class="text-center mb-3">
+                                <img src="{{ url_for('static', filename='favicon-96x96.png') }}" alt="Logo Ale's Haikus" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 2px 12px rgba(160,132,232,0.10); background: #fff;">
+                            </div>
+                            <p class="mb-3" style="font-family: 'Inter', sans-serif;">
+                                Questo strumento analizza la metrica poetica usando <span class="fw-semibold text-accent">algoritmi avanzati</span> che considerano:
+                            </p>
+                            <ul class="list-unstyled mb-4 ps-2">
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Dittonghi e trittonghi</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Iati e sineresi</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Digrammi e trigrammi italiani</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Eccezioni linguistiche</li>
+                            </ul>
+                            <div class="alert-glass mb-3 d-flex align-items-center gap-2 p-3" style="background: rgba(212,184,255,0.13); border-left: 4px solid #a084e8;">
+                                <i class="bi bi-journal-bookmark-fill fs-4 text-accent"></i>
+                                <div>
+                                    Scopri tutte le forme poetiche nella<br>
+                                    <a href="/wiki" class="a">Wiki della poesia</a>!
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    Per segnalazioni: 
+                                    <a href="https://github.com/aleloizz" class="a">GitHub</a> 
+                                    o Instagram <span class="fw-semibold">@aleloizz</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         </div>
-        {% endif %}
-        <ins><span id="popup-trigger-bug" style="color: #9d6b53; cursor: pointer; text-align: right;">qualcosa non và?</span></ins>
-        <div id="popup-bug" class="popup">per segnalare bug, parole non sillabate correttamente o qualsiasi tipo di problema, non esitare a contattarmi su Github o Instagram @aleloizz :)</div>
-    </div>
-    <footer>
-        <p>made with love by <a href="https://github.com/aleloizz" style="color:#9d69ba">aleloizz</a><br>dedicato a tutti i poeti innamorati<br>e a tutte le loro muse</p>
-    </footer>
-</body>
+    </body>
 </html>
+``` 

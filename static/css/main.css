@@ -1,0 +1,784 @@
+:root { 
+  --primary: #D4B8FF;
+  --secondary: #FFE5D9;
+  --accent: #A2D7D8;
+  --text: #5E5E5E;
+  --bg: #FAF7FF;
+  --error: #ff6b6b;
+  --success: #3bb156;
+}
+
+html, body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: 
+    url('../images/background.jpg') center/cover no-repeat;
+  background-color: #fbbda3; /* Colore di fallback */
+  background-attachment: fixed;
+  width: 100vw;
+}
+
+h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+  transition: margin-top 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: transform;
+}
+
+header {
+  transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: transform;
+}
+
+footer {
+  flex-shrink: 0;
+  
+  width: 100vw;
+  text-align: center;
+  word-break: break-word;
+  z-index: 10;
+  padding: 1rem 0.5rem;
+  box-sizing: border-box;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+body::after {
+  content: '';
+  display: none;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* wrapper per il contenuto principale */
+.main-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: none !important;
+}
+
+.card {
+  background: rgba(255, 255, 233, 0.200);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+  0 0 0 1px rgba(255,255,255,0.1),
+  0 2px 30px rgba(149, 117, 205, 0.1),
+  0 0 60px rgba(149, 117, 205, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Select della nazionalità: più grande, glass, con bordo colorato */
+#poemNation {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid var(--primary, #a084e8);
+  color: #5a3fa0;
+  font-weight: 400;
+  font-size: 1.15rem;
+  border-radius: 2rem;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 0.85rem 2.5rem 0.85rem 1.2rem;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#poemNation:hover,
+#poemNation:focus {
+  transform: translateY(-2px);
+  border-color: #5a3fa0;
+  box-shadow:
+    0 6px 12px rgba(110, 86, 166, 0.15),
+    0 3px 6px rgba(160, 117, 205, 0.1);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.3s;
+}
+
+/* Icona select più visibile */
+#poemNation ~ .select-icon i {
+  color: #5a3fa0;
+  font-size: 1.3em;
+  top: 50%;
+  right: 1.2rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Label della nazionalità più marcata */
+.form-select-label:first-child {
+  font-size: 1.1rem;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+}
+
+/* Label della nazionalità: viola, effetto hover fluido */
+.form-select-label.nation-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary, #a084e8);
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+  transition: color 0.3s, transform 0.3s;
+  cursor: pointer;
+  text-align: center;
+}
+.form-select-label.nation-label:hover {
+  color: #5a3fa0;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Label della tipologia: arancione, stesso stile della nazionalità */
+.form-select-label.type-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d76f43;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+  transition: color 0.3s, transform 0.3s;
+  cursor: pointer;
+  text-align: center;
+}
+.form-select-label.type-label:hover {
+  color: #b85c2b;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Stile avanzato per il selettore poesia */
+.form-select-container {
+  position: relative;
+  margin: 1rem auto;
+  width: fit-content;
+}
+
+.form-select-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  font-weight: 500;
+  text-align: center;
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 200px;
+  padding: 0.8rem 2rem 0.8rem 1.5rem;
+  border: 2px solid var(--secondary, #ffe5d9);
+  border-radius: 50px;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  font-family: 'Inter', sans-serif;
+  color: #b85c2b;
+  font-weight: 400;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background-image: none; /* Rimuove la freccia nativa di Bootstrap */
+  padding-right: 3rem; /* Spazio per la nostra icona */
+}
+
+.form-select:hover {
+  transform: translateY(-2px);
+  border-color: #d76f43;
+  box-shadow: 
+    0 6px 12px rgba(205, 158, 117, 0.15),
+    0 3px 6px rgba(205, 158, 117, 0.1);
+}
+
+.form-select:focus {
+  outline: none;
+  box-shadow: 
+    0 0 0 2px rgba(190, 118, 82, 0.578),
+    0 6px 12px rgba(205, 164, 117, 0.2);
+}
+
+.select-icon {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #b85c2b;
+  transition: transform 0.3s ease;
+  z-index: 2; /* Assicurati che sia sopra al selettore */
+}
+
+.select-icon i {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+}
+
+.form-select:focus + .select-icon i {
+  color: var(--accent); /* Cambia colore al focus */
+}
+
+/* Rimuove la freccia nera residua su alcuni browser */
+.form-select::-ms-expand {
+  display: none;
+}
+
+.form-select:focus + .select-icon {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Effetto per opzioni */
+.form-select option {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  padding: 0.5rem;
+  border-radius: 0;
+}
+
+.btn-more {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 50px;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-more:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  translate: 0 0.225em;
+  box-shadow: inset 0 0.03em 0 0 #f4f4f4, 0 0.03em 0 0 #efefef,
+    0 0.0625em 0 0 #ececec, 0 0.125em 0 0 #e0e0e0, 0 0.125em 0 0 #dedede,
+    0 0.2em 0 0 #dcdcdc, 0 0.225em 0 0 #cacaca, 0 0.225em 0.375em 0 #cecece;
+}
+
+.btn-haiku {
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  padding: 12px 24px;
+}
+
+.btn-haiku.btn-primary {
+  background: var(--primary);
+  border: none;
+}
+
+.btn-haiku.btn-secondary {
+  background: var(--secondary);
+  color: var(--text);
+  border: none;
+}
+
+.btn-haiku:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(212, 184, 255, 0.3);
+}
+
+.syllable-badge {
+  background: var(--secondary);
+  color: #d76f43;
+  transition: all 0.3s ease;
+  min-width: 2.5rem;
+}
+
+.syllable-badge.correct {
+  background-color: var(--success) !important;
+  transform: scale(1.05);
+  color: white !important;
+}
+
+/* Transizione ai bordi */
+textarea, .form-control {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(212, 184, 255, 0.25);
+}
+
+/* Animazioni */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stili per gli errori di struttura */
+.verse-count-error {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px !important;  /* Più spazioso */
+  border-radius: 6px !important;
+  margin-bottom: 12px !important;
+  backdrop-filter: blur(4px);     /* Effetto vetro */
+}
+
+.text-warning {
+  color: #8a6d03 !important;  /* Testo più chiaro */
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  border-left: 3px solid #ffc107 !important;
+  padding: 8px 12px !important;
+}
+
+.text-danger {
+  color: #a71d2a !important;   /* Rosso più leggibile */
+  background-color: rgba(220, 53, 69, 0.15) !important;
+  border-left: 3px solid #dc3545 !important;
+  padding: 8px 12px !important;
+}
+
+.pattern-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.poem-type-badge {
+  background-color: var(--haiku-primary);
+  color: var(--haiku-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+#patternDisplay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+/* Animazioni */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Stili specifici per il textarea */
+#poemText {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  background-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+#poemText:focus {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(212, 184, 255, 0.15) !important;
+  outline: none;
+  border-color: rgba(212, 184, 255, 0.3) !important;
+}
+
+#poemText::placeholder {
+  color: rgba(94, 94, 94, 0.5);
+  font-style: italic;
+  font-weight: 300;
+}
+
+.verse-count-error {
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Stili per i titoli dei risultati */
+#resultTitle {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  color: var(--text);
+}
+
+#resultMessage {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.alert-heading {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+/* Stili per il resultContainer */
+#resultContainer {
+  margin: 2rem auto;        /* centra orizzontalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* centra tutti i figli */
+  box-sizing: border-box;
+}
+
+#resultContainer .alert {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* Stili dinamici per i diversi stati */
+#resultContainer .alert-success {
+  background: rgba(59, 177, 86, 0.1) !important;
+  border-left: 4px solid var(--success) !important;
+}
+
+#resultContainer .alert-danger {
+  background: rgba(220, 53, 69, 0.1) !important;
+  border-left: 4px solid var(--error) !important;
+}
+
+#resultContainer .alert-warning {
+  background: rgba(255, 193, 7, 0.17) !important;
+  border-left: 4px solid var(--warning) !important;
+}
+
+/* Stili per i dettagli delle sillabe */
+.verse-detail {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(5, 0, 0, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+}
+
+/* Stili per l'analisi rimica */
+
+.glass-card {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(5, 0, 0, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Rhyme Container */
+.rhyme-scheme-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+/* Rhyme Group */
+.rhyme-group {
+  position: relative;
+  display: flex;
+  gap: 8px;
+}
+
+/* Rhyme Letter Card */
+.rhyme-letter {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: 600;
+  font-family: 'inter', sans-serif;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.rhyme-letter .letter {
+  font-size: 1.1em;
+}
+
+.rhyme-letter .verse-indicator {
+  font-size: 0.65em;
+  opacity: 0.8;
+  margin-top: 2px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* States */
+.rhyme-matched {
+  background: rgba(59, 177, 86, 0.2);
+  border: 1px solid rgba(59, 177, 86, 0.3);
+  color: var(--success);
+}
+
+.rhyme-mismatch {
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  color: var(--error);
+  animation: pulseAlert 1.5s infinite;
+}
+
+/* Message Boxes */
+.alert-glass {
+  background: rgba(255, 193, 7, 0.15);
+  border-left: 3px solid #ffc107;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.success-glass {
+  background: rgba(59, 177, 86, 0.15);
+  border-left: 3px solid var(--success);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Stati delle rime */
+.rhyme-letter.valid {
+  color: var(--text);
+  background: rgba(59, 177, 86, 0.2) !important;
+  border: 1px solid rgba(19, 81, 33, 0.4) !important;
+}
+
+.rhyme-letter.invalid {
+  color: var(--text) !important;
+  background: rgba(220, 53, 69, 0.3) !important;
+  border: 1px solid rgba(220, 53, 69, 0.5) !important;
+  animation: pulseMismatch 1.5s infinite;
+}
+
+/* Animazione per rime non corrispondenti */
+@keyframes pulseMismatch {
+  0% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.8; transform: scale(1); }
+}
+
+/* Effetto hover per tutti i badge */
+.rhyme-letter:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  z-index: 1;
+}
+
+.animate__pulse {
+  animation-duration: 0.5s;
+}
+
+.rhyme-analysis h6 {
+  color: var(--haiku-primary);
+}
+
+.verse-detail.incorrect-verse {
+  border-left: 3px solid var(--error);
+  animation: fadeIn 0.5s ease;
+}
+
+/* Barra di progresso personalizzata */
+.progress {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.progress-bar {
+  border-radius: 4px;
+}
+
+/* Stili per i messaggi */
+.alert-heading {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+#resultMessage {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+#resultMessage i {
+  margin-right: 8px;
+}
+
+.a {
+  color: #a084e8;
+  text-decoration: underline;
+  font-weight: 500;
+  margin-left: 0.5em;
+}
+  .a:hover {
+  color: #d76f43;
+  text-decoration: underline;
+}
+
+/* Modal header full width fix */
+.modal-header {
+  width: 100% !important;
+  
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  box-sizing: border-box;
+}
+
+
+/* adattamenti per versione mobile */
+@media (max-width: 900px) {
+  /*bypassa le regole di Bootstrap per evitare conflitti*/
+  .container, .row, .col-lg-6, .col-md-8 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  html, body {
+    background-attachment: scroll;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    body {
+      /* Fix per Safari iOS */
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  html {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .modal-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  #poemText {
+    font-size: 1.1em;
+    min-height: 120px;
+    padding: 1rem 0.7rem;
+    line-height: 1.5;
+    border-radius: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #resultContainer {
+    max-width: 90vw;
+    width: 90vw;
+    margin: 1rem auto;
+    padding: 0 0.5rem; /* <--- padding orizzontale */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  #patternDisplay {
+    gap: 0.35rem;
+    padding-bottom: 0.5rem;
+  }
+  #patternDisplay .badge {
+    font-size: 0.95em;
+    padding: 0.5em 0.7em;
+  }
+
+  .p-4 {
+    padding: 0.35rem !important; /* Riduci il padding su mobile */
+  }
+
+  .card,
+  .glass-card {
+    padding: 1.5rem 0.8rem;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
+    border-radius: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+    background: 
+      url('../images/background.jpg') center/cover no-repeat fixed;
+  }
+
+  main {
+    padding: 0.5rem;
+    padding-bottom: 0;
+  }
+  .header-content {
+    padding: 2rem 0.5rem;
+  }
+  .form-select {
+    width: 100%;
+    min-width: 0;
+    padding: 0.7rem 1.2rem;
+  }
+  #poemText {
+    font-size: 1rem;
+    min-height: 120px;
+  }
+  .rhyme-scheme-container {
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .rhyme-letter {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95em;
+  }
+
+  footer {
+    font-size: 1em;
+    padding: 0.7rem 0.2rem;
+    border-radius: 0;
+    width: 100%;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

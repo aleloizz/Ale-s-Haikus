@@ -1,0 +1,178 @@
+<!-- wiki.html -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, maximum-scale=1, viewport-fit=cover">
+    <title>Wiki delle forme poetiche | Ale's Haikus</title>
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="msapplication-TileColor" content="#faf7ff">
+    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='ms-icon-144x144.png') }}">
+    <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}">
+    <meta name="theme-color" content="#faf7ff">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #ffffff00;
+        }
+        .wiki-section {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: 0 2px 30px rgba(149, 117, 205, 0.08);
+            padding: 2.5rem 2rem;
+            margin: 2rem auto;
+            max-width: 700px;
+        }
+        .wiki-section h2 {
+            color: #ffffff;
+            font-family: 'inter', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .wiki-list {
+            list-style: none;
+            padding: 0;
+        }
+        .wiki-list li {
+            background: rgba(211, 177, 255, 0.3);
+            border-left: 4px solid #a084e8;
+            margin-bottom: 1.2rem;
+            padding: 1.1rem 1.2rem 1.1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(160, 132, 232, 0.04);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .wiki-list li:hover {
+            box-shadow: 0 6px 18px rgba(160, 132, 232, 0.10);
+            border-color: #d76f43;
+            background: rgba(255, 209, 177, 0.3);
+        }
+        .wiki-list strong {
+            color: #d76f43;
+            font-size: 1.1em;
+        }
+        .wiki-list a {
+            color: #a084e8;
+            text-decoration: underline;
+            font-weight: 500;
+            margin-left: 0.5em;
+        }
+        .wiki-list a:hover {
+            color: #d76f43;
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .wiki-section {
+                padding: 1.2rem 0.5rem;
+                margin: 1rem 0.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <header>
+            <div class="bg-haiku-primary text-white text-center py-4 header-content">
+                <div class="container">
+                    <h1 class="display-5 mb-0">Wiki delle forme poetiche</h1>
+                    <p class="lead mb-0">Scopri la storia e i dettagli delle poesie che puoi scrivere</p>
+                </div>
+            </div>
+        </header>
+        <main class="flex-grow-1 py-4">
+            <section class="wiki-section">
+                <h2><i class="bi bi-book-half"></i> Forme poetiche implementate</h2>
+                <a href="{{ url_for('home') }}" class="btn btn-haiku btn-secondary mb-4">
+                    <i class="bi bi-arrow-left"></i> Torna alla Home
+                </a>
+                <ul class="wiki-list">
+                    <li>
+                        <strong>Haiku</strong>: breve poesia giapponese di 3 versi (5-7-5).
+                        <a href="https://it.wikipedia.org/wiki/Haiku" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Tanka</strong>: poesia giapponese di 5 versi (5-7-5-7-7).
+                        <a href="https://it.wikipedia.org/wiki/Tanka" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Katauta</strong>: poesia giapponese di 3 versi (5-7-7).
+                        <a href="https://en.wikipedia.org/wiki/Katauta" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Choka</strong>: poesia giapponese di 9 versi (5-7-5-7-5-7-5-7-7).
+                        <a href="https://en.wikipedia.org/wiki/Choka" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Sedoka</strong>: poesia giapponese di 6 versi (5-7-7-5-7-7).
+                        <a href="https://en.wikipedia.org/wiki/Sedoka" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Sonetto</strong>: 14 endecasillabi, schema ABBA ABBA CDC DCD.
+                        <a href="https://it.wikipedia.org/wiki/Sonetto" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Quartina</strong>: 4 endecasillabi, schema ABAB.
+                        <a href="https://it.wikipedia.org/wiki/Quartina" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Stornello</strong>: 3 versi (5, 11, 11 sillabe), schema ABA.
+                        <a href="https://it.wikipedia.org/wiki/Stornello" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Ottava rima</strong>: 8 endecasillabi, schema ABABABCC.
+                        <a href="https://it.wikipedia.org/wiki/Ottava_rima" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Terzina dantesca</strong>: 3 endecasillabi, schema ABA (rima incatenata).
+                        <a href="https://it.wikipedia.org/wiki/Terzina" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Versi liberi</strong>: poesia senza vincoli metrici o rimici.
+                        <a href="https://it.wikipedia.org/wiki/Verso_libero" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Limerick</strong>: poesia inglese di 5 versi (8-8-5-5-8), schema AABBA.
+                        <a href="https://en.wikipedia.org/wiki/Limerick_(poetry)" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Ballad</strong>: strofa di 4 versi, schema ABCB.
+                        <a href="https://en.wikipedia.org/wiki/Ballad" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Clerihew</strong>: poesia umoristica di 4 versi, schema AABB.
+                        <a href="https://en.wikipedia.org/wiki/Clerihew" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                    <li>
+                        <strong>Cinquain</strong>: poesia di 5 versi con schema di sillabe 2-4-6-8-2.
+                        <a href="https://en.wikipedia.org/wiki/Cinquain" target="_blank" rel="noopener">Wikipedia</a>
+                    </li>
+                </ul>
+            </section>
+        </main>
+        <footer class="bg-haiku-primary text-white py-4 mt-auto">
+            <div class="container text-center">
+                <p class="mb-0">Made with <i class="bi bi-heart-fill"></i> by 
+                    <a href="https://github.com/aleloizz" class="text-white">aleloizz</a><br>
+                    <small><small>dedicato a tutti i poeti innamorati e a tutte le loro muse</small></small>
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
