@@ -1,10 +1,51 @@
-from flask import Flask, render_template, request, redirect, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, send_from_directory, jsonify, flash, url_for
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import re
 import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-#attenzione a possibili conflitti
+# Configurazione database
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///poems.db').replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# MODELLI DATABASE
+class Poem(db.Model):
+    __tablename__ = 'poems'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=True)
+    text = db.Column(db.Text, nullable=False)
+    poem_type = db.Column(db.String(50), nullable=False)
+    author = db.Column(db.String(50), default="Poeta Anonimo")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_valid = db.Column(db.Boolean, default=False)  # Se rispetta la metrica
+    likes = db.Column(db.Integer, default=0)
+    
+    def __repr__(self):
+        return f'<Poem {self.id}: {self.title or "Senza titolo"}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'text': self.text,
+            'poem_type': self.poem_type,
+            'author': self.author,
+            'created_at': self.created_at.isoformat(),
+            'is_valid': self.is_valid,
+            'likes': self.likes
+        }
+
+# Crea le tabelle al primo avvio
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+# ROUTE ESISTENTI
 @app.route('/sitemap.xml')
 def sitemap():
     return send_from_directory('static', 'sitemap.xml')
@@ -17,6 +58,143 @@ def static_files(filename):
 def wiki():
     return render_template("wiki.html")
 
+# NUOVE ROUTE PER LA BACHECA
+@app.route("/bacheca")
+def bacheca():
+    """Pagina principale della bacheca con tutte le poesie pubblicate"""
+    page = request.args.get('page', 1, type=int)
+    filter_type = request.args.get('type', 'all')
+    
+    query = Poem.query
+    
+    # Filtro per tipo di poesia
+    if filter_type != 'all':
+        query = query.filter_by(poem_type=filter_type)
+    
+    # Paginazione (10 poesie per pagina)
+    poems = query.order_by(Poem.created_at.desc()).paginate(
+        page=page, per_page=10, error_out=False
+    )
+    
+    # Ottieni tutti i tipi di poesia disponibili per il filtro
+    poem_types = db.session.query(Poem.poem_type).distinct().all()
+    poem_types = [pt[0] for pt in poem_types]
+    
+    return render_template("bacheca.html", 
+                         poems=poems, 
+                         poem_types=poem_types,
+                         current_filter=filter_type)
+
+@app.route("/api/poems", methods=['GET'])
+def api_get_poems():
+    """API per ottenere le poesie (per AJAX)"""
+    page = request.args.get('page', 1, type=int)
+    filter_type = request.args.get('type', 'all')
+    
+    query = Poem.query
+    if filter_type != 'all':
+        query = query.filter_by(poem_type=filter_type)
+    
+    poems = query.order_by(Poem.created_at.desc()).paginate(
+        page=page, per_page=10, error_out=False
+    )
+    
+    return jsonify({
+        'poems': [poem.to_dict() for poem in poems.items],
+        'has_next': poems.has_next,
+        'has_prev': poems.has_prev,
+        'page': poems.page,
+        'pages': poems.pages,
+        'total': poems.total
+    })
+
+@app.route("/api/poems/<int:poem_id>/like", methods=['POST'])
+def api_like_poem(poem_id):
+    """API per mettere like a una poesia"""
+    poem = Poem.query.get_or_404(poem_id)
+    poem.likes += 1
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'likes': poem.likes
+    })
+
+@app.route("/api/poems", methods=['POST'])
+def api_create_poem():
+    """API per pubblicare una nuova poesia"""
+    data = request.get_json()
+    
+    # Validazione input
+    required_fields = ['text', 'poem_type']
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({
+                'error': True,
+                'message': f'Campo obbligatorio mancante: {field}'
+            }), 400
+    
+    # Sanitizzazione
+    text = data['text'].strip()
+    poem_type = data['poem_type'].lower()
+    title = data.get('title', '').strip()[:100]  # Max 100 caratteri
+    author = data.get('author', 'Poeta Anonimo').strip()[:50]  # Max 50 caratteri
+    
+    # Verifica che il tipo di poesia sia supportato
+    if poem_type not in SCHEMI_POESIA:
+        return jsonify({
+            'error': True,
+            'message': 'Tipo di poesia non supportato'
+        }), 400
+    
+    # Analizza la poesia per verificare se è valida
+    try:
+        # Riusa la logica di api_analyze
+        verses = [v.strip() for v in text.split('\n') if v.strip()]
+        schema = SCHEMI_POESIA[poem_type]
+        target_syllables = schema["sillabe"]
+        
+        is_valid = True
+        if poem_type != "versi_liberi":
+            # Verifica numero versi
+            if len(verses) != len(target_syllables):
+                is_valid = False
+            else:
+                # Verifica sillabe
+                for verse, target in zip(verses, target_syllables):
+                    if conta_sillabe(verse) != target:
+                        is_valid = False
+                        break
+        
+    except Exception:
+        is_valid = False
+    
+    # Crea la nuova poesia
+    new_poem = Poem(
+        title=title if title else None,
+        text=text,
+        poem_type=poem_type,
+        author=author,
+        is_valid=is_valid
+    )
+    
+    try:
+        db.session.add(new_poem)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Poesia pubblicata con successo!',
+            'poem': new_poem.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'error': True,
+            'message': 'Errore nel salvare la poesia'
+        }), 500
+
 #!!!decommentare in fase di produzione!!!
 @app.before_request
 def enforce_https_and_www():
@@ -28,8 +206,7 @@ def enforce_https_and_www():
     if url != request.url:
         return redirect(url, code=301)
 
-
-# Riorganizza le eccezioni e le costanti in modo più efficiente
+# COSTANTI E FUNZIONI ESISTENTI (mantieni tutto il codice esistente)
 VOCALI_FORTI = "aeoàèòáéó"
 VOCALI_DEBOLI = "iuìùíú"
 VOCALI = VOCALI_FORTI + VOCALI_DEBOLI
@@ -49,7 +226,6 @@ ECCEZIONI = {
 DIGRAMMI = {'gn', 'sc'}
 TRIGRAMMI = {'sci'}
 
-# Struttura unificata per schemi metrici e rimici
 SCHEMI_POESIA = {
     "haiku": {
         "sillabe": [5, 7, 5],
@@ -146,9 +322,6 @@ def conta_sillabe(parola):
     
     return count
 
-
-
-# Esempio di correzione per segmenta_cluster
 def segmenta_cluster(stringa):
     """
     Divide la stringa in cluster di vocali e consonanti, considerando digrammi e trigrammi.
@@ -185,9 +358,6 @@ def segmenta_cluster(stringa):
         cluster.append(buffer)
     return cluster
 
-
-# Funzioni di supporto
-
 def is_vocale(c):
     """Versione ottimizzata per controllare se un carattere è una vocale"""
     return c.lower() in VOCALI
@@ -200,8 +370,6 @@ def is_iato(c1, c2):
             (c1 in VOCALI_DEBOLI and c1.isupper()) or
             (c2 in VOCALI_DEBOLI and c2.isupper()))
 
-
-# Dittonghi precalcolati con tutte le combinazioni accentate
 DITTONGHI = {
     # Crescenti (i/u + vocale forte)
     *{f"i{v}" for v in VOCALI_FORTI},
@@ -219,7 +387,6 @@ DITTONGHI = {
     'iu', 'ui', 'ìu', 'ùi', 'iù', 'uì'
 }
 
-# Trittonghi precalcolati con accenti
 TRITTONGHI = {
     'iai', 'iei', 'uai', 'uei',
     'iài', 'ièi', 'iéi', 'uài', 'uèi', 'uéi',
@@ -241,14 +408,12 @@ def is_trittongo(c1, c2, c3):
         is_vocale(c2) and 
         c3.lower() in 'iìuù'
     ) 
-           
 
 def is_digramma(c1, c2):
     """
     Controlla se due caratteri formano un digramma.
     """
     return (c1 == 'g' and c2 == 'n') or (c1 == 's' and c2 == 'c')
-
 
 def is_trigramma(c1, c2, c3):
     """
@@ -286,7 +451,7 @@ def analizza_rima(verso1, verso2):
         return 1
     return 0
 
-# Nuovo endpoint API
+# API ESISTENTE (mantieni invariata)
 @app.route('/api/analyze', methods=['POST'])
 def api_analyze():
     data = request.get_json()
@@ -436,8 +601,8 @@ def home():
             return api_analyze()
             
         # Logica esistente per il form tradizionale
-        poem_type = request.form.get("poemType", "haiku")  # Modifica qui
-        text = request.form["poemText"].strip()  # Modifica qui
+        poem_type = request.form.get("poemType", "haiku")
+        text = request.form["poemText"].strip()
         versi = [v.strip() for v in text.split('\n') if v.strip()]
         
         if len(versi) != 3:
