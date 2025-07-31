@@ -40,10 +40,14 @@ class Poem(db.Model):
             'likes': self.likes
         }
 
-# Crea le tabelle al primo avvio
-@app.before_first_request
+# CREA LE TABELLE (sostituisci la sezione esistente)
 def create_tables():
-    db.create_all()
+    """Crea le tabelle del database se non esistono"""
+    with app.app_context():
+        db.create_all()
+
+# Inizializza all'avvio
+create_tables()
 
 # ROUTE ESISTENTI
 @app.route('/sitemap.xml')
