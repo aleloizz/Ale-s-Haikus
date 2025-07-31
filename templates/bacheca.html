@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bacheca delle Poesie | Ale's Haikus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="main-wrapper">
+        <header>
+            <div class="bg-haiku-primary text-white text-center py-4">
+                <div class="container">
+                    <h1 class="display-5">Bacheca delle Poesie</h1>
+                    <p class="lead">Condividi le tue creazioni con la community</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow-1 py-4">
+            <div class="container">
+                <!-- Filtri -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <select id="typeFilter" class="form-select">
+                            <option value="all">Tutti i tipi</option>
+                            {% for poem_type in poem_types %}
+                            <option value="{{ poem_type }}" {% if poem_type == current_filter %}selected{% endif %}>
+                                {{ poem_type.title() }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="{{ url_for('home') }}" class="btn btn-haiku btn-primary">
+                            <i class="bi bi-plus-circle"></i> Pubblica Poesia
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lista poesie -->
+                <div id="poemsContainer" class="row">
+                    {% for poem in poems.items %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card glass-card h-100">
+                            <div class="card-body">
+                                {% if poem.title %}
+                                <h5 class="card-title">{{ poem.title }}</h5>
+                                {% endif %}
+                                <div class="poem-text mb-3">
+                                    {{ poem.text|replace('\n', '<br>')|safe }}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-person"></i> {{ poem.author }}<br>
+                                        <i class="bi bi-bookmark"></i> {{ poem.poem_type.title() }}
+                                        {% if poem.is_valid %}
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        {% endif %}
+                                    </small>
+                                    <button class="btn btn-sm btn-outline-primary like-btn" 
+                                            data-poem-id="{{ poem.id }}">
+                                        <i class="bi bi-heart"></i> <span>{{ poem.likes }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginazione -->
+                {% if poems.pages > 1 %}
+                <nav aria-label="Paginazione poesie">
+                    <ul class="pagination justify-content-center">
+                        {% if poems.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('bacheca', page=poems.prev_num) }}">Precedente</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in poems.iter_pages() %}
+                        {% if page_num %}
+                        <li class="page-item {% if page_num == poems.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('bacheca', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if poems.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('bacheca', page=poems.next_num) }}">Successivo</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </main>
+
+        <footer class="bg-haiku-primary text-white py-4 mt-auto">
+            <div class="container text-center">
+                <p class="mb-0">Made with <i class="bi bi-heart-fill"></i> by 
+                    <a href="https://github.com/aleloizz" class="text-white">aleloizz</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Gestione like
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const poemId = btn.dataset.poemId;
+                try {
+                    const response = await fetch(`/api/poems/${poemId}/like`, {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        btn.querySelector('span').textContent = data.likes;
+                    }
+                } catch (error) {
+                    console.error('Errore nel mettere like:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
