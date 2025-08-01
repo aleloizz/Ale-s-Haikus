@@ -16,11 +16,22 @@ html, body {
   padding: 0;
   font-family: 'Inter', sans-serif;
   color: var(--text);
-  background: 
-    url('../images/background.jpg') center/cover no-repeat;
-  background-color: #fbbda3; /* Colore di fallback */
+  
+  /* Fallback per tutti i browser */
+  background-color: #fbbda3;
+  background-image: url('../images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   width: 100vw;
+}
+
+/* Supporto WebP moderno */
+@supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {
+  html, body {
+    background-image: url('../images/background.webp');
+  }
 }
 
 h2 {
@@ -673,6 +684,15 @@ textarea:focus {
 
   html, body {
     background-attachment: scroll;
+    /* Fallback JPG per mobile */
+    background-image: url('../images/background.jpg');
+  }
+
+  /* WebP per mobile se supportato */
+  @supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {
+    html, body {
+      background-image: url('../images/background.webp');
+    }
   }
 
   @supports (-webkit-touch-callout: none) {
