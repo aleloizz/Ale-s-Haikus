@@ -18,12 +18,52 @@ def api_analizza():
             return jsonify({'error': 'Testo vuoto'}), 400
         
         # Analizza la poesia
-        risultato = analizza_poesia_completa(testo)
+        analisi = analizza_poesia_completa(testo)
         
-        return jsonify(risultato)
+        # Formatta la risposta per il frontend
+        results = []
+        for i, verso in enumerate(analisi['versi']):
+            sillabe = analisi['sillabe_per_verso'][i]
+            # Determina il target basato sul tipo di poesia
+            target = get_target_sillabe(analisi['tipo_riconosciuto'], i)
+            
+            results.append({
+                'verse': i + 1,
+                'text': verso,
+                'syllables': sillabe,
+                'target': target,
+                'correct': sillabe == target if target else True
+            })
+        
+        return jsonify({
+            'results': results,
+            'poem_type': analisi['tipo_riconosciuto'],
+            'rhyme_analysis': {
+                'scheme': analisi['schema_rime'],
+                'details': analisi['analisi_rime']
+            },
+            'total_syllables': analisi['sillabe_totali'],
+            'total_verses': analisi['num_versi'],
+            'valid_structure': analisi['rispetta_metrica'],
+            'metadata': analisi['dettagli_metrica']
+        })
         
     except Exception as e:
         return jsonify({'error': f'Errore durante l\'analisi: {str(e)}'}), 500
+
+def get_target_sillabe(tipo_poesia, indice_verso):
+    """Restituisce il numero di sillabe atteso per un verso specifico"""
+    targets = {
+        'haiku': [5, 7, 5],
+        'tanka': [5, 7, 5, 7, 7],
+        'katauta': [5, 7, 7],
+        'limerick': [8, 8, 5, 5, 8]
+    }
+    
+    if tipo_poesia in targets and indice_verso < len(targets[tipo_poesia]):
+        return targets[tipo_poesia][indice_verso]
+    
+    return None  # Nessun target specifico
 
 @api_bp.route('/poems', methods=['POST'])
 def api_create_poem():
