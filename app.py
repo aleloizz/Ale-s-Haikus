@@ -173,7 +173,7 @@ def api_create_poem():
             # Verifica sillabe di ogni verso
             errors = []
             for i, (verse, target) in enumerate(zip(verses, target_syllables)):
-                syllable_count = conta_sillabe(verse)
+                syllable_count = conta_sillabe(verse)  # Usa parsing avanzato
                 if syllable_count != target:
                     errors.append(f"Verso {i+1}: ha {syllable_count} sillabe invece di {target}")
                     is_valid = False
@@ -188,7 +188,7 @@ def api_create_poem():
                 
             # Verifica schema rimico se presente
             if schema.get("rima"):
-                rime_finali = [estrai_ultime_sillabe(verse, num_sillabe=2) for verse in verses]
+                rime_finali = [estrai_ultime_sillabe_avanzato(verse, num_sillabe=2) for verse in verses]
                 scheme = schema["rima"]
                 rhyme_map = {}
                 verse_idx = 0
@@ -283,6 +283,167 @@ ECCEZIONI = {
 DIGRAMMI = {'gn', 'sc'}
 TRIGRAMMI = {'sci'}
 
+# FUNZIONI DI PARSING AVANZATO
+def pulisci_testo(testo):
+    """Pulisce il testo mantenendo apostrofi e caratteri essenziali"""
+    import string
+    
+    # Rimuovi punteggiatura eccetto apostrofi e accenti
+    caratteri_da_mantenere = string.ascii_letters + "àèéìíîòóùú'\s"
+    testo_pulito = ''.join(c if c in caratteri_da_mantenere else ' ' for c in testo.lower())
+    
+    # Normalizza spazi multipli
+    testo_pulito = ' '.join(testo_pulito.split())
+    
+    return testo_pulito
+
+def gestisci_apostrofi(parola):
+    """Gestisce parole con apostrofi dividendole correttamente"""
+    if "'" not in parola:
+        return [parola]
+    
+    # Dizionario delle contrazioni comuni italiane
+    contrazioni = {
+        "dell'": ("del", "l'"),
+        "nell'": ("nel", "l'"),
+        "all'": ("al", "l'"),
+        "dall'": ("dal", "l'"),
+        "sull'": ("sul", "l'"),
+        "coll'": ("col", "l'"),
+        "quell'": ("quel", "l'"),
+        "quest'": ("quest", ""),  # 'quest'' diventa solo 'quest'
+        "sant'": ("sant", ""),
+        "un'": ("un", ""),
+        "l'": ("", "l'")
+    }
+    
+    parola_lower = parola.lower()
+    
+    # Cerca contrazioni esatte
+    for contrazione, (prima, dopo) in contrazioni.items():
+        if parola_lower.startswith(contrazione):
+            resto = parola_lower[len(contrazione):]
+            parti = []
+            if prima: parti.append(prima)
+            if dopo: parti.append(dopo)
+            if resto: parti.append(resto)
+            return parti
+    
+    # Gestione generica per altri apostrofi
+    parti = parola.split("'")
+    risultato = []
+    
+    for i, parte in enumerate(parti):
+        parte = parte.strip()
+        if parte:  # Solo parti non vuote
+            # Se è la prima parte e finisce con consonante + apostrofo, mantienila
+            if i == 0 and len(parte) > 1:
+                risultato.append(parte)
+            # Se è dopo l'apostrofo e inizia con vocale, aggiunge
+            elif i > 0 and parte and is_vocale(parte[0]):
+                risultato.append(parte)
+            elif parte:
+                risultato.append(parte)
+    
+    return risultato if risultato else [parola]
+
+def conta_sillabe_parola_composta(testo):
+    """Conta le sillabe di un testo che può contenere più parole"""
+    testo_pulito = pulisci_testo(testo)
+    parole = testo_pulito.split()
+    
+    sillabe_totali = 0
+    
+    for parola in parole:
+        if not parola.strip():
+            continue
+            
+        # Gestisci apostrofi
+        parti_parola = gestisci_apostrofi(parola)
+        
+        for parte in parti_parola:
+            parte = parte.strip()
+            if parte:
+                sillabe_totali += conta_sillabe_singola(parte)
+    
+    return sillabe_totali
+
+def conta_sillabe_singola(parola):
+    """
+    Conta le sillabe di una singola parola.
+    PRIORITÀ ASSOLUTA alle eccezioni.
+    """
+    if not parola or not parola.strip():
+        return 0
+        
+    parola_originale = parola.strip()
+    parola_clean = parola_originale.lower()
+    
+    # 🔥 PRIORITÀ ASSOLUTA: Controlla nelle eccezioni PRIMA di tutto
+    if parola_clean in ECCEZIONI:
+        return ECCEZIONI[parola_clean]
+    
+    # Se non è nelle eccezioni, usa l'algoritmo standard
+    return conta_sillabe_algoritmo(parola_clean)
+
+def conta_sillabe_algoritmo(parola):
+    """Algoritmo di conteggio sillabe (da usare solo se NON nelle eccezioni)"""
+    if not parola:
+        return 0
+        
+    count = 0
+    i = 0
+    n = len(parola)
+    
+    while i < n:
+        # Gestione trigrammi consonantici (es. 'sci')
+        if i + 2 < n and parola[i:i+3] in TRIGRAMMI:
+            i += 3
+        # Gestione digrammi consonantici (es. 'gn', 'sc')
+        elif i + 1 < n and parola[i:i+2] in DIGRAMMI:
+            i += 2
+        # Gestione vocali e gruppi vocalici
+        elif i < n and is_vocale(parola[i]):
+            count += 1
+            # Controlla trittonghi
+            if i + 2 < n and is_trittongo(parola[i], parola[i+1], parola[i+2]):
+                i += 3
+            # Controlla dittonghi
+            elif i + 1 < n and is_dittongo(parola[i], parola[i+1]):
+                i += 2
+            else:
+                i += 1
+        else:
+            i += 1
+    
+    return max(1, count)  # Minimo una sillaba per parola non vuota
+
+def estrai_ultime_sillabe_avanzato(verso, num_sillabe=2):
+    """Versione migliorata per estrazione rime"""
+    verso_pulito = pulisci_testo(verso)
+    if not verso_pulito:
+        return ""
+    
+    parole = verso_pulito.split()
+    if not parole:
+        return ""
+    
+    # Prendi l'ultima parola significativa
+    ultima_parola = parole[-1]
+    
+    # Se l'ultima parola è nelle eccezioni, usa un approccio semplificato
+    if ultima_parola.lower() in ECCEZIONI:
+        return ultima_parola[-3:] if len(ultima_parola) >= 3 else ultima_parola
+    
+    # Altrimenti usa la segmentazione avanzata
+    cluster = segmenta_cluster(ultima_parola.lower())
+    sillabe_vocaliche = [c for c in cluster if any(is_vocale(char) for char in c)]
+    
+    if not sillabe_vocaliche:
+        return ultima_parola[-2:] if len(ultima_parola) >= 2 else ultima_parola
+    
+    return ''.join(sillabe_vocaliche[-num_sillabe:]) if sillabe_vocaliche else ""
+
 SCHEMI_POESIA = {
     "haiku": {
         "sillabe": [5, 7, 5],
@@ -346,38 +507,21 @@ SCHEMI_POESIA = {
     }
 }
 
-def conta_sillabe(parola):
-    """Versione ottimizzata che gestisce accuratamente accenti"""
-    if parola in ECCEZIONI:
-        return ECCEZIONI[parola]
+def conta_sillabe(testo):
+    """
+    Funzione principale per contare le sillabe.
+    Versione avanzata che gestisce parsing complesso mantenendo priorità eccezioni.
+    """
+    if not testo or not testo.strip():
+        return 0
     
-    parola = parola.lower()
-    count = 0
-    i = 0
-    n = len(parola)
+    # Se il testo è una singola parola nelle eccezioni, ritorna subito
+    testo_pulito_temp = pulisci_testo(testo)
+    if ' ' not in testo_pulito_temp and testo_pulito_temp.lower() in ECCEZIONI:
+        return ECCEZIONI[testo_pulito_temp.lower()]
     
-    while i < n:
-        # Gestione trigrammi consonantici (es. 'sci')
-        if i + 2 < n and parola[i:i+3] in TRIGRAMMI:
-            i += 3
-        # Gestione digrammi consonantici (es. 'gn', 'sc')
-        elif i + 1 < n and parola[i:i+2] in DIGRAMMI:
-            i += 2
-        # Gestione vocali e gruppi vocalici
-        elif i < n and is_vocale(parola[i]):
-            count += 1
-            # Controlla trittonghi
-            if i + 2 < n and is_trittongo(parola[i], parola[i+1], parola[i+2]):
-                i += 3
-            # Controlla dittonghi
-            elif i + 1 < n and is_dittongo(parola[i], parola[i+1]):
-                i += 2
-            else:
-                i += 1
-        else:
-            i += 1
-    
-    return count
+    # Altrimenti usa il parsing avanzato
+    return conta_sillabe_parola_composta(testo)
 
 def segmenta_cluster(stringa):
     """
@@ -479,17 +623,8 @@ def is_trigramma(c1, c2, c3):
     return (c1 == 's' and c2 == 'c' and c3 == 'i')
 
 def estrai_ultime_sillabe(verso, num_sillabe=2):
-    """Estrae le ultime 'num_sillabe' sillabe per l'analisi delle rime"""
-    sillabe = []
-    cluster = segmenta_cluster(verso.lower())
-    i = len(cluster) - 1
-    
-    while len(sillabe) < num_sillabe and i >= 0:
-        if any(is_vocale(c) for c in cluster[i]):  # Se è un cluster vocalico
-            sillabe.insert(0, cluster[i])
-        i -= 1
-    
-    return ''.join(sillabe[-num_sillabe:]) if sillabe else ""
+    """Estrae le ultime 'num_sillabe' sillabe per l'analisi delle rime (usa parsing avanzato)"""
+    return estrai_ultime_sillabe_avanzato(verso, num_sillabe)
 
 def analizza_rima(verso1, verso2):
     """Confronta due versi restituendo il grado di rima (0-3)"""
@@ -571,8 +706,8 @@ def api_analyze():
     if poem_type == "versi_liberi":
         for i, verse in enumerate(verses):
             try:
-                count = conta_sillabe(verse)
-                rima = estrai_ultime_sillabe(verse, num_sillabe=2)
+                count = conta_sillabe(verse)  # Usa parsing avanzato
+                rima = estrai_ultime_sillabe_avanzato(verse, num_sillabe=2)
                 results.append({
                     'verse': i+1,
                     'text': verse,
@@ -593,7 +728,7 @@ def api_analyze():
     else:
         for i, (verse, target) in enumerate(zip(verses, target_syllables)):
             try:
-                count = conta_sillabe(verse)
+                count = conta_sillabe(verse)  # Usa parsing avanzato
                 results.append({
                     'verse': i+1,
                     'text': verse,
@@ -612,7 +747,7 @@ def api_analyze():
     # Analisi rime solo se schema di rima presente e non versi liberi
     rhyme_report = None
     if poem_type != "versi_liberi" and schema.get("rima"):
-        rime_finali = [estrai_ultime_sillabe(res['text'], num_sillabe=2) for res in results]
+        rime_finali = [estrai_ultime_sillabe_avanzato(res['text'], num_sillabe=2) for res in results]
         scheme = schema["rima"]
         errors = []
         valid = True
@@ -646,7 +781,8 @@ def api_analyze():
         'results': results,
         'valid': all(r.get('correct', False) for r in results),
         'rhyme_analysis': rhyme_report,
-        'error': False
+        'error': False,
+        'parsing_version': 'advanced_v2.0'  # Identifica la versione avanzata
     })
 
 # Route esistente modificata per compatibilità
@@ -667,7 +803,7 @@ def home():
 
         results = []
         for i, verso in enumerate(versi):
-            count = conta_sillabe(verso.strip().lower())
+            count = conta_sillabe(verso.strip())  # Usa parsing avanzato
             results.append({
                 'verse': i+1,
                 'syllables': count,
