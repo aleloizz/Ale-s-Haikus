@@ -387,29 +387,33 @@ def conta_sillabe_singola(parola):
     return conta_sillabe_algoritmo(parola_clean)
 
 def conta_sillabe_algoritmo(parola):
-    """Algoritmo di conteggio sillabe (da usare solo se NON nelle eccezioni)"""
+    """Algoritmo di conteggio sillabe con gestione prefissi (da usare solo se NON nelle eccezioni)"""
     if not parola:
         return 0
+    
+    # CONTROLLO PREFISSI: Se la parola inizia con un prefisso comune
+    # e ha una vocale subito dopo il prefisso, tratta il confine come separazione sillabica
+    parola_processed = gestisci_prefissi_vocalici(parola)
         
     count = 0
     i = 0
-    n = len(parola)
+    n = len(parola_processed)
     
     while i < n:
         # Gestione trigrammi consonantici (es. 'sci')
-        if i + 2 < n and parola[i:i+3] in TRIGRAMMI:
+        if i + 2 < n and parola_processed[i:i+3] in TRIGRAMMI:
             i += 3
         # Gestione digrammi consonantici (es. 'gn', 'sc')
-        elif i + 1 < n and parola[i:i+2] in DIGRAMMI:
+        elif i + 1 < n and parola_processed[i:i+2] in DIGRAMMI:
             i += 2
         # Gestione vocali e gruppi vocalici
-        elif i < n and is_vocale(parola[i]):
+        elif i < n and is_vocale(parola_processed[i]):
             count += 1
             # Controlla trittonghi
-            if i + 2 < n and is_trittongo(parola[i], parola[i+1], parola[i+2]):
+            if i + 2 < n and is_trittongo(parola_processed[i], parola_processed[i+1], parola_processed[i+2]):
                 i += 3
             # Controlla dittonghi
-            elif i + 1 < n and is_dittongo(parola[i], parola[i+1]):
+            elif i + 1 < n and is_dittongo(parola_processed[i], parola_processed[i+1]):
                 i += 2
             else:
                 i += 1
@@ -417,6 +421,125 @@ def conta_sillabe_algoritmo(parola):
             i += 1
     
     return max(1, count)  # Minimo una sillaba per parola non vuota
+
+# AGGIUNGI QUESTA COSTANTE DOPO LE ALTRE COSTANTI
+PREFISSI_COMUNI = {
+    # Prefissi che terminano con vocale debole + parola che inizia con vocale
+    'ri', 'pre', 'pro', 'anti', 'auto', 'co', 'de', 'dis', 'ex', 'in', 'inter', 
+    'micro', 'mini', 'multi', 'over', 'post', 'pseudo', 'quasi', 'semi', 'sub', 
+    'super', 'trans', 'ultra', 'uni', 'vice', 'bi', 'tri', 'mono', 'poli',
+    'contro', 'retro', 'intro', 'extra', 'infra', 'intra', 'meta', 'para',
+    'proto', 'tele', 'video', 'audio', 'foto', 'geo', 'bio', 'eco', 'neo'
+}
+
+# AGGIUNGI QUESTA NUOVA FUNZIONE
+def gestisci_prefissi_vocalici(parola):
+    """
+    Gestisce i prefissi che terminano con vocale debole seguita da vocale forte.
+    Inserisce un separatore virtuale per evitare il riconoscimento errato di iati.
+    """
+    parola_lower = parola.lower()
+    
+    # Controlla ogni prefisso
+    for prefisso in PREFISSI_COMUNI:
+        if parola_lower.startswith(prefisso):
+            resto_parola = parola_lower[len(prefisso):]
+            
+            # Se il prefisso termina con vocale debole e il resto inizia con vocale
+            if (prefisso[-1] in VOCALI_DEBOLI and 
+                resto_parola and 
+                is_vocale(resto_parola[0]) and
+                resto_parola[0] in VOCALI_FORTI):
+                
+                # Inserisci un separatore virtuale (usiamo "|" come marcatore interno)
+                parola_modificata = prefisso + "|" + resto_parola
+                return parola_modificata
+    
+    return parola_lower
+
+# MODIFICA LA FUNZIONE is_dittongo PER GESTIRE IL SEPARATORE
+def is_dittongo(c1, c2):
+    """Verifica se due caratteri formano un dittongo, inclusi accenti"""
+    # Se c'è un separatore virtuale, non è un dittongo
+    if c1 == '|' or c2 == '|':
+        return False
+        
+    combo = f"{c1.lower()}{c2.lower()}"
+    return combo in DITTONGHI and not is_iato(c1, c2)
+
+# MODIFICA LA FUNZIONE is_trittongo PER GESTIRE IL SEPARATORE  
+def is_trittongo(c1, c2, c3):
+    """Verifica se tre caratteri formano un trittongo, inclusi accenti"""
+    # Se c'è un separatore virtuale, non è un trittongo
+    if c1 == '|' or c2 == '|' or c3 == '|':
+        return False
+        
+    combo = f"{c1.lower()}{c2.lower()}{c3.lower()}"
+    return combo in TRITTONGHI or (
+        c1.lower() in 'iìuù' and 
+        is_vocale(c2) and 
+        c3.lower() in 'iìuù'
+    ) 
+
+# MODIFICA LA FUNZIONE is_vocale PER GESTIRE IL SEPARATORE
+def is_vocale(c):
+    """Versione ottimizzata per controllare se un carattere è una vocale"""
+    # Il separatore virtuale non è una vocale
+    if c == '|':
+        return False
+    return c.lower() in VOCALI
+
+# MODIFICA segmenta_cluster PER GESTIRE I SEPARATORI
+def segmenta_cluster(stringa):
+    """
+    Divide la stringa in cluster di vocali e consonanti, considerando digrammi e trigrammi.
+    Gestisce anche i separatori virtuali per i prefissi.
+    """
+    # Prima processa i prefissi
+    stringa_processed = gestisci_prefissi_vocalici(stringa)
+    
+    cluster = []
+    buffer = ""
+    i = 0
+    
+    while i < len(stringa_processed):
+        c = stringa_processed[i]
+        
+        # Se incontriamo un separatore virtuale, chiudi il buffer corrente
+        if c == '|':
+            if buffer:
+                cluster.append(buffer)
+                buffer = ""
+            i += 1
+            continue
+            
+        # Controllo trigrammi
+        if i + 2 < len(stringa_processed) and is_trigramma(c, stringa_processed[i + 1], stringa_processed[i + 2]):
+            if buffer:
+                cluster.append(buffer)
+                buffer = ""
+            cluster.append(c + stringa_processed[i + 1] + stringa_processed[i + 2])
+            i += 3
+        # Controllo digrammi
+        elif i + 1 < len(stringa_processed) and is_digramma(c, stringa_processed[i + 1]):
+            if buffer:
+                cluster.append(buffer)
+                buffer = ""
+            cluster.append(c + stringa_processed[i + 1])
+            i += 2
+        # Raggruppa vocali o consonanti
+        elif is_vocale(c) == (is_vocale(buffer[-1]) if buffer else False):
+            buffer += c
+            i += 1
+        else:
+            if buffer:
+                cluster.append(buffer)
+            buffer = c
+            i += 1
+            
+    if buffer:
+        cluster.append(buffer)
+    return cluster
 
 def estrai_ultime_sillabe_avanzato(verso, num_sillabe=2):
     """Versione migliorata per estrazione rime"""
@@ -526,25 +649,39 @@ def conta_sillabe(testo):
 def segmenta_cluster(stringa):
     """
     Divide la stringa in cluster di vocali e consonanti, considerando digrammi e trigrammi.
+    Gestisce anche i separatori virtuali per i prefissi.
     """
+    # Prima processa i prefissi
+    stringa_processed = gestisci_prefissi_vocalici(stringa)
+    
     cluster = []
     buffer = ""
     i = 0
-    while i < len(stringa):
-        c = stringa[i]
-        # Controllo trigrammi
-        if i + 2 < len(stringa) and is_trigramma(c, stringa[i + 1], stringa[i + 2]):
+    
+    while i < len(stringa_processed):
+        c = stringa_processed[i]
+        
+        # Se incontriamo un separatore virtuale, chiudi il buffer corrente
+        if c == '|':
             if buffer:
                 cluster.append(buffer)
                 buffer = ""
-            cluster.append(c + stringa[i + 1] + stringa[i + 2])
+            i += 1
+            continue
+            
+        # Controllo trigrammi
+        if i + 2 < len(stringa_processed) and is_trigramma(c, stringa_processed[i + 1], stringa_processed[i + 2]):
+            if buffer:
+                cluster.append(buffer)
+                buffer = ""
+            cluster.append(c + stringa_processed[i + 1] + stringa_processed[i + 2])
             i += 3
         # Controllo digrammi
-        elif i + 1 < len(stringa) and is_digramma(c, stringa[i + 1]):
+        elif i + 1 < len(stringa_processed) and is_digramma(c, stringa_processed[i + 1]):
             if buffer:
                 cluster.append(buffer)
                 buffer = ""
-            cluster.append(c + stringa[i + 1])
+            cluster.append(c + stringa_processed[i + 1])
             i += 2
         # Raggruppa vocali o consonanti
         elif is_vocale(c) == (is_vocale(buffer[-1]) if buffer else False):
@@ -555,12 +692,16 @@ def segmenta_cluster(stringa):
                 cluster.append(buffer)
             buffer = c
             i += 1
+            
     if buffer:
         cluster.append(buffer)
     return cluster
 
 def is_vocale(c):
     """Versione ottimizzata per controllare se un carattere è una vocale"""
+    # Il separatore virtuale non è una vocale
+    if c == '|':
+        return False
     return c.lower() in VOCALI
 
 def is_iato(c1, c2):
@@ -598,11 +739,19 @@ TRITTONGHI = {
 
 def is_dittongo(c1, c2):
     """Verifica se due caratteri formano un dittongo, inclusi accenti"""
+    # Se c'è un separatore virtuale, non è un dittongo
+    if c1 == '|' or c2 == '|':
+        return False
+        
     combo = f"{c1.lower()}{c2.lower()}"
     return combo in DITTONGHI and not is_iato(c1, c2)
 
 def is_trittongo(c1, c2, c3):
     """Verifica se tre caratteri formano un trittongo, inclusi accenti"""
+    # Se c'è un separatore virtuale, non è un trittongo
+    if c1 == '|' or c2 == '|' or c3 == '|':
+        return False
+        
     combo = f"{c1.lower()}{c2.lower()}{c3.lower()}"
     return combo in TRITTONGHI or (
         c1.lower() in 'iìuù' and 
