@@ -10,10 +10,10 @@ def api_analizza():
     try:
         data = request.get_json()
         
-        if not data or 'testo' not in data:
+        if not data or 'text' not in data:
             return jsonify({'error': 'Testo non fornito'}), 400
         
-        testo = data['testo']
+        testo = data['text']
         if not testo or not testo.strip():
             return jsonify({'error': 'Testo vuoto'}), 400
         

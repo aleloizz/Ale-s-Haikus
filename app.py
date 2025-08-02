@@ -37,12 +37,6 @@ def create_app(config_name=None):
     # Crea le tabelle del database
     with app.app_context():
         db.create_all()
-        
-        # Debug: mostra le route registrate
-        print("🔍 Route registrate:")
-        for rule in app.url_map.iter_rules():
-            methods = ', '.join(rule.methods - {'HEAD', 'OPTIONS'})
-            print(f"  [{methods}] {rule.rule}")
     
     # Routes specifiche che rimangono nel main
     @app.route('/sitemap.xml')
