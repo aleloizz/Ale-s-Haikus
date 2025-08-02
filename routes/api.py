@@ -49,21 +49,73 @@ def api_analizza():
         data = request.get_json()
         
         if not data or 'text' not in data:
-            return jsonify({'error': 'Testo non fornito'}), 400
+            return jsonify({'error': True, 'message': 'Testo non fornito'}), 400
         
         testo = data['text']
         if not testo or not testo.strip():
-            return jsonify({'error': 'Testo vuoto'}), 400
+            return jsonify({'error': True, 'message': 'Testo vuoto'}), 400
+        
+        # Validazioni di base
+        if len(testo) > 500:
+            return jsonify({
+                'error': True,
+                'error_type': 'too_long',
+                'message': 'Il testo è troppo lungo (max 500 caratteri).'
+            }), 400
+        
+        # Verifica tag HTML
+        import re
+        if re.search(r'<[^>]+>', testo):
+            return jsonify({
+                'error': True,
+                'error_type': 'invalid_input',
+                'message': 'Il testo contiene caratteri non ammessi.'
+            }), 400
         
         # Analizza la poesia
         analisi = analizza_poesia_completa(testo)
+        
+        # Verifica errori nell'analisi
+        if 'errore' in analisi:
+            return jsonify({
+                'error': True,
+                'message': f'Errore nell\'analisi: {analisi["errore"]}'
+            }), 500
+        
+        # Ottieni il pattern aspettato per questo tipo di poesia
+        tipo_poesia = data.get('type', 'haiku').lower()
+        pattern = get_syllable_pattern(tipo_poesia)
+        
+        # Verifica numero di versi
+        num_versi = len(analisi['versi'])
+        if tipo_poesia != 'versi_liberi' and pattern:
+            if num_versi < len(pattern):
+                return jsonify({
+                    'error': True,
+                    'error_type': 'too_few_verses',
+                    'poem_type': tipo_poesia,
+                    'pattern': pattern,
+                    'required': len(pattern),
+                    'received': num_versi,
+                    'message': f'Poesia troppo corta! Un {tipo_poesia} richiede {len(pattern)} versi.'
+                })
+            elif num_versi > len(pattern):
+                return jsonify({
+                    'error': True,
+                    'error_type': 'too_many_verses',
+                    'poem_type': tipo_poesia,
+                    'pattern': pattern,
+                    'required': len(pattern),
+                    'received': num_versi,
+                    'message': f'Poesia troppo lunga! Un {tipo_poesia} richiede {len(pattern)} versi.'
+                })
         
         # Formatta la risposta per il frontend
         results = []
         for i, verso in enumerate(analisi['versi']):
             sillabe = analisi['sillabe_per_verso'][i]
             # Determina il target basato sul tipo di poesia
-            target = get_target_sillabe(analisi['tipo_riconosciuto'], i)
+            target = get_target_sillabe(tipo_poesia, i)
             
             results.append({
                 'verse': i + 1,
@@ -76,21 +128,54 @@ def api_analizza():
         # Converti lo schema rime per compatibilità frontend
         scheme_for_frontend = convert_rhyme_scheme_to_frontend(analisi['schema_rime'], analisi['tipo_riconosciuto'])
         
+        # Calcola la validità globale
+        all_correct = all(r['correct'] for r in results)
+        
         return jsonify({
+            'poem_type': tipo_poesia,
+            'pattern': pattern or [],
             'results': results,
-            'poem_type': analisi['tipo_riconosciuto'],
+            'valid': all_correct,
             'rhyme_analysis': {
                 'scheme': scheme_for_frontend,
-                'details': analisi['analisi_rime']
+                'details': analisi['analisi_rime'],
+                'valid': True,  # Per ora consideriamo sempre valido
+                'errors': []    # Aggiungeremo la logica di validazione rime se necessario
             },
             'total_syllables': analisi['sillabe_totali'],
             'total_verses': analisi['num_versi'],
             'valid_structure': analisi['rispetta_metrica'],
-            'metadata': analisi['dettagli_metrica']
+            'metadata': analisi['dettagli_metrica'],
+            'error': False,
+            'parsing_version': 'modular_v1.0'
         })
         
     except Exception as e:
-        return jsonify({'error': f'Errore durante l\'analisi: {str(e)}'}), 500
+        return jsonify({
+            'error': True,
+            'message': f'Errore durante l\'analisi: {str(e)}'
+        }), 500
+
+def get_syllable_pattern(tipo_poesia):
+    """Restituisce il pattern di sillabe per un tipo di poesia"""
+    patterns = {
+        'haiku': [5, 7, 5],
+        'tanka': [5, 7, 5, 7, 7],
+        'katauta': [5, 7, 7],
+        'choka': [5, 7, 5, 7, 5, 7, 5, 7, 7],
+        'sedoka': [5, 7, 7, 5, 7, 7],
+        'sonetto': [11] * 14,
+        'quartina': [11] * 4,
+        'stornello': [5, 11, 11],
+        'ottava_rima': [11] * 8,
+        'terzina_dantesca': [11, 11, 11],
+        'limerick': [8, 8, 5, 5, 8],
+        'ballad': [8, 6, 8, 6],
+        'clerihew': [8, 8, 8, 8],
+        'cinquain': [2, 4, 6, 8, 2],
+        'versi_liberi': []
+    }
+    return patterns.get(tipo_poesia, [])
 
 def get_target_sillabe(tipo_poesia, indice_verso):
     """Restituisce il numero di sillabe atteso per un verso specifico"""
