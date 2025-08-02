@@ -3,7 +3,7 @@ from config.constants import VOCALI, VOCALI_FORTI, VOCALI_DEBOLI, PREFISSI_COMUN
 
 def pulisci_testo(testo):
     """Pulisce il testo mantenendo apostrofi e caratteri essenziali"""
-    caratteri_da_mantenere = string.ascii_letters + "àèéìíîòóùú'\s"
+    caratteri_da_mantenere = string.ascii_letters + "àèéìíîòóùú' "
     testo_pulito = ''.join(c if c in caratteri_da_mantenere else ' ' for c in testo.lower())
     return ' '.join(testo_pulito.split())
 

@@ -11,7 +11,7 @@ class Config:
     if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
     
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///instance/poems.db'
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///poems.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Configurazioni per JSON
@@ -24,15 +24,12 @@ class Config:
 class DevelopmentConfig(Config):
     """Configurazione per ambiente di sviluppo"""
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/poems.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///poems.db'
 
 class ProductionConfig(Config):
     """Configurazione per ambiente di produzione"""
     DEBUG = False
-    
-    # In produzione, assicurati che SECRET_KEY sia impostata
-    if not os.environ.get('SECRET_KEY'):
-        raise ValueError("SECRET_KEY environment variable must be set for production")
+    # La SECRET_KEY sarà gestita automaticamente da Heroku o dalla classe base
 
 class TestingConfig(Config):
     """Configurazione per testing"""
