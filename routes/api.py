@@ -2,9 +2,9 @@ from flask import Blueprint, request, jsonify
 from services.poetry_analyzer import analizza_poesia_completa
 from models.poem import Poem, db
 
-api_bp = Blueprint('api', __name__)
+api_bp = Blueprint('api', __name__, url_prefix='/api')
 
-@api_bp.route('/api/analizza', methods=['POST'])
+@api_bp.route('/analyze', methods=['POST'])
 def api_analizza():
     """API endpoint per analizzare una poesia"""
     try:
@@ -25,7 +25,58 @@ def api_analizza():
     except Exception as e:
         return jsonify({'error': f'Errore durante l\'analisi: {str(e)}'}), 500
 
-@api_bp.route('/api/pubblica', methods=['POST'])
+@api_bp.route('/poems', methods=['POST'])
+def api_create_poem():
+    """API endpoint per creare una poesia (alias per pubblica)"""
+    try:
+        data = request.get_json()
+        
+        # Validazione dati richiesti
+        required_fields = ['title', 'text', 'author']
+        for field in required_fields:
+            if not data or field not in data or not data[field].strip():
+                return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
+        
+        # Rimappa i campi per compatibilità con api_pubblica
+        data['titolo'] = data['title']
+        data['testo'] = data['text']
+        data['autore'] = data['author']
+        
+        # Analizza la poesia
+        analisi = analizza_poesia_completa(data['testo'])
+        
+        # Verifica se ci sono errori nell'analisi
+        if 'errore' in analisi:
+            return jsonify({'error': f'Errore nell\'analisi: {analisi["errore"]}'}), 400
+        
+        # Controlla se rispetta la metrica (solo se richiesto)
+        richiede_metrica = data.get('richiede_metrica', False)  # Default False per poems
+        if richiede_metrica and not analisi.get('rispetta_metrica', False):
+            return jsonify({
+                'error': 'La poesia non rispetta la metrica richiesta',
+                'tipo_riconosciuto': analisi.get('tipo_riconosciuto', 'sconosciuto'),
+                'dettagli_metrica': analisi.get('dettagli_metrica', {}),
+                'analisi': analisi
+            }), 400
+        
+        # Crea e salva la poesia
+        poesia = Poem.create_from_analysis(data['titolo'], data['testo'], data['autore'], analisi)
+        
+        db.session.add(poesia)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Poesia pubblicata con successo!',
+            'id': poesia.id,
+            'analisi': analisi
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Errore durante la pubblicazione: {str(e)}'}), 500
+
+@api_bp.route('/pubblica', methods=['POST'])
 def api_pubblica():
     """API endpoint per pubblicare una poesia nella bacheca"""
     try:
@@ -75,7 +126,7 @@ def api_pubblica():
         db.session.rollback()
         return jsonify({'error': f'Errore durante la pubblicazione: {str(e)}'}), 500
 
-@api_bp.route('/api/bacheca', methods=['GET'])
+@api_bp.route('/bacheca', methods=['GET'])
 def api_bacheca():
     """API endpoint per ottenere le poesie della bacheca"""
     try:
@@ -123,7 +174,7 @@ def api_bacheca():
     except Exception as e:
         return jsonify({'error': f'Errore nel recupero delle poesie: {str(e)}'}), 500
 
-@api_bp.route('/api/poesia/<int:poesia_id>', methods=['GET'])
+@api_bp.route('/poesia/<int:poesia_id>', methods=['GET'])
 def api_poesia_dettaglio(poesia_id):
     """API endpoint per ottenere i dettagli di una poesia specifica"""
     try:
