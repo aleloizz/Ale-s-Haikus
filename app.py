@@ -151,35 +151,88 @@ def api_create_poem():
             'message': 'Tipo di poesia non supportato'
         }), 400
     
-    # Analizza la poesia per verificare se è valida
+    # CONTROLLO METRICA OBBLIGATORIO
     try:
-        # Riusa la logica di api_analyze
         verses = [v.strip() for v in text.split('\n') if v.strip()]
         schema = SCHEMI_POESIA[poem_type]
         target_syllables = schema["sillabe"]
         
-        is_valid = True
-        if poem_type != "versi_liberi":
+        # Per versi liberi, permetti sempre la pubblicazione
+        if poem_type == "versi_liberi":
+            is_valid = True
+        else:
+            is_valid = True
+            
             # Verifica numero versi
             if len(verses) != len(target_syllables):
-                is_valid = False
-            else:
-                # Verifica sillabe
-                for verse, target in zip(verses, target_syllables):
-                    if conta_sillabe(verse) != target:
-                        is_valid = False
-                        break
+                return jsonify({
+                    'error': True,
+                    'message': f'La poesia deve avere esattamente {len(target_syllables)} versi per essere un {poem_type.replace("_", " ")}. Hai inserito {len(verses)} versi.'
+                }), 400
+            
+            # Verifica sillabe di ogni verso
+            errors = []
+            for i, (verse, target) in enumerate(zip(verses, target_syllables)):
+                syllable_count = conta_sillabe(verse)
+                if syllable_count != target:
+                    errors.append(f"Verso {i+1}: ha {syllable_count} sillabe invece di {target}")
+                    is_valid = False
+            
+            # Se ci sono errori metrici, rifiuta la pubblicazione
+            if not is_valid:
+                return jsonify({
+                    'error': True,
+                    'message': f'La poesia non rispetta la metrica del {poem_type.replace("_", " ")}:',
+                    'details': errors
+                }), 400
+                
+            # Verifica schema rimico se presente
+            if schema.get("rima"):
+                rime_finali = [estrai_ultime_sillabe(verse, num_sillabe=2) for verse in verses]
+                scheme = schema["rima"]
+                rhyme_map = {}
+                verse_idx = 0
+                
+                # Mappa ogni lettera dello schema ai versi
+                for group in scheme:
+                    for letter in group:
+                        if letter not in rhyme_map:
+                            rhyme_map[letter] = []
+                        rhyme_map[letter].append(verse_idx)
+                        verse_idx += 1
+                
+                # Controlla le rime
+                rhyme_errors = []
+                for letter, indices in rhyme_map.items():
+                    if len(indices) > 1:
+                        ref_rhyme = rime_finali[indices[0]]
+                        for i in indices[1:]:
+                            if rime_finali[i] != ref_rhyme:
+                                rhyme_errors.append(f"I versi {', '.join(str(j+1) for j in indices)} dovrebbero rimare ({letter})")
+                                is_valid = False
+                                break
+                
+                # Se ci sono errori rimici, rifiuta la pubblicazione
+                if rhyme_errors:
+                    return jsonify({
+                        'error': True,
+                        'message': f'La poesia non rispetta lo schema rimico del {poem_type.replace("_", " ")}:',
+                        'details': rhyme_errors
+                    }), 400
         
-    except Exception:
-        is_valid = False
+    except Exception as e:
+        return jsonify({
+            'error': True,
+            'message': 'Errore nell\'analisi della poesia'
+        }), 500
     
-    # Crea la nuova poesia
+    # Se arriviamo qui, la poesia è valida
     new_poem = Poem(
         title=title if title else None,
         text=text,
         poem_type=poem_type,
         author=author,
-        is_valid=is_valid
+        is_valid=True  # Sempre True ora che controlliamo prima
     )
     
     try:

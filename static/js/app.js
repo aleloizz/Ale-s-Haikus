@@ -241,8 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     text: formData.text,
                     poem_type: formData.poem_type,
                     title: formData.title,
-                    author: formData.author,
-                    is_valid: isValid
+                    author: formData.author
                 })
             });
             
@@ -251,7 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (publishData.success) {
                 showPublishSuccess();
             } else {
-                showPublishError(publishData.message || 'Errore nella pubblicazione');
+                // Gestisci errori di metrica con dettagli
+                if (publishData.details && publishData.details.length > 0) {
+                    showPublishError(publishData.message, publishData.details);
+                } else {
+                    showPublishError(publishData.message || 'Errore nella pubblicazione');
+                }
             }
             
         } catch (error) {
@@ -302,19 +306,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authorField) authorField.value = 'Poeta Anonimo';
     }
     
-    function showPublishError(message) {
+    // Modifica showPublishError per mostrare dettagli
+    function showPublishError(message, details = null) {
         const toastContainer = document.querySelector('.toast-container');
         const errorToast = document.createElement('div');
         errorToast.className = 'toast show';
         errorToast.setAttribute('role', 'alert');
+        
+        let detailsHtml = '';
+        if (details && details.length > 0) {
+            detailsHtml = `
+                <div class="mt-2">
+                    <small class="text-muted">Dettagli:</small>
+                    <ul class="mb-0 small">
+                        ${details.map(detail => `<li>${detail}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
         errorToast.innerHTML = `
             <div class="toast-header bg-danger text-white">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong class="me-auto">Errore di pubblicazione</strong>
+                <strong class="me-auto">Pubblicazione non consentita</strong>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
             </div>
             <div class="toast-body">
                 ${message}
+                ${detailsHtml}
+                <div class="mt-2">
+                    <small class="text-muted">💡 Correggi la poesia e riprova!</small>
+                </div>
             </div>
         `;
         
@@ -324,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (errorToast.parentNode) {
                 errorToast.remove();
             }
-        }, 5000);
+        }, 8000); // Più tempo per leggere i dettagli
     }
 
     // Animazione selettore tipo poesia
