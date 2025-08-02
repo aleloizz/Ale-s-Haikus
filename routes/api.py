@@ -1,8 +1,46 @@
 from flask import Blueprint, request, jsonify
 from services.poetry_analyzer import analizza_poesia_completa
 from models.poem import Poem, db
+from config.constants import SCHEMI_POESIA
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+def convert_rhyme_scheme_to_frontend(schema_string, tipo_poesia):
+    """Converte lo schema rime da stringa al formato array compatibile con frontend"""
+    if not schema_string or not schema_string.strip():
+        return []
+    
+    # Se il tipo di poesia ha uno schema predefinito, usalo per dividere correttamente
+    if tipo_poesia in SCHEMI_POESIA and 'rima' in SCHEMI_POESIA[tipo_poesia]:
+        schema_predefinito = SCHEMI_POESIA[tipo_poesia]['rima']
+        if schema_predefinito:
+            return schema_predefinito
+    
+    # Altrimenti, cerca di dividere in base a pattern comuni
+    schema = schema_string.strip()
+    
+    # Per sonetti (14 versi): ABBAABBACDCDCD -> ["ABBA", "ABBA", "CDC", "DCD"]
+    if len(schema) == 14:
+        return [schema[0:4], schema[4:8], schema[8:11], schema[11:14]]
+    
+    # Per quartine (4 versi): ABAB -> ["ABAB"]
+    if len(schema) == 4:
+        return [schema]
+    
+    # Per terzine (3 versi): ABA -> ["ABA"]
+    if len(schema) == 3:
+        return [schema]
+    
+    # Per limerick (5 versi): AABBA -> ["AABBA"]
+    if len(schema) == 5:
+        return [schema]
+    
+    # Default: ogni 4 lettere un gruppo
+    groups = []
+    for i in range(0, len(schema), 4):
+        groups.append(schema[i:i+4])
+    
+    return groups if groups else [schema]
 
 @api_bp.route('/analyze', methods=['POST'])
 def api_analizza():
@@ -35,11 +73,14 @@ def api_analizza():
                 'correct': sillabe == target if target else True
             })
         
+        # Converti lo schema rime per compatibilità frontend
+        scheme_for_frontend = convert_rhyme_scheme_to_frontend(analisi['schema_rime'], analisi['tipo_riconosciuto'])
+        
         return jsonify({
             'results': results,
             'poem_type': analisi['tipo_riconosciuto'],
             'rhyme_analysis': {
-                'scheme': analisi['schema_rime'],
+                'scheme': scheme_for_frontend,
                 'details': analisi['analisi_rime']
             },
             'total_syllables': analisi['sillabe_totali'],
