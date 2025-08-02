@@ -23,13 +23,18 @@ const poemTypes = { // Tipi di poesia disponibili
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Elementi UI
+    // Elementi UI esistenti
     const poemNation = document.getElementById('poemNation');
     const poemTypeSelect = document.getElementById('poemType');
     const patternDisplay = document.getElementById('patternDisplay');
     const poemText = document.getElementById('poemText');
     const poemForm = document.getElementById('poemForm');
     const copyBtn = document.getElementById('copyBtn');
+
+    // NUOVI ELEMENTI PER LA BACHECA
+    const publishCheckbox = document.getElementById('publishPoem');
+    const publishFields = document.getElementById('publishFields');
+    const submitBtnText = document.getElementById('submitBtnText');
 
     // Limite di caratteri lato frontend
     poemText.setAttribute('maxlength', 500);
@@ -142,19 +147,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
 
-    // Invio al backend
+    // GESTIONE CHECKBOX PUBBLICAZIONE (NUOVA)
+    if (publishCheckbox) {
+        publishCheckbox.addEventListener('change', () => {
+            if (publishCheckbox.checked) {
+                publishFields.style.display = 'block';
+                publishFields.style.animation = 'fadeIn 0.3s ease';
+                if (submitBtnText) submitBtnText.textContent = 'Verifica e Pubblica';
+            } else {
+                publishFields.style.display = 'none';
+                if (submitBtnText) submitBtnText.textContent = 'Verifica';
+            }
+        });
+    }
+
+    // FORM SUBMIT MODIFICATO (sostituisce quello esistente)
     poemForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         // Vibrazione breve come feedback (se supportato)
         if (window.navigator.vibrate) {
             window.navigator.vibrate(7);
         }
+        
         const submitBtn = document.getElementById('submitBtn');
+        const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analizzando...';
+        
+        // Testo diverso se deve pubblicare
+        const shouldPublish = publishCheckbox?.checked;
+        const loadingText = shouldPublish ? 
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando e pubblicando...' :
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analizzando...';
+        
+        submitBtn.innerHTML = loadingText;
         
         try {
             const sanitizedText = sanitizeInput(poemText.value);
+            
+            // Prima sempre l'analisi
             const response = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: {
@@ -167,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
             
-            // Sostituire nella fetch:
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(
@@ -178,6 +208,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             showResults(data);
+            
+            // Se deve pubblicare e l'analisi è completata (anche se non valida)
+            if (shouldPublish && !data.error) {
+                await publishPoem({
+                    text: sanitizedText,
+                    poem_type: poemTypeSelect.value,
+                    title: document.getElementById('poemTitle')?.value.trim() || '',
+                    author: document.getElementById('poemAuthor')?.value.trim() || 'Poeta Anonimo'
+                }, data.valid);
+            }
+            
         } catch (error) {
             console.error('Error:', error);
             showResults({
@@ -186,9 +227,105 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } finally {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Verifica';
+            submitBtn.innerHTML = originalBtnText;
         }
     });
+
+    // NUOVE FUNZIONI PER LA PUBBLICAZIONE
+    async function publishPoem(formData, isValid) {
+        try {
+            const publishResponse = await fetch('/api/poems', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: formData.text,
+                    poem_type: formData.poem_type,
+                    title: formData.title,
+                    author: formData.author,
+                    is_valid: isValid
+                })
+            });
+            
+            const publishData = await publishResponse.json();
+            
+            if (publishData.success) {
+                showPublishSuccess();
+            } else {
+                showPublishError(publishData.message || 'Errore nella pubblicazione');
+            }
+            
+        } catch (error) {
+            console.error('Errore pubblicazione:', error);
+            showPublishError('Errore nella pubblicazione. Riprova più tardi.');
+        }
+    }
+    
+    function showPublishSuccess() {
+        const toastContainer = document.querySelector('.toast-container');
+        const successToast = document.createElement('div');
+        successToast.className = 'toast show';
+        successToast.setAttribute('role', 'alert');
+        successToast.innerHTML = `
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong class="me-auto">Pubblicazione riuscita!</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                🎉 La tua poesia è stata pubblicata con successo! 
+                <div class="mt-2">
+                    <a href="/bacheca" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-collection"></i> Visualizza nella bacheca
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.appendChild(successToast);
+        
+        setTimeout(() => {
+            if (successToast.parentNode) {
+                successToast.remove();
+            }
+        }, 8000);
+        
+        // Reset form di pubblicazione
+        if (publishCheckbox) {
+            publishCheckbox.checked = false;
+            publishFields.style.display = 'none';
+            if (submitBtnText) submitBtnText.textContent = 'Verifica';
+        }
+        
+        const titleField = document.getElementById('poemTitle');
+        const authorField = document.getElementById('poemAuthor');
+        if (titleField) titleField.value = '';
+        if (authorField) authorField.value = 'Poeta Anonimo';
+    }
+    
+    function showPublishError(message) {
+        const toastContainer = document.querySelector('.toast-container');
+        const errorToast = document.createElement('div');
+        errorToast.className = 'toast show';
+        errorToast.setAttribute('role', 'alert');
+        errorToast.innerHTML = `
+            <div class="toast-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong class="me-auto">Errore di pubblicazione</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        `;
+        
+        toastContainer.appendChild(errorToast);
+        
+        setTimeout(() => {
+            if (errorToast.parentNode) {
+                errorToast.remove();
+            }
+        }, 5000);
+    }
 
     // Animazione selettore tipo poesia
     poemTypeSelect.addEventListener('mouseenter', () => {
@@ -199,12 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         poemTypeSelect.style.transform = 'translateY(0)';
     });
 
-    document.querySelectorAll('.rhyme-mismatch').forEach(el => {
-        el.classList.add('animate__animated', 'animate__headShake');
-        el.style.animationDelay = `${Math.random() * 0.3}s`;
-    });
-
-    // Mostra risultati
+    // Mostra risultati (funzione esistente invariata)
     function showResults(data) {
         const resultContainer = document.getElementById('resultContainer');
         const resultTitle = document.getElementById('resultTitle');
@@ -373,8 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
-        // prova controllo rime
-        // Sostituisci entrambe le chiamate con:
+        // Analisi rime
         if (data.rhyme_analysis) {
             contentHTML += renderRhymeAnalysis(data);
         }
@@ -394,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Dati ricevuti dal backend:", data);
     }
 
-    // Nuove funzioni di supporto
+    // Funzioni di supporto esistenti (invariate)
     function renderRhymeAnalysis(data) {
         if (!data.rhyme_analysis) return "";
 
@@ -403,7 +534,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const errors = data.rhyme_analysis.errors || [];
         const rhymeStatus = analyzeRhymeStatus(data);
 
-        // Numerazione globale dei versi
         let verseCounter = 1;
         let schemeHtml = '';
         if (scheme) {
@@ -462,14 +592,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
     
-    // Nuova funzione per analizzare lo stato di ogni rima
     function analyzeRhymeStatus(data) {
         if (!data.rhyme_analysis?.scheme || !data.results) return [];
     
-        const status = Array(data.results.length).fill('valid'); // Default: tutti validi
-        const rhymeMap = {}; // Mappa lettera rima -> indici versi
+        const status = Array(data.results.length).fill('valid');
+        const rhymeMap = {};
     
-        // 1. Costruisci la mappa delle posizioni delle rime
         let verseIndex = 0;
         data.rhyme_analysis.scheme.forEach(group => {
             group.split('').forEach(letter => {
@@ -478,18 +606,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     
-        // 2. Analizza ogni gruppo di rime
         Object.entries(rhymeMap).forEach(([letter, verses]) => {
-            if (verses.length <= 1) return; // Rime singole sono sempre valide
+            if (verses.length <= 1) return;
     
-            // Prendi la rima di riferimento (primo verso del gruppo)
             const referenceRhyme = estrai_ultime_sillabe(data.results[verses[0]].text);
             
-            // Verifica tutti gli altri versi del gruppo
             for (let i = 1; i < verses.length; i++) {
                 const currentRhyme = estrai_ultime_sillabe(data.results[verses[i]].text);
                 if (currentRhyme !== referenceRhyme) {
-                    // Marca TUTTO il gruppo come invalido se c'è almeno un mismatch
                     verses.forEach(v => status[v] = 'invalid');
                     break;
                 }
@@ -499,20 +623,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return status;
     }
 
-    /**
-     * Estrae le ultime N sillabe da un verso, usando i dati già segmentati dal backend.
-     * @param {object|string} versoObj - Oggetto verso (preferito) o stringa (fallback legacy).
-     * @param {number} n - Numero di sillabe finali da estrarre (default: 2).
-     * @returns {string} - Stringa delle ultime N sillabe unite.
-     */
     function estrai_ultime_sillabe(versoObj, n = 2) {
-        // Se è un oggetto con la proprietà 'syllables' (come restituito dal backend)
         if (versoObj && typeof versoObj === 'object' && Array.isArray(versoObj.syllables)) {
             const sillabe = versoObj.syllables;
             if (sillabe.length === 0) return '';
             return sillabe.slice(-n).join('');
         }
-        // Fallback: se è una stringa (compatibilità con vecchio codice)
         if (typeof versoObj === 'string') {
             const parole = versoObj.trim().split(/\s+/);
             if (parole.length === 0) return '';
@@ -522,14 +638,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
 
-    // Copia testo
+    // Copia testo (invariato)
     copyBtn.addEventListener('click', async () => {
         try {
-            // Prova Clipboard API moderna
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(poemText.value);
             } else {
-                // Fallback per browser mobile/vecchi
                 const textarea = document.createElement('textarea');
                 textarea.value = poemText.value;
                 textarea.style.position = 'fixed';
@@ -540,7 +654,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
             }
-            // Vibrazione breve come feedback (se supportato)
             if (window.navigator.vibrate) {
                 window.navigator.vibrate(7);
             }
