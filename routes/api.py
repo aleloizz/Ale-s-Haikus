@@ -195,17 +195,13 @@ def get_syllable_pattern(tipo_poesia):
 
 def get_target_sillabe(tipo_poesia, indice_verso):
     """Restituisce il numero di sillabe atteso per un verso specifico"""
-    targets = {
-        'haiku': [5, 7, 5],
-        'tanka': [5, 7, 5, 7, 7],
-        'katauta': [5, 7, 7],
-        'limerick': [8, 8, 5, 5, 8]
-    }
+    # Usa la stessa logica di get_syllable_pattern per mantenere coerenza
+    pattern = get_syllable_pattern(tipo_poesia)
     
-    if tipo_poesia in targets and indice_verso < len(targets[tipo_poesia]):
-        return targets[tipo_poesia][indice_verso]
+    if pattern and indice_verso < len(pattern):
+        return pattern[indice_verso]
     
-    return None  # Nessun target specifico
+    return None  # Nessun target specifico (per versi liberi o fuori dal pattern)
 
 @api_bp.route('/poems', methods=['POST'])
 def api_create_poem():
