@@ -5,6 +5,54 @@ from config.constants import SCHEMI_POESIA
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
+def validate_rhyme_pattern(analyzed_scheme, expected_scheme):
+    """Valida se lo schema rime analizzato corrisponde a quello atteso"""
+    if not expected_scheme:
+        return True, []  # Se non c'è schema atteso, consideriamo valido
+    
+    # Converti schema atteso in stringa per confronto
+    expected_string = ''.join(expected_scheme)
+    
+    if analyzed_scheme == expected_string:
+        return True, []
+    
+    # Genera errori specifici
+    errors = []
+    if len(analyzed_scheme) != len(expected_string):
+        errors.append(f"Schema ha {len(analyzed_scheme)} rime invece di {len(expected_string)}")
+    else:
+        # Confronta posizione per posizione
+        for i, (actual, expected) in enumerate(zip(analyzed_scheme, expected_string)):
+            if actual != expected:
+                errors.append(f"Verso {i+1}: rima '{actual}' invece di '{expected}'")
+    
+    return False, errors
+
+def get_expected_rhyme_scheme(tipo_poesia):
+    """Restituisce lo schema rime atteso per un tipo di poesia"""
+    # Prima controlla negli schemi predefiniti
+    if tipo_poesia in SCHEMI_POESIA and 'rima' in SCHEMI_POESIA[tipo_poesia]:
+        schema_predefinito = SCHEMI_POESIA[tipo_poesia]['rima']
+        if schema_predefinito:
+            return schema_predefinito
+    
+    # Schemi di default per tipi comuni
+    schemi_attesi = {
+        'sonetto': ['ABBA', 'ABBA', 'CDC', 'DCD'],
+        'quartina': ['ABAB'],  # Schema più comune
+        'quartina (rima alternata)': ['ABAB'],
+        'quartina (rima baciata)': ['AABB'],
+        'quartina (rima incrociata)': ['ABBA'],
+        'terzina_dantesca': ['ABA'],
+        'terzina (rima continua)': ['AAA'],
+        'limerick': ['AABBA'],
+        'ballad': ['ABCB'],
+        'clerihew': ['AABB'],
+        'stornello': ['ABA']
+    }
+    
+    return schemi_attesi.get(tipo_poesia, [])
+
 def convert_rhyme_scheme_to_frontend(schema_string, tipo_poesia):
     """Converte lo schema rime da stringa al formato array compatibile con frontend"""
     if not schema_string or not schema_string.strip():
@@ -142,7 +190,17 @@ def api_analizza():
             results.append(result_item)
         
         # Converti lo schema rime per compatibilità frontend
-        scheme_for_frontend = convert_rhyme_scheme_to_frontend(analisi['schema_rime'], analisi['tipo_riconosciuto'])
+        # IMPORTANTE: Usa lo schema ATTESO, non quello analizzato
+        expected_scheme = get_expected_rhyme_scheme(tipo_poesia)
+        
+        # Se non c'è uno schema atteso, usa quello analizzato come fallback
+        if not expected_scheme:
+            scheme_for_frontend = convert_rhyme_scheme_to_frontend(analisi['schema_rime'], analisi['tipo_riconosciuto'])
+        else:
+            scheme_for_frontend = expected_scheme
+        
+        # Valida se le rime rispettano il pattern atteso
+        rhyme_valid, rhyme_errors = validate_rhyme_pattern(analisi['schema_rime'], expected_scheme)
         
         # Calcola la validità globale
         all_correct = all(r['correct'] for r in results)
@@ -155,8 +213,8 @@ def api_analizza():
             'rhyme_analysis': {
                 'scheme': scheme_for_frontend,
                 'details': analisi['analisi_rime'],
-                'valid': True,  # Per ora consideriamo sempre valido
-                'errors': []    # Aggiungeremo la logica di validazione rime se necessario
+                'valid': rhyme_valid,
+                'errors': rhyme_errors
             },
             'total_syllables': analisi['sillabe_totali'],
             'total_verses': analisi['num_versi'],
