@@ -620,6 +620,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function analyzeRhymeStatus(data) {
+        // Usa lo stato delle rime calcolato dal server Python invece di ricalcolarlo qui
+        if (data.rhyme_analysis?.verse_status) {
+            return data.rhyme_analysis.verse_status;
+        }
+        
+        // Fallback alla logica originale se verse_status non è disponibile
         if (!data.rhyme_analysis?.scheme || !data.results) return [];
     
         const status = Array(data.results.length).fill('valid');
