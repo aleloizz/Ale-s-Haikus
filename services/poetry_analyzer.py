@@ -74,29 +74,39 @@ def identifica_tipo_poesia(num_versi, sillabe_per_verso, schema_rime):
     if num_versi == 5 and schema_rime == 'AABBA':
         return 'limerick'
     
-    # Quartina
+    # Quartina - solo se rispetta la metrica standard
     if num_versi == 4:
-        if schema_rime == 'AABB':
-            return 'quartina (rima baciata)'
-        elif schema_rime == 'ABAB':
-            return 'quartina (rima alternata)'
-        elif schema_rime == 'ABBA':
-            return 'quartina (rima incrociata)'
+        # Controlla se ha le sillabe standard (11-11-11-11)
+        if all(s == 11 for s in sillabe_per_verso):
+            if schema_rime == 'AABB':
+                return 'quartina (rima baciata)'
+            elif schema_rime == 'ABAB':
+                return 'quartina (rima alternata)'
+            elif schema_rime == 'ABBA':
+                return 'quartina (rima incrociata)'
+            else:
+                return 'quartina'
         else:
-            return 'quartina'
+            # Se non rispetta la metrica standard, è verso libero
+            return 'verso libero'
     
-    # Terzina
+    # Terzina - solo se rispetta la metrica standard
     if num_versi == 3:
-        if schema_rime == 'AAA':
-            return 'terzina (rima continua)'
-        elif schema_rime == 'ABA':
-            return 'terzina (rima concatenata)'
+        # Controlla se ha le sillabe standard (11-11-11)
+        if all(s == 11 for s in sillabe_per_verso):
+            if schema_rime == 'AAA':
+                return 'terzina (rima continua)'
+            elif schema_rime == 'ABA':
+                return 'terzina_dantesca'
+            else:
+                return 'terzina_dantesca'  # Usa lo schema dantesco come default per terzine
         else:
-            return 'terzina'
+            # Se non rispetta la metrica standard, è verso libero
+            return 'verso libero'
     
-    # Sonetto: 14 versi con schema specifico
+    # Sonetto: 14 versi con schema specifico e sillabe 11
     if num_versi == 14:
-        if schema_rime.startswith('ABAB') or schema_rime.startswith('ABBA'):
+        if all(s == 11 for s in sillabe_per_verso) and (schema_rime.startswith('ABAB') or schema_rime.startswith('ABBA')):
             return 'sonetto'
     
     # Distici
@@ -124,12 +134,9 @@ def verifica_metrica(tipo_poesia, num_versi, sillabe_per_verso, schema_rime):
     
     schema = SCHEMI_POESIA[tipo_poesia]
     
-    # Verifica numero di versi
-    if num_versi != schema['versi']:
-        return False
-    
     # Verifica sillabe per verso (se specificato)
     if 'sillabe' in schema and schema['sillabe']:
+        # Il numero di versi deve corrispondere alla lunghezza dello schema sillabe
         if len(sillabe_per_verso) != len(schema['sillabe']):
             return False
         for i, sillabe_attese in enumerate(schema['sillabe']):
@@ -137,8 +144,8 @@ def verifica_metrica(tipo_poesia, num_versi, sillabe_per_verso, schema_rime):
                 return False
     
     # Verifica schema rime (se specificato)
-    if 'rime' in schema and schema['rime']:
-        if schema_rime != schema['rime']:
+    if 'rima' in schema and schema['rima']:
+        if schema_rime != ''.join(schema['rima']):
             return False
     
     return True
@@ -154,9 +161,11 @@ def get_dettagli_metrica(tipo_poesia):
         }
     
     schema = SCHEMI_POESIA[tipo_poesia]
+    num_versi = len(schema.get('sillabe', [])) if schema.get('sillabe') else None
+    
     return {
-        'descrizione': schema.get('descrizione', ''),
-        'versi': schema.get('versi'),
+        'descrizione': schema.get('descrizione', f'Schema per {tipo_poesia}'),
+        'versi': num_versi,
         'sillabe': schema.get('sillabe'),
-        'rime': schema.get('rime')
+        'rime': schema.get('rima')
     }
