@@ -86,10 +86,10 @@ def api_analizza():
         tipo_poesia = data.get('type', 'haiku').lower()
         pattern = get_syllable_pattern(tipo_poesia)
         
-        # Usa la struttura ESATTA restituita da poetry_analyzer.py
-        versi = analisi['versi']  # Lista di stringhe
-        sillabe_per_verso = analisi['sillabe_per_verso']  # Lista di int
-        num_versi = analisi['num_versi']  # Int
+        # Usa il campo corretto dalla struttura restituita da poetry_analyzer
+        versi = analisi.get('versi', [])
+        sillabe_per_verso = analisi.get('sillabe_per_verso', [])
+        num_versi = len(versi)
         
         # Verifica numero di versi
         if tipo_poesia != 'versi_liberi' and pattern:
@@ -130,11 +130,12 @@ def api_analizza():
         all_correct = all(res['correct'] for res in results)
         
         # Prepara l'analisi delle rime nel formato aspettato dal frontend
-        schema_rime = analisi['schema_rime']  # Stringa come "ABAB"
+        analisi_rime = analisi.get('analisi_rime', {})
+        schema_rime = analisi_rime.get('schema', '')
         
         rhyme_analysis = {
             'scheme': convert_rhyme_scheme_to_frontend(schema_rime, tipo_poesia),
-            'valid': analisi['rispetta_metrica'],
+            'valid': analisi.get('rispetta_metrica', False),
             'errors': []
         }
         
@@ -143,9 +144,9 @@ def api_analizza():
             'poem_type': tipo_poesia,
             'pattern': pattern,
             'rhyme_analysis': rhyme_analysis,
-            'total_syllables': analisi['sillabe_totali'],
+            'total_syllables': sum(sillabe_per_verso),
             'valid': all_correct,
-            'valid_structure': analisi['rispetta_metrica']
+            'valid_structure': analisi.get('rispetta_metrica', False)
         })
         
     except Exception as e:
