@@ -117,13 +117,29 @@ def api_analizza():
             # Determina il target basato sul tipo di poesia
             target = get_target_sillabe(tipo_poesia, i)
             
-            results.append({
+            # Estrai informazioni sulle rime per questo verso
+            rhyme_info = None
+            if 'analisi_rime' in analisi and 'schema' in analisi['analisi_rime']:
+                schema = analisi['analisi_rime']['schema']
+                if i < len(schema):
+                    rhyme_info = schema[i] if schema[i] != '-' else None
+            
+            result_item = {
                 'verse': i + 1,
                 'text': verso,
                 'syllables': sillabe,
                 'target': target,
                 'correct': sillabe == target if target else True
-            })
+            }
+            
+            # Aggiungi informazioni sulle rime se disponibili (sempre per i versi liberi)
+            if rhyme_info:
+                result_item['rhyme'] = rhyme_info
+            elif tipo_poesia == 'versi_liberi':
+                # Per i versi liberi, aggiungi sempre il campo rhyme anche se null
+                result_item['rhyme'] = None
+                
+            results.append(result_item)
         
         # Converti lo schema rime per compatibilità frontend
         scheme_for_frontend = convert_rhyme_scheme_to_frontend(analisi['schema_rime'], analisi['tipo_riconosciuto'])
