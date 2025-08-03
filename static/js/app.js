@@ -105,9 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="badge bg-haiku-secondary syllable-badge">${count}</span>
         `).join('');
 
-        if (pattern.rhyme) {
+        // MOSTRA LE RIME SOLO SE IL TIPO DI POESIA LE RICHIEDE
+        if (pattern.rhyme && pattern.rhyme !== null) {
             html += `<div class="mt-2 rhyme-pattern small text-muted">
-                    <i class="bi bi-music-note-beamed"></i> ${pattern.rhyme.join(' ')}
+                    <i class="bi bi-music-note-beamed"></i> Schema: ${pattern.rhyme.join(' ')}
                 </div>`;
         }
 
@@ -358,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         poemTypeSelect.style.transform = 'translateY(0)';
     });
 
-    // Mostra risultati (funzione esistente invariata)
+    // Mostra risultati (MODIFICA LA FUNZIONE ESISTENTE)
     function showResults(data) {
         const resultContainer = document.getElementById('resultContainer');
         const resultTitle = document.getElementById('resultTitle');
@@ -368,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         resultContainer.style.display = 'block';
         syllableDetails.innerHTML = '';
-    
+
         // Versi liberi: visualizzazione dedicata
         if (data.poem_type === 'versi_liberi') {
             resultTitle.innerHTML = `<i class="bi bi-stars text-accent"></i> Versi liberi`;
@@ -527,8 +528,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
-        // Analisi rime
-        if (data.rhyme_analysis) {
+        // CONTROLLO SE IL TIPO DI POESIA RICHIEDE RIME
+        const currentPoemPattern = patterns[data.poem_type];
+        const requiresRhymes = currentPoemPattern && currentPoemPattern.rhyme !== null;
+        
+        // Analisi rime SOLO se il tipo di poesia lo richiede
+        if (requiresRhymes && data.rhyme_analysis) {
             contentHTML += renderRhymeAnalysis(data);
         }
     
