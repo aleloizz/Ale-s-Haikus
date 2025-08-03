@@ -21,21 +21,26 @@ def estrai_suono_finale(parola):
     if len(parola_norm) < 2:
         return parola_norm
     
-    # Cerca la penultima vocale (suono più importante per la rima)
-    vocali_trovate = []
+    # Per le rime italiane, tipicamente si considera l'accento sulla penultima sillaba
+    # Quindi prendiamo dalla penultima vocale alla fine, o dall'ultima se è l'unica
+    
+    # Trova tutte le vocali
+    vocali_pos = []
     for i, char in enumerate(parola_norm):
         if char in VOCALI:
-            vocali_trovate.append((i, char))
+            vocali_pos.append(i)
     
-    if len(vocali_trovate) < 2:
-        # Se c'è solo una vocale, prendi dalla prima vocale alla fine
-        if vocali_trovate:
-            return parola_norm[vocali_trovate[0][0]:]
+    if not vocali_pos:
         return parola_norm[-2:]  # Fallback
     
-    # Prendi dalla penultima vocale alla fine
-    penultima_vocale_pos = vocali_trovate[-2][0]
-    return parola_norm[penultima_vocale_pos:]
+    # Se c'è solo una vocale, prendi da lì alla fine
+    if len(vocali_pos) == 1:
+        return parola_norm[vocali_pos[0]:]
+    
+    # Se ci sono 2 o più vocali, prendi dalla penultima alla fine
+    # Questo cattura la sillaba tonica + eventuale atona finale
+    start_pos = vocali_pos[-2]
+    return parola_norm[start_pos:]
 
 def analizza_rime(versi):
     """Analizza le rime tra i versi"""
@@ -98,14 +103,19 @@ def suoni_rimano(suono1, suono2):
     if suono1 == suono2:
         return True
     
-    # Rima se hanno lo stesso finale (almeno 2 caratteri)
+    # Per rime vere, devono avere almeno 2 caratteri identici alla fine
+    # Ma almeno uno deve essere una vocale per costituire una rima valida
     if len(suono1) >= 2 and len(suono2) >= 2:
-        if suono1[-2:] == suono2[-2:]:
+        # Confronta gli ultimi 2 caratteri
+        finale1 = suono1[-2:]
+        finale2 = suono2[-2:]
+        
+        if finale1 == finale2:
             return True
-    
-    # Rima se hanno la stessa vocale finale e consonante simile
-    if len(suono1) >= 1 and len(suono2) >= 1:
-        if suono1[-1] == suono2[-1] and suono1[-1] in VOCALI:
+            
+        # Se hanno solo l'ultima lettera uguale, devono essere vocali pure (monosillabi)
+        if (len(suono1) == 1 and len(suono2) == 1 and 
+            suono1[-1] == suono2[-1] and suono1[-1] in VOCALI):
             return True
     
     return False
