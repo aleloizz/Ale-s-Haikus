@@ -5,6 +5,29 @@ from config.constants import SCHEMI_POESIA
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
+def calculate_rhyme_status_for_verses(analyzed_scheme, expected_scheme, num_verses):
+    """Calcola lo stato delle rime per ogni verso (valid/invalid)"""
+    if not expected_scheme:
+        return ['valid'] * num_verses  # Se non c'è schema atteso, tutti validi
+    
+    # Converti schema atteso in stringa
+    expected_string = ''.join(expected_scheme)
+    
+    if len(analyzed_scheme) != len(expected_string):
+        return ['invalid'] * num_verses  # Se lunghezze diverse, tutti invalidi
+    
+    status = []
+    for i in range(num_verses):
+        if i < len(analyzed_scheme) and i < len(expected_string):
+            if analyzed_scheme[i] == expected_string[i]:
+                status.append('valid')
+            else:
+                status.append('invalid')
+        else:
+            status.append('invalid')
+    
+    return status
+
 def validate_rhyme_pattern(analyzed_scheme, expected_scheme):
     """Valida se lo schema rime analizzato corrisponde a quello atteso"""
     if not expected_scheme:
@@ -202,6 +225,9 @@ def api_analizza():
         # Valida se le rime rispettano il pattern atteso
         rhyme_valid, rhyme_errors = validate_rhyme_pattern(analisi['schema_rime'], expected_scheme)
         
+        # Calcola lo stato delle rime per ogni verso (per i badge nel frontend)
+        rhyme_status = calculate_rhyme_status_for_verses(analisi['schema_rime'], expected_scheme, len(analisi['versi']))
+        
         # Calcola la validità globale
         all_correct = all(r['correct'] for r in results)
         
@@ -214,7 +240,8 @@ def api_analizza():
                 'scheme': scheme_for_frontend,
                 'details': analisi['analisi_rime'],
                 'valid': rhyme_valid,
-                'errors': rhyme_errors
+                'errors': rhyme_errors,
+                'verse_status': rhyme_status
             },
             'total_syllables': analisi['sillabe_totali'],
             'total_verses': analisi['num_versi'],
