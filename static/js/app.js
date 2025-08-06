@@ -67,26 +67,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 const state = JSON.parse(saved);
                 console.log('📋 Stato parsed:', state);
                 
-                // Ripristina la nazione se valida
+                // Verifica che la nazione sia valida
                 if (state.nation && poemTypes[state.nation]) {
-                    console.log('🌍 Ripristino nazione:', state.nation);
-                    poemNation.value = state.nation;
-                    populatePoemTypes(state.nation);
+                    console.log('🌍 Tentativo ripristino nazione:', state.nation);
                     
-                    // Ripristina il tipo se valido per questa nazione
-                    if (state.type) {
-                        const typeExists = poemTypes[state.nation].some(pt => pt.value === state.type);
-                        console.log('🎯 Controllo esistenza tipo:', state.type, 'esiste:', typeExists);
+                    // Verifica che il tipo sia valido per questa nazione
+                    if (state.type && poemTypes[state.nation].some(pt => pt.value === state.type)) {
+                        console.log('✅ Ripristino completo - Nazione:', state.nation, 'Tipo:', state.type);
                         
-                        if (typeExists) {
-                            console.log('✅ Ripristino tipo:', state.type);
-                            poemTypeSelect.value = state.type;
-                            updatePatternDisplay(state.type);
-                            return true; // Stato ripristinato con successo
-                        }
+                        // Imposta nazione e popola tipi
+                        poemNation.value = state.nation;
+                        populatePoemTypes(state.nation);
+                        
+                        // Imposta tipo e aggiorna badge
+                        poemTypeSelect.value = state.type;
+                        updatePatternDisplay(state.type);
+                        
+                        return true; // Stato ripristinato con successo
+                    } else {
+                        console.log('⚠️ Tipo non valido per nazione, ripristino solo nazione');
+                        poemNation.value = state.nation;
+                        populatePoemTypes(state.nation);
+                        // Lascia che il primo tipo della lista venga selezionato automaticamente
+                        const firstType = poemTypes[state.nation][0].value;
+                        poemTypeSelect.value = firstType;
+                        updatePatternDisplay(firstType);
+                        return true; // Ripristino parziale ma valido
                     }
                 } else {
-                    console.log('⚠️ Nazione non valida, uso default');
+                    console.log('⚠️ Nazione non valida nel localStorage');
                 }
             } else {
                 console.log('📭 Nessuno stato salvato trovato');
@@ -95,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('❌ Errore nel ripristino stato:', e);
         }
         
-        console.log('🔄 Fallback a stato di default');
+        console.log('🔄 Fallback a stato di default (haiku)');
         return false; // Fallback a stato di default
     }
 
@@ -125,25 +134,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // NUOVO ORDINE DI INIZIALIZZAZIONE
-    // 1. Prima popola sempre i tipi di default
-    populatePoemTypes(poemNation.value);
+    // NUOVO ORDINE DI INIZIALIZZAZIONE - RESET COMPLETO PER COERENZA
+    console.log('🚀 Inizializzazione app - reset completo per coerenza');
     
-    // 2. Poi prova a ripristinare lo stato salvato
+    // 1. Reset al default: giapponesi -> haiku
+    poemNation.value = 'giapponesi';
+    populatePoemTypes('giapponesi');
+    poemTypeSelect.value = 'haiku';
+    
+    // 2. Prova a ripristinare lo stato salvato (se esiste)
     isRestoringState = true;
     const stateRestored = restoreSelectionState();
     isRestoringState = false;
     
-    // 3. Inizializza subito i badge con lo stato corrente
+    // 3. Se il ripristino fallisce, assicurati che sia tutto coerente con haiku
+    if (!stateRestored) {
+        console.log('📋 Nessuno stato ripristinato - mantieni coerenza haiku');
+        poemNation.value = 'giapponesi';
+        populatePoemTypes('giapponesi');
+        poemTypeSelect.value = 'haiku';
+    }
+    
+    // 4. Inizializza i badge con lo stato finale
+    const finalType = poemTypeSelect.value;
+    console.log('🎯 Tipo finale per badge:', finalType);
     initBadges();
     
-    // 4. Aggiungi un secondo controllo dopo che tutto è pronto
+    // 5. Controllo finale per assicurare coerenza
     setTimeout(() => {
-        console.log('🔄 Secondo controllo badge dopo 500ms');
+        const currentNation = poemNation.value;
         const currentType = poemTypeSelect.value;
-        console.log('📊 Tipo finale verificato:', currentType);
-        updatePatternDisplay(currentType);
-    }, 500);
+        console.log('🔍 Controllo finale - Nazione:', currentNation, 'Tipo:', currentType);
+        
+        // Verifica che il tipo sia valido per la nazione corrente
+        const typeExists = poemTypes[currentNation] && 
+                          poemTypes[currentNation].some(pt => pt.value === currentType);
+        
+        if (!typeExists) {
+            console.log('⚠️ Tipo inconsistente! Reset forzato a haiku');
+            poemNation.value = 'giapponesi';
+            populatePoemTypes('giapponesi');
+            poemTypeSelect.value = 'haiku';
+            updatePatternDisplay('haiku');
+        } else {
+            updatePatternDisplay(currentType);
+        }
+        
+        console.log('✅ Inizializzazione completa');
+    }, 200);
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
@@ -206,7 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inizializza i badge
     function initBadges() {
-        // Debug per verificare che la funzione venga chiamata
         console.log('🔧 initBadges() chiamata');
         
         // Verifica che gli elementi esistano
@@ -220,12 +257,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Usa il tipo attualmente selezionato invece di forzare 'haiku'
-        const currentType = poemTypeSelect.value || 'haiku';
-        console.log('📊 Tipo corrente:', currentType);
-        console.log('📍 patternDisplay elemento:', patternDisplay);
+        // Usa il tipo attualmente selezionato
+        const currentType = poemTypeSelect.value;
+        console.log('📊 initBadges - Tipo corrente dal select:', currentType);
         
-        updatePatternDisplay(currentType);
+        // Se non c'è un tipo selezionato, usa haiku come default
+        const typeToUse = currentType || 'haiku';
+        console.log('🎯 initBadges - Tipo da usare:', typeToUse);
+        
+        updatePatternDisplay(typeToUse);
+        
+        // Assicurati che il select abbia il valore corretto
+        if (!currentType) {
+            poemTypeSelect.value = 'haiku';
+            console.log('🔧 Select forzato a haiku per coerenza');
+        }
     }
 
     // Micro-interazioni
@@ -242,6 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cambio tipo poesia
     poemTypeSelect.addEventListener('change', () => {
         const selectedType = poemTypeSelect.value;
+        console.log('🎛️ Cambio tipo poesia a:', selectedType);
+        
         updatePatternDisplay(selectedType);
 
         if (selectedType === 'versi_liberi') {
@@ -255,8 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
             poemTypeSelect.classList.remove('animate__pulse');
         }, 500);
         
-        // Salva lo stato quando cambia il tipo
+        // Salva lo stato quando cambia il tipo (solo se non stiamo ripristinando)
         if (!isRestoringState) {
+            console.log('💾 Salvataggio nuovo stato dopo cambio tipo');
             saveSelectionState();
         }
     });
