@@ -164,37 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // INIZIALIZZAZIONE SEMPLIFICATA E SICURA
     console.log('🚀 Inizio inizializzazione semplificata');
-    
-    // Solo se abbiamo gli elementi necessari
-    if (poemNation && poemTypeSelect && patternDisplay) {
-        console.log('✅ Tutti gli elementi necessari trovati');
-        
-        // 1. Inizializzazione base
-        poemNation.value = 'giapponesi';
-        populatePoemTypes('giapponesi');
-        poemTypeSelect.value = 'haiku';
-        
-        // 2. Mostra subito i badge haiku
-        patternDisplay.innerHTML = `
-            <span class="badge bg-haiku-secondary syllable-badge">5</span>
-            <span class="badge bg-haiku-secondary syllable-badge">7</span>
-            <span class="badge bg-haiku-secondary syllable-badge">5</span>
-        `;
-        console.log('✅ Badge haiku mostrati');
-        
-        // 3. Prova a ripristinare stato salvato (con cautela)
-        try {
-            isRestoringState = true;
-            const stateRestored = restoreSelectionState();
-            isRestoringState = false;
-            console.log('📋 Ripristino stato:', stateRestored ? 'successo' : 'fallito');
-        } catch (e) {
-            console.warn('⚠️ Errore durante ripristino stato:', e);
-            isRestoringState = false;
-        }
-    } else {
-        console.warn('⚠️ Elementi mancanti, salto inizializzazione badge');
-    }
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
@@ -548,6 +517,36 @@ document.addEventListener('DOMContentLoaded', () => {
         poemTypeSelect.style.transform = 'translateY(0)';
     });
 
+    // ATTENZIONE: Questo blocco va DOPO la definizione di tutte le funzioni (intorno alla riga 400)
+    setTimeout(() => {
+        // Solo se abbiamo gli elementi necessari
+        if (poemNation && poemTypeSelect && patternDisplay) {
+            console.log('✅ Tutti gli elementi necessari trovati');
+            
+            // 1. Inizializzazione base
+            poemNation.value = 'giapponesi';
+            populatePoemTypes('giapponesi');
+            poemTypeSelect.value = 'haiku';
+            
+            // 2. Mostra subito i badge haiku
+            updatePatternDisplay('haiku');
+            console.log('✅ Badge haiku mostrati');
+            
+            // 3. Prova a ripristinare stato salvato (con cautela)
+            try {
+                isRestoringState = true;
+                const stateRestored = restoreSelectionState();
+                isRestoringState = false;
+                console.log('📋 Ripristino stato:', stateRestored ? 'successo' : 'fallito');
+            } catch (e) {
+                console.warn('⚠️ Errore durante ripristino stato:', e);
+                isRestoringState = false;
+            }
+        } else {
+            console.warn('⚠️ Elementi mancanti, salto inizializzazione badge');
+        }
+    }, 100); // Delay di 100ms per assicurarsi che tutto sia caricato
+
     // Mostra risultati (MODIFICA LA FUNZIONE ESISTENTE)
     function showResults(data) {
         const resultContainer = document.getElementById('resultContainer');
@@ -613,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Controlla il numero di versi
         const lines = poemText.value.split('\n').filter(line => line.trim() !== '');
         const selectedType = poemTypeSelect.value;
-        const requiredLines = patterns[selectedType].length;
+        const requiredLines = patterns[selectedType] ? patterns[selectedType].syllables.length : 0;
     
         // Gestione errori generici
         if (data.error && !data.error_type) {
