@@ -1,3 +1,4 @@
+// 1. Variabili globali e pattern
 const poemTypes = { // Tipi di poesia disponibili
     italiane: [
         { value: "sonetto", label: "Sonetto" },
@@ -22,6 +23,124 @@ const poemTypes = { // Tipi di poesia disponibili
     ]
 };
 
+const patterns = {
+    'haiku': { syllables: [5, 7, 5], rhyme: null },
+    'tanka': { syllables: [5, 7, 5, 7, 7], rhyme: null },
+    'katauta': { syllables: [5, 7, 7], rhyme: null },
+    'choka': { syllables: [5, 7, 5, 7, 5, 7, 5, 7, 7], rhyme: null },
+    'sedoka': { syllables: [5, 7, 7, 5, 7, 7], rhyme: null },
+    'sonetto': { syllables: Array(14).fill(11), rhyme: ["ABBA", "ABBA", "CDC", "DCD"] },
+    'stornello': { syllables: [5, 11, 11], rhyme: ["ABA"] },
+    'quartina': { syllables: Array(4).fill(11), rhyme: ["ABAB"] },
+    'ottava_rima': { syllables: Array(8).fill(11), rhyme: ["ABABABCC"] },
+    'terzina_dantesca': { syllables: [11, 11, 11], rhyme: ["ABA"] },
+    'versi_liberi': { syllables: [], rhyme: null },
+    'limerick': { syllables: [8, 8, 5, 5, 8], rhyme: ["AABBA"] },
+    'ballad': { syllables: [8, 6, 8, 6], rhyme: ["ABCB"] },  
+    'clerihew': { syllables: [8, 8, 8, 8], rhyme: ["AABB"] }, 
+    'cinquain': { syllables: [2, 4, 6, 8, 2], rhyme: null }
+};
+
+// 2. Funzioni che usano patterns
+function updatePatternDisplay(type) {
+    console.log('🎯 updatePatternDisplay() chiamata con tipo:', type);
+    
+    // Controllo di sicurezza
+    if (!patternDisplay) {
+        console.error('❌ patternDisplay non disponibile');
+        return;
+    }
+    
+    if (!type) {
+        console.warn('⚠️ Tipo non specificato, uso haiku');
+        type = 'haiku';
+    }
+    
+    const pattern = patterns[type];
+    if (!pattern) {
+        console.warn('⚠️ Pattern non trovato per tipo:', type, '- uso haiku');
+        // Fallback sicuro a haiku
+        patternDisplay.innerHTML = `
+            <span class="badge bg-haiku-secondary syllable-badge">5</span>
+            <span class="badge bg-haiku-secondary syllable-badge">7</span>
+            <span class="badge bg-haiku-secondary syllable-badge">5</span>
+        `;
+        return;
+    }
+
+    console.log('📋 Pattern trovato:', pattern);
+
+    if (type === 'versi_liberi') {
+        patternDisplay.innerHTML = `
+            <span class="badge bg-haiku-secondary syllable-badge">Nessun vincolo metrico</span>
+            <div class="mt-2 small text-muted">
+                Libera la tua creatività, ogni verso sarà analizzato per sillabe e rime.
+            </div>
+        `;
+        console.log('✅ Pattern "versi liberi" applicato');
+        return;
+    }
+
+    let html = pattern.syllables.map(count => `
+        <span class="badge bg-haiku-secondary syllable-badge">${count}</span>
+    `).join('');
+
+    // MOSTRA LE RIME SOLO SE IL TIPO DI POESIA LE RICHIEDE
+    if (pattern.rhyme && pattern.rhyme !== null) {
+        html += `<div class="mt-2 rhyme-pattern small text-muted">
+                <i class="bi bi-music-note-beamed"></i> Schema: ${pattern.rhyme.join(' ')}
+            </div>`;
+    }
+
+    patternDisplay.innerHTML = html;
+    console.log('✅ Pattern HTML aggiornato per tipo:', type);
+}
+
+// Inizializza i badge (versione semplificata)
+function initBadges() {
+    console.log('🔧 initBadges() chiamata');
+    
+    // Controllo di sicurezza base
+    if (!patternDisplay) {
+        console.error('❌ patternDisplay non trovato in initBadges');
+        return;
+    }
+    
+    // Usa il tipo corrente o haiku come fallback
+    const currentType = (poemTypeSelect && poemTypeSelect.value) ? poemTypeSelect.value : 'haiku';
+    console.log('📊 initBadges - Tipo da usare:', currentType);
+    
+    // Chiama updatePatternDisplay che ha le sue protezioni
+    updatePatternDisplay(currentType);
+}
+
+function populatePoemTypes(nation) {
+    if (!poemTypeSelect) {
+        console.warn('⚠️ poemTypeSelect non disponibile in populatePoemTypes');
+        return;
+    }
+    if (!nation || !poemTypes[nation]) {
+        console.warn('⚠️ Nazione non valida:', nation);
+        return;
+    }
+    poemTypeSelect.innerHTML = '';
+    poemTypes[nation].forEach(pt => {
+        const opt = document.createElement('option');
+        opt.value = pt.value;
+        opt.textContent = pt.label;
+        poemTypeSelect.appendChild(opt);
+    });
+
+    // Aggiorna sempre i badge dopo aver popolato il select
+    updatePatternDisplay(poemTypeSelect.value);
+
+    // Solo scatena l'evento change se non stiamo ripristinando lo stato
+    if (!isRestoringState) {
+        poemTypeSelect.dispatchEvent(new Event('change'));
+    }
+}
+
+// 3. Event listeners e codice DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOMContentLoaded - Inizio inizializzazione');
     
@@ -126,36 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return false; // Fallback a stato di default
     }
 
-    // Popolamento del selettore dei tipi di poesia in base alla nazione
-    function populatePoemTypes(nation) {
-        if (!poemTypeSelect) {
-            console.warn('⚠️ poemTypeSelect non disponibile in populatePoemTypes');
-            return;
-        }
-        if (!nation || !poemTypes[nation]) {
-            console.warn('⚠️ Nazione non valida:', nation);
-            return;
-        }
-        poemTypeSelect.innerHTML = '';
-        poemTypes[nation].forEach(pt => {
-            const opt = document.createElement('option');
-            opt.value = pt.value;
-            opt.textContent = pt.label;
-            poemTypeSelect.appendChild(opt);
-        });
-
-        // Aggiorna sempre i badge dopo aver popolato il select
-        updatePatternDisplay(poemTypeSelect.value);
-
-        // Solo scatena l'evento change se non stiamo ripristinando lo stato
-        if (!isRestoringState) {
-            poemTypeSelect.dispatchEvent(new Event('change'));
-        }
-    }
-
-    // Flag per evitare loop durante il ripristino
-    let isRestoringState = false;
-
     poemNation.addEventListener('change', () => {
         populatePoemTypes(poemNation.value);
         updatePatternDisplay(poemTypeSelect.value); // Aggiorna i badge
@@ -163,31 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
             saveSelectionState();
         }
     });
-
-    // INIZIALIZZAZIONE SEMPLIFICATA E SICURA
-    console.log('🚀 Inizio inizializzazione semplificata');
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
 
-    // Pattern disponibili
-    const patterns = {
-        'haiku': { syllables: [5, 7, 5], rhyme: null },
-        'tanka': { syllables: [5, 7, 5, 7, 7], rhyme: null },
-        'katauta': { syllables: [5, 7, 7], rhyme: null },
-        'choka': { syllables: [5, 7, 5, 7, 5, 7, 5, 7, 7], rhyme: null },
-        'sedoka': { syllables: [5, 7, 7, 5, 7, 7], rhyme: null },
-        'sonetto': { syllables: Array(14).fill(11), rhyme: ["ABBA", "ABBA", "CDC", "DCD"] },
-        'stornello': { syllables: [5, 11, 11], rhyme: ["ABA"] },
-        'quartina': { syllables: Array(4).fill(11), rhyme: ["ABAB"] },
-        'ottava_rima': { syllables: Array(8).fill(11), rhyme: ["ABABABCC"] },
-        'terzina_dantesca': { syllables: [11, 11, 11], rhyme: ["ABA"] },
-        'versi_liberi': { syllables: [], rhyme: null },
-        'limerick': { syllables: [8, 8, 5, 5, 8], rhyme: ["AABBA"] },
-        'ballad': { syllables: [8, 6, 8, 6], rhyme: ["ABCB"] },  
-        'clerihew': { syllables: [8, 8, 8, 8], rhyme: ["AABB"] }, 
-        'cinquain': { syllables: [2, 4, 6, 8, 2], rhyme: null }
-    };
+    // Flag per evitare loop durante il ripristino
+    let isRestoringState = false;
 
     function updatePatternDisplay(type) {
         console.log('🎯 updatePatternDisplay() chiamata con tipo:', type);
