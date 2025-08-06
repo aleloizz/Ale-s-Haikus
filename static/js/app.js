@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             const sanitizedText = sanitizeInput(poemText.value);
+            const useTolerance = document.getElementById('useTolerance')?.checked || false;
             
             // Prima sempre l'analisi
             const response = await fetch('/api/analyze', {
@@ -195,7 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     type: poemTypeSelect.value,
-                    text: sanitizedText
+                    text: sanitizedText,
+                    use_tolerance: useTolerance
                 })
             });
             
@@ -235,6 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // NUOVE FUNZIONI PER LA PUBBLICAZIONE
     async function publishPoem(formData, isValid) {
         try {
+            const useTolerance = document.getElementById('useTolerance')?.checked || false;
+            
             const publishResponse = await fetch('/api/poems', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -242,7 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     text: formData.text,
                     poem_type: formData.poem_type,
                     title: formData.title,
-                    author: formData.author
+                    author: formData.author,
+                    use_tolerance: useTolerance
                 })
             });
             

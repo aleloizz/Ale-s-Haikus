@@ -149,6 +149,9 @@ def api_analizza():
         if not testo or not testo.strip():
             return jsonify({'error': True, 'message': 'Testo vuoto'}), 400
         
+        # Parametro tolleranza opzionale (default: False per precisione assoluta)
+        use_tolerance = data.get('use_tolerance', False)
+        
         # Validazioni di base
         if len(testo) > 500:
             return jsonify({
@@ -166,8 +169,8 @@ def api_analizza():
                 'message': 'Il testo contiene caratteri non ammessi.'
             }), 400
         
-        # Analizza la poesia
-        analisi = analizza_poesia_completa(testo)
+        # Analizza la poesia (passando parametro tolleranza)
+        analisi = analizza_poesia_completa(testo, use_tolerance=use_tolerance)
         
         # Verifica errori nell'analisi
         if 'errore' in analisi:
@@ -332,8 +335,11 @@ def api_create_poem():
         data['testo'] = data['text']
         data['autore'] = data['author']
         
-        # Analizza la poesia
-        analisi = analizza_poesia_completa(data['testo'])
+        # Parametro tolleranza opzionale
+        use_tolerance = data.get('use_tolerance', False)
+        
+        # Analizza la poesia (passando parametro tolleranza)
+        analisi = analizza_poesia_completa(data['testo'], use_tolerance=use_tolerance)
         
         # Verifica se ci sono errori nell'analisi
         if 'errore' in analisi:
