@@ -23,6 +23,8 @@ const poemTypes = { // Tipi di poesia disponibili
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOMContentLoaded - Inizio inizializzazione');
+    
     // Elementi UI esistenti
     const poemNation = document.getElementById('poemNation');
     const poemTypeSelect = document.getElementById('poemType');
@@ -31,13 +33,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const poemForm = document.getElementById('poemForm');
     const copyBtn = document.getElementById('copyBtn');
 
+    // CONTROLLO ESISTENZA ELEMENTI CRITICI
+    console.log('🔍 Controllo elementi DOM:');
+    console.log('  - poemNation:', poemNation ? '✅' : '❌');
+    console.log('  - poemTypeSelect:', poemTypeSelect ? '✅' : '❌');
+    console.log('  - patternDisplay:', patternDisplay ? '✅' : '❌');
+    console.log('  - poemText:', poemText ? '✅' : '❌');
+
     // NUOVI ELEMENTI PER LA BACHECA
     const publishCheckbox = document.getElementById('publishPoem');
     const publishFields = document.getElementById('publishFields');
     const submitBtnText = document.getElementById('submitBtnText');
 
+    // Se mancano elementi critici, interrompi l'esecuzione
+    if (!poemNation || !poemTypeSelect || !patternDisplay) {
+        console.error('❌ ERRORE CRITICO: Elementi DOM mancanti! Impossibile continuare.');
+        return;
+    }
+
     // Limite di caratteri lato frontend
-    poemText.setAttribute('maxlength', 500);
+    if (poemText) {
+        poemText.setAttribute('maxlength', 500);
+    }
 
     // Funzione di sanitizzazione base (rimuove tag HTML)
     function sanitizeInput(str) {
@@ -137,6 +154,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // NUOVO ORDINE DI INIZIALIZZAZIONE - RESET COMPLETO PER COERENZA
     console.log('🚀 Inizializzazione app - reset completo per coerenza');
     
+    // FALLBACK DI EMERGENZA: mostra subito haiku se il patternDisplay è vuoto
+    if (patternDisplay.innerHTML.trim() === '') {
+        console.log('🆘 Fallback di emergenza - mostro haiku subito');
+        patternDisplay.innerHTML = `
+            <span class="badge bg-haiku-secondary syllable-badge">5</span>
+            <span class="badge bg-haiku-secondary syllable-badge">7</span>
+            <span class="badge bg-haiku-secondary syllable-badge">5</span>
+        `;
+    }
+    
     // 1. Reset al default: giapponesi -> haiku
     poemNation.value = 'giapponesi';
     populatePoemTypes('giapponesi');
@@ -181,6 +208,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         console.log('✅ Inizializzazione completa');
+        
+        // CONTROLLO DI EMERGENZA FINALE: se patternDisplay è ancora vuoto, forza haiku
+        if (patternDisplay.innerHTML.trim() === '') {
+            console.log('🆘 EMERGENZA: patternDisplay ancora vuoto! Forzo haiku');
+            patternDisplay.innerHTML = `
+                <span class="badge bg-haiku-secondary syllable-badge">5</span>
+                <span class="badge bg-haiku-secondary syllable-badge">7</span>
+                <span class="badge bg-haiku-secondary syllable-badge">5</span>
+            `;
+        }
     }, 200);
    
     // Configurazione iniziale
@@ -867,12 +904,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     poemText.addEventListener('input', function() {
         const lines = this.value.split('\n').filter(line => line.trim() !== '');
-        const requiredLines = patterns[poemTypeSelect.value].length;
+        const currentType = poemTypeSelect.value;
         
-        if (lines.length === requiredLines) {
-            const errorContainer = document.getElementById('resultContainer');
-            if (errorContainer.querySelector('.alert-warning, .alert-danger')) {
-                errorContainer.style.display = 'none';
+        // Verifica che il pattern esista prima di accedervi
+        if (patterns[currentType] && patterns[currentType].syllables) {
+            const requiredLines = patterns[currentType].syllables.length;
+            
+            if (lines.length === requiredLines) {
+                const errorContainer = document.getElementById('resultContainer');
+                if (errorContainer && errorContainer.querySelector('.alert-warning, .alert-danger')) {
+                    errorContainer.style.display = 'none';
+                }
             }
         }
     });
