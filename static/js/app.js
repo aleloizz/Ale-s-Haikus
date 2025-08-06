@@ -42,108 +42,7 @@ const patterns = {
 };
 
 // 2. Funzioni che usano patterns
-function updatePatternDisplay(type) {
-    console.log('🎯 updatePatternDisplay() chiamata con tipo:', type);
-    
-    // Controllo di sicurezza
-    if (!patternDisplay) {
-        console.error('❌ patternDisplay non disponibile');
-        return;
-    }
-    
-    if (!type) {
-        console.warn('⚠️ Tipo non specificato, uso haiku');
-        type = 'haiku';
-    }
-    
-    const pattern = patterns[type];
-    if (!pattern) {
-        console.warn('⚠️ Pattern non trovato per tipo:', type, '- uso haiku');
-        // Fallback sicuro a haiku
-        patternDisplay.innerHTML = `
-            <span class="badge bg-haiku-secondary syllable-badge">5</span>
-            <span class="badge bg-haiku-secondary syllable-badge">7</span>
-            <span class="badge bg-haiku-secondary syllable-badge">5</span>
-        `;
-        return;
-    }
-
-    console.log('📋 Pattern trovato:', pattern);
-
-    if (type === 'versi_liberi') {
-        patternDisplay.innerHTML = `
-            <span class="badge bg-haiku-secondary syllable-badge">Nessun vincolo metrico</span>
-            <div class="mt-2 small text-muted">
-                Libera la tua creatività, ogni verso sarà analizzato per sillabe e rime.
-            </div>
-        `;
-        console.log('✅ Pattern "versi liberi" applicato');
-        return;
-    }
-
-    let html = pattern.syllables.map(count => `
-        <span class="badge bg-haiku-secondary syllable-badge">${count}</span>
-    `).join('');
-
-    // MOSTRA LE RIME SOLO SE IL TIPO DI POESIA LE RICHIEDE
-    if (pattern.rhyme && pattern.rhyme !== null) {
-        html += `<div class="mt-2 rhyme-pattern small text-muted">
-                <i class="bi bi-music-note-beamed"></i> Schema: ${pattern.rhyme.join(' ')}
-            </div>`;
-    }
-
-    patternDisplay.innerHTML = html;
-    console.log('✅ Pattern HTML aggiornato per tipo:', type);
-}
-
-// Inizializza i badge (versione semplificata)
-function initBadges() {
-    console.log('🔧 initBadges() chiamata');
-    
-    // Controllo di sicurezza base
-    if (!patternDisplay) {
-        console.error('❌ patternDisplay non trovato in initBadges');
-        return;
-    }
-    
-    // Usa il tipo corrente o haiku come fallback
-    const currentType = (poemTypeSelect && poemTypeSelect.value) ? poemTypeSelect.value : 'haiku';
-    console.log('📊 initBadges - Tipo da usare:', currentType);
-    
-    // Chiama updatePatternDisplay che ha le sue protezioni
-    updatePatternDisplay(currentType);
-}
-
-function populatePoemTypes(nation) {
-    if (!poemTypeSelect) {
-        console.warn('⚠️ poemTypeSelect non disponibile in populatePoemTypes');
-        return;
-    }
-    if (!nation || !poemTypes[nation]) {
-        console.warn('⚠️ Nazione non valida:', nation);
-        return;
-    }
-    poemTypeSelect.innerHTML = '';
-    poemTypes[nation].forEach(pt => {
-        const opt = document.createElement('option');
-        opt.value = pt.value;
-        opt.textContent = pt.label;
-        poemTypeSelect.appendChild(opt);
-    });
-
-    // Aggiorna sempre i badge dopo aver popolato il select
-    updatePatternDisplay(poemTypeSelect.value);
-
-    // Solo scatena l'evento change se non stiamo ripristinando lo stato
-    if (!isRestoringState) {
-        poemTypeSelect.dispatchEvent(new Event('change'));
-    }
-}
-
-// 3. Event listeners e codice DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOMContentLoaded - Inizio inizializzazione');
-    
     // Elementi UI esistenti
     const poemNation = document.getElementById('poemNation');
     const poemTypeSelect = document.getElementById('poemType');
@@ -151,114 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const poemText = document.getElementById('poemText');
     const poemForm = document.getElementById('poemForm');
     const copyBtn = document.getElementById('copyBtn');
-
-    // CONTROLLO ESISTENZA ELEMENTI CRITICI (ma non bloccare completamente)
-    console.log('🔍 Controllo elementi DOM:');
-    console.log('  - poemNation:', poemNation ? '✅' : '❌');
-    console.log('  - poemTypeSelect:', poemTypeSelect ? '✅' : '❌');
-    console.log('  - patternDisplay:', patternDisplay ? '✅' : '❌');
-    console.log('  - poemText:', poemText ? '✅' : '❌');
-
-    // NUOVI ELEMENTI PER LA BACHECA
     const publishCheckbox = document.getElementById('publishPoem');
     const publishFields = document.getElementById('publishFields');
     const submitBtnText = document.getElementById('submitBtnText');
-
-    // Se manca patternDisplay, prova a creare un fallback
-    if (!patternDisplay) {
-        console.warn('⚠️ patternDisplay mancante - cerco di continuare senza badge');
-    } else {
-        console.log('✅ patternDisplay trovato, procedo con inizializzazione badge');
-    }
-
-    // Limite di caratteri lato frontend
-    if (poemText) {
-        poemText.setAttribute('maxlength', 500);
-    }
-
-    // Funzione di sanitizzazione base (rimuove tag HTML)
-    function sanitizeInput(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
-
-    // FUNZIONI PER SALVARE/RIPRISTINARE LO STATO
-    function saveSelectionState() {
-        const state = {
-            nation: poemNation.value,
-            type: poemTypeSelect.value
-        };
-        console.log('💾 Salvataggio stato:', state);
-        localStorage.setItem('poemSelectionState', JSON.stringify(state));
-        console.log('✅ Stato salvato in localStorage');
-    }
-
-    function restoreSelectionState() {
-        console.log('🔄 restoreSelectionState() chiamata');
-        try {
-            const saved = localStorage.getItem('poemSelectionState');
-            console.log('💾 Stato salvato trovato:', saved);
-            
-            if (saved) {
-                const state = JSON.parse(saved);
-                console.log('📋 Stato parsed:', state);
-                
-                // Verifica che la nazione sia valida
-                if (state.nation && poemTypes[state.nation]) {
-                    console.log('🌍 Tentativo ripristino nazione:', state.nation);
-                    
-                    // Verifica che il tipo sia valido per questa nazione
-                    if (state.type && poemTypes[state.nation].some(pt => pt.value === state.type)) {
-                        console.log('✅ Ripristino completo - Nazione:', state.nation, 'Tipo:', state.type);
-                        
-                        // Imposta nazione e popola tipi
-                        poemNation.value = state.nation;
-                        populatePoemTypes(state.nation);
-                        
-                        // Imposta tipo e aggiorna badge
-                        poemTypeSelect.value = state.type;
-                        updatePatternDisplay(state.type);
-                        
-                        return true; // Stato ripristinato con successo
-                    } else {
-                        console.log('⚠️ Tipo non valido per nazione, ripristino solo nazione');
-                        poemNation.value = state.nation;
-                        populatePoemTypes(state.nation);
-                        // Lascia che il primo tipo della lista venga selezionato automaticamente
-                        const firstType = poemTypes[state.nation][0].value;
-                        poemTypeSelect.value = firstType;
-                        updatePatternDisplay(firstType);
-                        return true; // Ripristino parziale ma valido
-                    }
-                } else {
-                    console.log('⚠️ Nazione non valida nel localStorage');
-                }
-            } else {
-                console.log('📭 Nessuno stato salvato trovato');
-            }
-        } catch (e) {
-            console.warn('❌ Errore nel ripristino stato:', e);
-        }
-        
-        console.log('🔄 Fallback a stato di default (haiku)');
-        return false; // Fallback a stato di default
-    }
-
-    poemNation.addEventListener('change', () => {
-        populatePoemTypes(poemNation.value);
-        updatePatternDisplay(poemTypeSelect.value); // Aggiorna i badge
-        if (!isRestoringState) {
-            saveSelectionState();
-        }
-    });
-   
-    // Configurazione iniziale
-    document.body.classList.remove('loading');
-
-    // Flag per evitare loop durante il ripristino
     let isRestoringState = false;
 
+    // Funzioni che usano gli elementi DOM
     function updatePatternDisplay(type) {
         console.log('🎯 updatePatternDisplay() chiamata con tipo:', type);
         
@@ -331,20 +128,104 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePatternDisplay(currentType);
     }
 
-    // Micro-interazioni (solo se gli elementi esistono)
-    if (poemText && patternDisplay) {
-        poemText.addEventListener('focus', () => {
-            poemText.style.borderColor = 'var(--primary)';
-            const firstBadge = patternDisplay.querySelector('.badge');
-            if (firstBadge) firstBadge.classList.add('pulse');
+    function populatePoemTypes(nation) {
+        if (!poemTypeSelect) {
+            console.warn('⚠️ poemTypeSelect non disponibile in populatePoemTypes');
+            return;
+        }
+        if (!nation || !poemTypes[nation]) {
+            console.warn('⚠️ Nazione non valida:', nation);
+            return;
+        }
+        poemTypeSelect.innerHTML = '';
+        poemTypes[nation].forEach(pt => {
+            const opt = document.createElement('option');
+            opt.value = pt.value;
+            opt.textContent = pt.label;
+            poemTypeSelect.appendChild(opt);
         });
 
-        poemText.addEventListener('blur', () => {
-            poemText.style.borderColor = '';
-        });
+        // Aggiorna sempre i badge dopo aver popolato il select
+        updatePatternDisplay(poemTypeSelect.value);
+
+        // Solo scatena l'evento change se non stiamo ripristinando lo stato
+        if (!isRestoringState) {
+            poemTypeSelect.dispatchEvent(new Event('change'));
+        }
     }
 
-    // Cambio tipo poesia (solo se elemento esiste)
+    // FUNZIONI PER SALVARE/RIPRISTINARE LO STATO
+    function saveSelectionState() {
+        const state = {
+            nation: poemNation.value,
+            type: poemTypeSelect.value
+        };
+        console.log('💾 Salvataggio stato:', state);
+        localStorage.setItem('poemSelectionState', JSON.stringify(state));
+        console.log('✅ Stato salvato in localStorage');
+    }
+
+    function restoreSelectionState() {
+        console.log('🔄 restoreSelectionState() chiamata');
+        try {
+            const saved = localStorage.getItem('poemSelectionState');
+            console.log('💾 Stato salvato trovato:', saved);
+            
+            if (saved) {
+                const state = JSON.parse(saved);
+                console.log('📋 Stato parsed:', state);
+                
+                // Verifica che la nazione sia valida
+                if (state.nation && poemTypes[state.nation]) {
+                    console.log('🌍 Tentativo ripristino nazione:', state.nation);
+                    
+                    // Verifica che il tipo sia valido per questa nazione
+                    if (state.type && poemTypes[state.nation].some(pt => pt.value === state.type)) {
+                        console.log('✅ Ripristino completo - Nazione:', state.nation, 'Tipo:', state.type);
+                        
+                        // Imposta nazione e popola tipi
+                        poemNation.value = state.nation;
+                        populatePoemTypes(state.nation);
+                        
+                        // Imposta tipo e aggiorna badge
+                        poemTypeSelect.value = state.type;
+                        updatePatternDisplay(state.type);
+                        
+                        return true; // Stato ripristinato con successo
+                    } else {
+                        console.log('⚠️ Tipo non valido per nazione, ripristino solo nazione');
+                        poemNation.value = state.nation;
+                        populatePoemTypes(state.nation);
+                        // Lascia che il primo tipo della lista venga selezionato automaticamente
+                        const firstType = poemTypes[state.nation][0].value;
+                        poemTypeSelect.value = firstType;
+                        updatePatternDisplay(firstType);
+                        return true; // Ripristino parziale ma valido
+                    }
+                } else {
+                    console.log('⚠️ Nazione non valida nel localStorage');
+                }
+            } else {
+                console.log('📭 Nessuno stato salvato trovato');
+            }
+        } catch (e) {
+            console.warn('❌ Errore nel ripristino stato:', e);
+        }
+        
+        console.log('🔄 Fallback a stato di default (haiku)');
+        return false; // Fallback a stato di default
+    }
+
+    // Event listeners
+    if (poemNation) {
+        poemNation.addEventListener('change', () => {
+            populatePoemTypes(poemNation.value);
+            updatePatternDisplay(poemTypeSelect.value); // Aggiorna i badge
+            if (!isRestoringState) {
+                saveSelectionState();
+            }
+        });
+    }
     if (poemTypeSelect) {
         poemTypeSelect.addEventListener('change', () => {
             const selectedType = poemTypeSelect.value;
@@ -370,6 +251,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('💾 Salvataggio nuovo stato dopo cambio tipo');
                 saveSelectionState();
             }
+        });
+    }
+    if (poemText && patternDisplay) {
+        poemText.addEventListener('focus', () => {
+            poemText.style.borderColor = 'var(--primary)';
+            const firstBadge = patternDisplay.querySelector('.badge');
+            if (firstBadge) firstBadge.classList.add('pulse');
+        });
+
+        poemText.addEventListener('blur', () => {
+            poemText.style.borderColor = '';
+        });
+    }
+
+    // Configurazione iniziale
+    document.body.classList.remove('loading');
+
+    // Inizializzazione
+    setTimeout(() => {
+        if (poemNation && poemTypeSelect && patternDisplay) {
+            poemNation.value = 'giapponesi';
+            populatePoemTypes('giapponesi');
+            poemTypeSelect.value = 'haiku';
+            updatePatternDisplay('haiku'); // Assicurati che venga chiamato qui
+
+            try {
+                isRestoringState = true;
+                const stateRestored = restoreSelectionState();
+                isRestoringState = false;
+            } catch (e) {
+                isRestoringState = false;
+            }
+        }
+    }, 100); // Delay di 100ms per assicurarsi che tutto sia caricato
+
+    // 3. Event listeners e codice DOMContentLoaded
+    // Micro-interazioni (solo se gli elementi esistono)
+    if (poemText && patternDisplay) {
+        poemText.addEventListener('focus', () => {
+            poemText.style.borderColor = 'var(--primary)';
+            const firstBadge = patternDisplay.querySelector('.badge');
+            if (firstBadge) firstBadge.classList.add('pulse');
+        });
+
+        poemText.addEventListener('blur', () => {
+            poemText.style.borderColor = '';
         });
     }
 
