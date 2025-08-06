@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const poemForm = document.getElementById('poemForm');
     const copyBtn = document.getElementById('copyBtn');
 
-    // CONTROLLO ESISTENZA ELEMENTI CRITICI
+    // CONTROLLO ESISTENZA ELEMENTI CRITICI (ma non bloccare completamente)
     console.log('🔍 Controllo elementi DOM:');
     console.log('  - poemNation:', poemNation ? '✅' : '❌');
     console.log('  - poemTypeSelect:', poemTypeSelect ? '✅' : '❌');
@@ -45,10 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const publishFields = document.getElementById('publishFields');
     const submitBtnText = document.getElementById('submitBtnText');
 
-    // Se mancano elementi critici, interrompi l'esecuzione
-    if (!poemNation || !poemTypeSelect || !patternDisplay) {
-        console.error('❌ ERRORE CRITICO: Elementi DOM mancanti! Impossibile continuare.');
-        return;
+    // Se manca patternDisplay, prova a creare un fallback
+    if (!patternDisplay) {
+        console.warn('⚠️ patternDisplay mancante - cerco di continuare senza badge');
+    } else {
+        console.log('✅ patternDisplay trovato, procedo con inizializzazione badge');
     }
 
     // Limite di caratteri lato frontend
@@ -127,6 +128,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Popolamento del selettore dei tipi di poesia in base alla nazione
     function populatePoemTypes(nation) {
+        if (!poemTypeSelect) {
+            console.warn('⚠️ poemTypeSelect non disponibile in populatePoemTypes');
+            return;
+        }
+        
+        if (!nation || !poemTypes[nation]) {
+            console.warn('⚠️ Nazione non valida:', nation);
+            return;
+        }
+        
         poemTypeSelect.innerHTML = '';
         poemTypes[nation].forEach(pt => {
             const opt = document.createElement('option');
@@ -151,74 +162,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // NUOVO ORDINE DI INIZIALIZZAZIONE - RESET COMPLETO PER COERENZA
-    console.log('🚀 Inizializzazione app - reset completo per coerenza');
+    // INIZIALIZZAZIONE SEMPLIFICATA E SICURA
+    console.log('🚀 Inizio inizializzazione semplificata');
     
-    // FALLBACK DI EMERGENZA: mostra subito haiku se il patternDisplay è vuoto
-    if (patternDisplay.innerHTML.trim() === '') {
-        console.log('🆘 Fallback di emergenza - mostro haiku subito');
+    // Solo se abbiamo gli elementi necessari
+    if (poemNation && poemTypeSelect && patternDisplay) {
+        console.log('✅ Tutti gli elementi necessari trovati');
+        
+        // 1. Inizializzazione base
+        poemNation.value = 'giapponesi';
+        populatePoemTypes('giapponesi');
+        poemTypeSelect.value = 'haiku';
+        
+        // 2. Mostra subito i badge haiku
         patternDisplay.innerHTML = `
             <span class="badge bg-haiku-secondary syllable-badge">5</span>
             <span class="badge bg-haiku-secondary syllable-badge">7</span>
             <span class="badge bg-haiku-secondary syllable-badge">5</span>
         `;
-    }
-    
-    // 1. Reset al default: giapponesi -> haiku
-    poemNation.value = 'giapponesi';
-    populatePoemTypes('giapponesi');
-    poemTypeSelect.value = 'haiku';
-    
-    // 2. Prova a ripristinare lo stato salvato (se esiste)
-    isRestoringState = true;
-    const stateRestored = restoreSelectionState();
-    isRestoringState = false;
-    
-    // 3. Se il ripristino fallisce, assicurati che sia tutto coerente con haiku
-    if (!stateRestored) {
-        console.log('📋 Nessuno stato ripristinato - mantieni coerenza haiku');
-        poemNation.value = 'giapponesi';
-        populatePoemTypes('giapponesi');
-        poemTypeSelect.value = 'haiku';
-    }
-    
-    // 4. Inizializza i badge con lo stato finale
-    const finalType = poemTypeSelect.value;
-    console.log('🎯 Tipo finale per badge:', finalType);
-    initBadges();
-    
-    // 5. Controllo finale per assicurare coerenza
-    setTimeout(() => {
-        const currentNation = poemNation.value;
-        const currentType = poemTypeSelect.value;
-        console.log('🔍 Controllo finale - Nazione:', currentNation, 'Tipo:', currentType);
+        console.log('✅ Badge haiku mostrati');
         
-        // Verifica che il tipo sia valido per la nazione corrente
-        const typeExists = poemTypes[currentNation] && 
-                          poemTypes[currentNation].some(pt => pt.value === currentType);
-        
-        if (!typeExists) {
-            console.log('⚠️ Tipo inconsistente! Reset forzato a haiku');
-            poemNation.value = 'giapponesi';
-            populatePoemTypes('giapponesi');
-            poemTypeSelect.value = 'haiku';
-            updatePatternDisplay('haiku');
-        } else {
-            updatePatternDisplay(currentType);
+        // 3. Prova a ripristinare stato salvato (con cautela)
+        try {
+            isRestoringState = true;
+            const stateRestored = restoreSelectionState();
+            isRestoringState = false;
+            console.log('📋 Ripristino stato:', stateRestored ? 'successo' : 'fallito');
+        } catch (e) {
+            console.warn('⚠️ Errore durante ripristino stato:', e);
+            isRestoringState = false;
         }
-        
-        console.log('✅ Inizializzazione completa');
-        
-        // CONTROLLO DI EMERGENZA FINALE: se patternDisplay è ancora vuoto, forza haiku
-        if (patternDisplay.innerHTML.trim() === '') {
-            console.log('🆘 EMERGENZA: patternDisplay ancora vuoto! Forzo haiku');
-            patternDisplay.innerHTML = `
-                <span class="badge bg-haiku-secondary syllable-badge">5</span>
-                <span class="badge bg-haiku-secondary syllable-badge">7</span>
-                <span class="badge bg-haiku-secondary syllable-badge">5</span>
-            `;
-        }
-    }, 200);
+    } else {
+        console.warn('⚠️ Elementi mancanti, salto inizializzazione badge');
+    }
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
@@ -245,9 +221,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePatternDisplay(type) {
         console.log('🎯 updatePatternDisplay() chiamata con tipo:', type);
         
+        // Controllo di sicurezza
+        if (!patternDisplay) {
+            console.error('❌ patternDisplay non disponibile');
+            return;
+        }
+        
+        if (!type) {
+            console.warn('⚠️ Tipo non specificato, uso haiku');
+            type = 'haiku';
+        }
+        
         const pattern = patterns[type];
         if (!pattern) {
-            console.warn('⚠️ Pattern non trovato per tipo:', type);
+            console.warn('⚠️ Pattern non trovato per tipo:', type, '- uso haiku');
+            // Fallback sicuro a haiku
+            patternDisplay.innerHTML = `
+                <span class="badge bg-haiku-secondary syllable-badge">5</span>
+                <span class="badge bg-haiku-secondary syllable-badge">7</span>
+                <span class="badge bg-haiku-secondary syllable-badge">5</span>
+            `;
             return;
         }
 
@@ -276,76 +269,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         patternDisplay.innerHTML = html;
-        console.log('✅ Pattern HTML aggiornato:', html.substring(0, 100) + '...');
+        console.log('✅ Pattern HTML aggiornato per tipo:', type);
     }
 
-    // Inizializza i badge
+    // Inizializza i badge (versione semplificata)
     function initBadges() {
         console.log('🔧 initBadges() chiamata');
         
-        // Verifica che gli elementi esistano
+        // Controllo di sicurezza base
         if (!patternDisplay) {
-            console.error('❌ Elemento patternDisplay non trovato!');
+            console.error('❌ patternDisplay non trovato in initBadges');
             return;
         }
         
-        if (!poemTypeSelect) {
-            console.error('❌ Elemento poemTypeSelect non trovato!');
-            return;
-        }
+        // Usa il tipo corrente o haiku come fallback
+        const currentType = (poemTypeSelect && poemTypeSelect.value) ? poemTypeSelect.value : 'haiku';
+        console.log('📊 initBadges - Tipo da usare:', currentType);
         
-        // Usa il tipo attualmente selezionato
-        const currentType = poemTypeSelect.value;
-        console.log('📊 initBadges - Tipo corrente dal select:', currentType);
-        
-        // Se non c'è un tipo selezionato, usa haiku come default
-        const typeToUse = currentType || 'haiku';
-        console.log('🎯 initBadges - Tipo da usare:', typeToUse);
-        
-        updatePatternDisplay(typeToUse);
-        
-        // Assicurati che il select abbia il valore corretto
-        if (!currentType) {
-            poemTypeSelect.value = 'haiku';
-            console.log('🔧 Select forzato a haiku per coerenza');
-        }
+        // Chiama updatePatternDisplay che ha le sue protezioni
+        updatePatternDisplay(currentType);
     }
 
-    // Micro-interazioni
-    poemText.addEventListener('focus', () => {
-        poemText.style.borderColor = 'var(--primary)';
-        const firstBadge = patternDisplay.querySelector('.badge');
-        if (firstBadge) firstBadge.classList.add('pulse');
-    });
+    // Micro-interazioni (solo se gli elementi esistono)
+    if (poemText && patternDisplay) {
+        poemText.addEventListener('focus', () => {
+            poemText.style.borderColor = 'var(--primary)';
+            const firstBadge = patternDisplay.querySelector('.badge');
+            if (firstBadge) firstBadge.classList.add('pulse');
+        });
 
-    poemText.addEventListener('blur', () => {
-        poemText.style.borderColor = '';
-    });
+        poemText.addEventListener('blur', () => {
+            poemText.style.borderColor = '';
+        });
+    }
 
-    // Cambio tipo poesia
-    poemTypeSelect.addEventListener('change', () => {
-        const selectedType = poemTypeSelect.value;
-        console.log('🎛️ Cambio tipo poesia a:', selectedType);
-        
-        updatePatternDisplay(selectedType);
+    // Cambio tipo poesia (solo se elemento esiste)
+    if (poemTypeSelect) {
+        poemTypeSelect.addEventListener('change', () => {
+            const selectedType = poemTypeSelect.value;
+            console.log('🎛️ Cambio tipo poesia a:', selectedType);
+            
+            updatePatternDisplay(selectedType);
 
-        if (selectedType === 'versi_liberi') {
-            poemText.placeholder = "Non ti ferma più nessuno!!";
-        } else {
-            poemText.placeholder = "Scrivi qui i tuoi versi :3";
-        }
+            if (poemText) {
+                if (selectedType === 'versi_liberi') {
+                    poemText.placeholder = "Non ti ferma più nessuno!!";
+                } else {
+                    poemText.placeholder = "Scrivi qui i tuoi versi :3";
+                }
+            }
 
-        poemTypeSelect.classList.add('animate__pulse');
-        setTimeout(() => {
-            poemTypeSelect.classList.remove('animate__pulse');
-        }, 500);
-        
-        // Salva lo stato quando cambia il tipo (solo se non stiamo ripristinando)
-        if (!isRestoringState) {
-            console.log('💾 Salvataggio nuovo stato dopo cambio tipo');
-            saveSelectionState();
-        }
-    });
+            poemTypeSelect.classList.add('animate__pulse');
+            setTimeout(() => {
+                poemTypeSelect.classList.remove('animate__pulse');
+            }, 500);
+            
+            // Salva lo stato quando cambia il tipo (solo se non stiamo ripristinando)
+            if (!isRestoringState) {
+                console.log('💾 Salvataggio nuovo stato dopo cambio tipo');
+                saveSelectionState();
+            }
+        });
+    }
 
     // GESTIONE CHECKBOX PUBBLICAZIONE (NUOVA)
     if (publishCheckbox) {
