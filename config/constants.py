@@ -116,5 +116,13 @@ SCHEMI_POESIA = {
     "cinquain": {
         "sillabe": [2, 4, 6, 8, 2],
         "rima": []
+    },
+    "distico": {
+        "sillabe": [11, 11],
+        "rima": ["AA"]
+    },
+    "verso libero": {
+        "sillabe": [],
+        "rima": []
     }
 }
