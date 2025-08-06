@@ -81,10 +81,25 @@ Write-Host "   🗄️  Controllo e allineamento schema database..." -Foreground
 heroku run python migrate_database.py
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Errore durante la migrazione database" -ForegroundColor Red
-    Write-Host "   🔄 Tentativo alternativo..." -ForegroundColor Yellow
+    Write-Host "   🔄 Tentativo con script di verifica..." -ForegroundColor Yellow
     heroku run python check_database_schema.py
+    
+    $retryMigration = Read-Host "`nTentare migrazione di emergenza (elimina tutti i dati)? (s/N)"
+    if ($retryMigration -eq 's' -or $retryMigration -eq 'S') {
+        Write-Host "   ⚠️  Esecuzione migrazione di emergenza..." -ForegroundColor Red
+        heroku run 'echo "CONFERMA" | python emergency_recreate_db.py'
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "   ✅ Migrazione di emergenza completata" -ForegroundColor Green
+        } else {
+            Write-Host "   ❌ Anche la migrazione di emergenza è fallita" -ForegroundColor Red
+            Write-Host "   📋 Comandi manuali da provare:" -ForegroundColor Yellow
+            Write-Host "      heroku pg:reset --confirm nome-app" -ForegroundColor White
+            Write-Host "      heroku run python migrate_database.py" -ForegroundColor White
+        }
+    }
+} else {
+    Write-Host "   ✅ Migrazione database completata" -ForegroundColor Green
 }
-Write-Host "   ✅ Migrazione database completata" -ForegroundColor Green
 
 # 4. Restart dell'app
 Write-Host "`n🔄 FASE 4: Restart applicazione..." -ForegroundColor Yellow

@@ -31,69 +31,77 @@ def migrate_schema():
         try:
             print("🔧 Avvio migrazione database...")
             
-            # Controlla se la tabella esiste
-            result = db.engine.execute(text("""
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_schema = 'public' AND table_name = 'poems'
-            """))
+            # Prima verifica se siamo su PostgreSQL o SQLite
+            is_postgres = 'postgresql://' in app.config['SQLALCHEMY_DATABASE_URI']
             
-            table_exists = len(list(result)) > 0
-            
-            if table_exists:
-                print("✅ Tabella 'poems' esistente")
-                
-                # Controlla le colonne esistenti
+            if is_postgres:
+                # Controlla se la tabella esiste
                 result = db.engine.execute(text("""
-                    SELECT column_name, data_type 
-                    FROM information_schema.columns 
+                    SELECT table_name 
+                    FROM information_schema.tables 
                     WHERE table_schema = 'public' AND table_name = 'poems'
                 """))
                 
-                columns = {row[0]: row[1] for row in result}
-                print(f"📋 Colonne attuali: {list(columns.keys())}")
+                table_exists = len(list(result)) > 0
                 
-                # Se la colonna content non esiste ma text sì, rinomina
-                if 'text' in columns and 'content' not in columns:
-                    print("🔄 Rinomino colonna 'text' in 'content'...")
-                    db.engine.execute(text("ALTER TABLE poems RENAME COLUMN text TO content"))
-                    print("✅ Colonna rinominata")
-                
-                # Se mancano colonne, aggiungile
-                expected_columns = {
-                    'id': 'integer',
-                    'title': 'varchar',
-                    'content': 'text',
-                    'author': 'varchar',
-                    'verse_count': 'integer',
-                    'syllable_counts': 'varchar',
-                    'rhyme_scheme': 'varchar',
-                    'poem_type': 'varchar',
-                    'created_at': 'timestamp',
-                    'is_valid': 'boolean'
-                }
-                
-                for col_name, col_type in expected_columns.items():
-                    if col_name not in columns:
-                        print(f"➕ Aggiunto colonna mancante: {col_name}")
-                        # Le specifiche SQL per aggiungere colonne variano, useremo un approccio sicuro
-                        if col_name == 'verse_count':
-                            db.engine.execute(text("ALTER TABLE poems ADD COLUMN verse_count INTEGER DEFAULT 0"))
-                        elif col_name == 'syllable_counts':
-                            db.engine.execute(text("ALTER TABLE poems ADD COLUMN syllable_counts VARCHAR(100) DEFAULT ''"))
-                        elif col_name == 'rhyme_scheme':
-                            db.engine.execute(text("ALTER TABLE poems ADD COLUMN rhyme_scheme VARCHAR(50)"))
-                        elif col_name == 'poem_type':
-                            db.engine.execute(text("ALTER TABLE poems ADD COLUMN poem_type VARCHAR(50)"))
-                        elif col_name == 'created_at':
-                            db.engine.execute(text("ALTER TABLE poems ADD COLUMN created_at TIMESTAMP DEFAULT NOW()"))
-                        elif col_name == 'is_valid':
-                            db.engine.execute(text("ALTER TABLE poems ADD COLUMN is_valid BOOLEAN DEFAULT FALSE"))
-                            
+                if table_exists:
+                    print("✅ Tabella 'poems' esistente")
+                    
+                    # Controlla le colonne esistenti
+                    result = db.engine.execute(text("""
+                        SELECT column_name, data_type 
+                        FROM information_schema.columns 
+                        WHERE table_schema = 'public' AND table_name = 'poems'
+                    """))
+                    
+                    columns = {row[0]: row[1] for row in result}
+                    print(f"📋 Colonne attuali: {list(columns.keys())}")
+                    
+                    # Se la colonna content non esiste ma text sì, rinomina
+                    if 'text' in columns and 'content' not in columns:
+                        print("🔄 Rinomino colonna 'text' in 'content'...")
+                        db.engine.execute(text("ALTER TABLE poems RENAME COLUMN text TO content"))
+                        print("✅ Colonna rinominata")
+                    elif 'content' not in columns:
+                        # Se non esiste nemmeno text, aggiungi content
+                        print("➕ Aggiunta colonna 'content'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN content TEXT"))
+                        print("✅ Colonna 'content' aggiunta")
+                    
+                    # Aggiungi colonne mancanti
+                    if 'verse_count' not in columns:
+                        print("➕ Aggiunta colonna 'verse_count'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN verse_count INTEGER DEFAULT 0"))
+                    
+                    if 'syllable_counts' not in columns:
+                        print("➕ Aggiunta colonna 'syllable_counts'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN syllable_counts VARCHAR(100) DEFAULT ''"))
+                    
+                    if 'rhyme_scheme' not in columns:
+                        print("➕ Aggiunta colonna 'rhyme_scheme'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN rhyme_scheme VARCHAR(50)"))
+                    
+                    if 'poem_type' not in columns:
+                        print("➕ Aggiunta colonna 'poem_type'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN poem_type VARCHAR(50)"))
+                    
+                    if 'created_at' not in columns:
+                        print("➕ Aggiunta colonna 'created_at'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN created_at TIMESTAMP DEFAULT NOW()"))
+                    
+                    if 'is_valid' not in columns:
+                        print("➕ Aggiunta colonna 'is_valid'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN is_valid BOOLEAN DEFAULT FALSE"))
+                        
+                else:
+                    print("🆕 Creazione nuova tabella 'poems'...")
+                    db.create_all()
+                    print("✅ Tabella creata")
             else:
-                print("🆕 Creazione nuova tabella 'poems'...")
+                # Per SQLite, ricrea semplicemente la tabella
+                print("🔧 Database SQLite - ricreazione schema...")
                 db.create_all()
-                print("✅ Tabella creata")
+                print("✅ Schema aggiornato")
             
             print("✅ Migrazione completata con successo!")
             
@@ -101,10 +109,19 @@ def migrate_schema():
             print(f"❌ Errore durante la migrazione: {e}")
             print("🔄 Tentativo di creazione forzata della tabella...")
             try:
+                # Drop e ricrea la tabella se tutto il resto fallisce
+                db.drop_all()
                 db.create_all()
-                print("✅ Tabella creata con schema aggiornato")
+                print("✅ Tabella ricreata con schema aggiornato")
             except Exception as e2:
                 print(f"❌ Fallimento completo: {e2}")
+                # Come ultima risorsa, prova a creare solo la tabella
+                try:
+                    from models.poem import Poem
+                    Poem.__table__.create(db.engine, checkfirst=True)
+                    print("✅ Tabella Poem creata direttamente")
+                except Exception as e3:
+                    print(f"❌ Impossibile creare la tabella: {e3}")
 
 if __name__ == "__main__":
     migrate_schema()
