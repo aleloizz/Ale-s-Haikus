@@ -52,34 +52,50 @@ document.addEventListener('DOMContentLoaded', () => {
             nation: poemNation.value,
             type: poemTypeSelect.value
         };
+        console.log('💾 Salvataggio stato:', state);
         localStorage.setItem('poemSelectionState', JSON.stringify(state));
+        console.log('✅ Stato salvato in localStorage');
     }
 
     function restoreSelectionState() {
+        console.log('🔄 restoreSelectionState() chiamata');
         try {
             const saved = localStorage.getItem('poemSelectionState');
+            console.log('💾 Stato salvato trovato:', saved);
+            
             if (saved) {
                 const state = JSON.parse(saved);
+                console.log('📋 Stato parsed:', state);
                 
                 // Ripristina la nazione se valida
                 if (state.nation && poemTypes[state.nation]) {
+                    console.log('🌍 Ripristino nazione:', state.nation);
                     poemNation.value = state.nation;
                     populatePoemTypes(state.nation);
                     
                     // Ripristina il tipo se valido per questa nazione
                     if (state.type) {
                         const typeExists = poemTypes[state.nation].some(pt => pt.value === state.type);
+                        console.log('🎯 Controllo esistenza tipo:', state.type, 'esiste:', typeExists);
+                        
                         if (typeExists) {
+                            console.log('✅ Ripristino tipo:', state.type);
                             poemTypeSelect.value = state.type;
                             updatePatternDisplay(state.type);
                             return true; // Stato ripristinato con successo
                         }
                     }
+                } else {
+                    console.log('⚠️ Nazione non valida, uso default');
                 }
+            } else {
+                console.log('📭 Nessuno stato salvato trovato');
             }
         } catch (e) {
-            console.warn('Errore nel ripristino stato:', e);
+            console.warn('❌ Errore nel ripristino stato:', e);
         }
+        
+        console.log('🔄 Fallback a stato di default');
         return false; // Fallback a stato di default
     }
 
@@ -109,21 +125,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Popola all'avvio e ripristina stato se possibile
+    // NUOVO ORDINE DI INIZIALIZZAZIONE
+    // 1. Prima popola sempre i tipi di default
+    populatePoemTypes(poemNation.value);
+    
+    // 2. Poi prova a ripristinare lo stato salvato
     isRestoringState = true;
     const stateRestored = restoreSelectionState();
     isRestoringState = false;
     
-    if (!stateRestored) {
-        // Se non c'è stato salvato, usa valori di default
-        populatePoemTypes(poemNation.value);
-    }
+    // 3. Inizializza subito i badge con lo stato corrente
+    initBadges();
     
-    // Aspetta un attimo per essere sicuri che i dropdown siano popolati
+    // 4. Aggiungi un secondo controllo dopo che tutto è pronto
     setTimeout(() => {
-        // Inizializza i badge dopo aver ripristinato/impostato lo stato
-        initBadges();
-    }, 100);
+        console.log('🔄 Secondo controllo badge dopo 500ms');
+        const currentType = poemTypeSelect.value;
+        console.log('📊 Tipo finale verificato:', currentType);
+        updatePatternDisplay(currentType);
+    }, 500);
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
