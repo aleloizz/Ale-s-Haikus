@@ -46,6 +46,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return div.innerHTML;
     }
 
+    // FUNZIONI PER SALVARE/RIPRISTINARE LO STATO
+    function saveSelectionState() {
+        const state = {
+            nation: poemNation.value,
+            type: poemTypeSelect.value
+        };
+        localStorage.setItem('poemSelectionState', JSON.stringify(state));
+    }
+
+    function restoreSelectionState() {
+        try {
+            const saved = localStorage.getItem('poemSelectionState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                
+                // Ripristina la nazione se valida
+                if (state.nation && poemTypes[state.nation]) {
+                    poemNation.value = state.nation;
+                    populatePoemTypes(state.nation);
+                    
+                    // Ripristina il tipo se valido per questa nazione
+                    if (state.type) {
+                        const typeExists = poemTypes[state.nation].some(pt => pt.value === state.type);
+                        if (typeExists) {
+                            poemTypeSelect.value = state.type;
+                            updatePatternDisplay(state.type);
+                            return true; // Stato ripristinato con successo
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Errore nel ripristino stato:', e);
+        }
+        return false; // Fallback a stato di default
+    }
+
     // Popolamento del selettore dei tipi di poesia in base alla nazione
     function populatePoemTypes(nation) {
         poemTypeSelect.innerHTML = '';
@@ -55,15 +92,35 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.textContent = pt.label;
             poemTypeSelect.appendChild(opt);
         });
-        poemTypeSelect.dispatchEvent(new Event('change'));
+        
+        // Solo scatena l'evento change se non stiamo ripristinando lo stato
+        if (!isRestoringState) {
+            poemTypeSelect.dispatchEvent(new Event('change'));
+        }
     }
+
+    // Flag per evitare loop durante il ripristino
+    let isRestoringState = false;
 
     poemNation.addEventListener('change', () => {
         populatePoemTypes(poemNation.value);
+        if (!isRestoringState) {
+            saveSelectionState();
+        }
     });
 
-    // Popola all'avvio
-    populatePoemTypes(poemNation.value);
+    // Popola all'avvio e ripristina stato se possibile
+    isRestoringState = true;
+    const stateRestored = restoreSelectionState();
+    isRestoringState = false;
+    
+    if (!stateRestored) {
+        // Se non c'è stato salvato, usa valori di default
+        populatePoemTypes(poemNation.value);
+    }
+    
+    // Inizializza i badge dopo aver ripristinato/impostato lo stato
+    initBadges();
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
@@ -117,7 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inizializza i badge
     function initBadges() {
-        updatePatternDisplay('haiku');
+        // Usa il tipo attualmente selezionato invece di forzare 'haiku'
+        const currentType = poemTypeSelect.value || 'haiku';
+        updatePatternDisplay(currentType);
     }
 
     // Micro-interazioni
@@ -146,6 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             poemTypeSelect.classList.remove('animate__pulse');
         }, 500);
+        
+        // Salva lo stato quando cambia il tipo
+        if (!isRestoringState) {
+            saveSelectionState();
+        }
     });
 
     // GESTIONE CHECKBOX PUBBLICAZIONE (NUOVA)
@@ -702,9 +766,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Copy failed:', err);
         }
     });
-
-    // Inizializzazione
-    initBadges();
 
     poemText.addEventListener('input', function() {
         const lines = this.value.split('\n').filter(line => line.trim() !== '');
