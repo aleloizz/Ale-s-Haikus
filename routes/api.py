@@ -28,7 +28,7 @@ def calculate_rhyme_status_for_verses(analyzed_scheme, expected_scheme, num_vers
     
     return status
 
-def validate_rhyme_pattern(analyzed_scheme, expected_scheme):
+def validate_rhyme_pattern(analyzed_scheme, expected_scheme, analisi_rime=None):
     """Valida se lo schema rime analizzato corrisponde a quello atteso"""
     if not expected_scheme:
         return True, []  # Se non c'è schema atteso, consideriamo valido
@@ -47,7 +47,30 @@ def validate_rhyme_pattern(analyzed_scheme, expected_scheme):
         # Confronta posizione per posizione
         for i, (actual, expected) in enumerate(zip(analyzed_scheme, expected_string)):
             if actual != expected:
-                errors.append(f"Verso {i+1}: rima '{actual}' invece di '{expected}'")
+                # Estrai informazioni sui suoni se disponibili
+                suono_info = ""
+                if analisi_rime and 'suoni_finali' in analisi_rime and i < len(analisi_rime['suoni_finali']):
+                    suono_attuale = analisi_rime['suoni_finali'][i]
+                    
+                    # Trova tutti i versi che dovrebbero rimare con questo (stessa lettera attesa)
+                    versi_dovrebbero_rimare = []
+                    suoni_dovrebbero_rimare = []
+                    for j, lettera in enumerate(expected_string):
+                        if j != i and lettera == expected and j < len(analisi_rime['suoni_finali']):
+                            versi_dovrebbero_rimare.append(j + 1)
+                            suoni_dovrebbero_rimare.append(analisi_rime['suoni_finali'][j])
+                    
+                    if versi_dovrebbero_rimare:
+                        if len(versi_dovrebbero_rimare) == 1:
+                            suono_info = f" (suono '{suono_attuale}' non rima con verso {versi_dovrebbero_rimare[0]}: '{suoni_dovrebbero_rimare[0]}')"
+                        else:
+                            versi_str = ', '.join(map(str, versi_dovrebbero_rimare))
+                            suoni_str = ', '.join([f"'{s}'" for s in suoni_dovrebbero_rimare])
+                            suono_info = f" (suono '{suono_attuale}' dovrebbe rimare con versi {versi_str}: {suoni_str})"
+                    else:
+                        suono_info = f" (suono '{suono_attuale}')"
+                
+                errors.append(f"Verso {i+1}: rima '{actual}' invece di '{expected}'{suono_info}")
     
     return False, errors
 
@@ -223,7 +246,11 @@ def api_analizza():
             scheme_for_frontend = expected_scheme
         
         # Valida se le rime rispettano il pattern atteso
-        rhyme_valid, rhyme_errors = validate_rhyme_pattern(analisi['schema_rime'], expected_scheme)
+        rhyme_valid, rhyme_errors = validate_rhyme_pattern(
+            analisi['schema_rime'], 
+            expected_scheme, 
+            analisi.get('analisi_rime', {})
+        )
         
         # Calcola lo stato delle rime per ogni verso (per i badge nel frontend)
         rhyme_status = calculate_rhyme_status_for_verses(analisi['schema_rime'], expected_scheme, len(analisi['versi']))
