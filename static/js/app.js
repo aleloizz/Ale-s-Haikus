@@ -132,12 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('⚠️ poemTypeSelect non disponibile in populatePoemTypes');
             return;
         }
-        
         if (!nation || !poemTypes[nation]) {
             console.warn('⚠️ Nazione non valida:', nation);
             return;
         }
-        
         poemTypeSelect.innerHTML = '';
         poemTypes[nation].forEach(pt => {
             const opt = document.createElement('option');
@@ -145,7 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.textContent = pt.label;
             poemTypeSelect.appendChild(opt);
         });
-        
+
+        // Aggiorna sempre i badge dopo aver popolato il select
+        updatePatternDisplay(poemTypeSelect.value);
+
         // Solo scatena l'evento change se non stiamo ripristinando lo stato
         if (!isRestoringState) {
             poemTypeSelect.dispatchEvent(new Event('change'));
@@ -157,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     poemNation.addEventListener('change', () => {
         populatePoemTypes(poemNation.value);
+        updatePatternDisplay(poemTypeSelect.value); // Aggiorna i badge
         if (!isRestoringState) {
             saveSelectionState();
         }
@@ -519,31 +521,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ATTENZIONE: Questo blocco va DOPO la definizione di tutte le funzioni (intorno alla riga 400)
     setTimeout(() => {
-        // Solo se abbiamo gli elementi necessari
         if (poemNation && poemTypeSelect && patternDisplay) {
-            console.log('✅ Tutti gli elementi necessari trovati');
-            
-            // 1. Inizializzazione base
             poemNation.value = 'giapponesi';
             populatePoemTypes('giapponesi');
             poemTypeSelect.value = 'haiku';
-            
-            // 2. Mostra subito i badge haiku
-            updatePatternDisplay('haiku');
-            console.log('✅ Badge haiku mostrati');
-            
-            // 3. Prova a ripristinare stato salvato (con cautela)
+            updatePatternDisplay('haiku'); // Assicurati che venga chiamato qui
+
             try {
                 isRestoringState = true;
                 const stateRestored = restoreSelectionState();
                 isRestoringState = false;
-                console.log('📋 Ripristino stato:', stateRestored ? 'successo' : 'fallito');
             } catch (e) {
-                console.warn('⚠️ Errore durante ripristino stato:', e);
                 isRestoringState = false;
             }
-        } else {
-            console.warn('⚠️ Elementi mancanti, salto inizializzazione badge');
         }
     }, 100); // Delay di 100ms per assicurarsi che tutto sia caricato
 
