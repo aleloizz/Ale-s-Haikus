@@ -119,8 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
         populatePoemTypes(poemNation.value);
     }
     
-    // Inizializza i badge dopo aver ripristinato/impostato lo stato
-    initBadges();
+    // Aspetta un attimo per essere sicuri che i dropdown siano popolati
+    setTimeout(() => {
+        // Inizializza i badge dopo aver ripristinato/impostato lo stato
+        initBadges();
+    }, 100);
    
     // Configurazione iniziale
     document.body.classList.remove('loading');
@@ -145,8 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function updatePatternDisplay(type) {
+        console.log('🎯 updatePatternDisplay() chiamata con tipo:', type);
+        
         const pattern = patterns[type];
-        if (!pattern) return;
+        if (!pattern) {
+            console.warn('⚠️ Pattern non trovato per tipo:', type);
+            return;
+        }
+
+        console.log('📋 Pattern trovato:', pattern);
 
         if (type === 'versi_liberi') {
             patternDisplay.innerHTML = `
@@ -155,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     Libera la tua creatività, ogni verso sarà analizzato per sillabe e rime.
                 </div>
             `;
+            console.log('✅ Pattern "versi liberi" applicato');
             return;
         }
 
@@ -170,12 +181,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         patternDisplay.innerHTML = html;
+        console.log('✅ Pattern HTML aggiornato:', html.substring(0, 100) + '...');
     }
 
     // Inizializza i badge
     function initBadges() {
+        // Debug per verificare che la funzione venga chiamata
+        console.log('🔧 initBadges() chiamata');
+        
+        // Verifica che gli elementi esistano
+        if (!patternDisplay) {
+            console.error('❌ Elemento patternDisplay non trovato!');
+            return;
+        }
+        
+        if (!poemTypeSelect) {
+            console.error('❌ Elemento poemTypeSelect non trovato!');
+            return;
+        }
+        
         // Usa il tipo attualmente selezionato invece di forzare 'haiku'
         const currentType = poemTypeSelect.value || 'haiku';
+        console.log('📊 Tipo corrente:', currentType);
+        console.log('📍 patternDisplay elemento:', patternDisplay);
+        
         updatePatternDisplay(currentType);
     }
 
