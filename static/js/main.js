@@ -1,0 +1,221 @@
+/**
+ * @fileoverview Entry point principale per l'applicazione di analisi poetica
+ * @author Poetry Analyzer App
+ */
+
+import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js';
+import { saveSelectionState, restoreSelectionState } from './storage.js';
+import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
+import { handlePublishToggle } from './publish.js';
+import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
+
+// Variabile di stato per il ripristino
+let isRestoringState = false;
+
+/**
+ * Inizializzazione dell'applicazione
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Inizializzazione app.js modulare');
+    
+    // Ottenimento elementi DOM
+    const elements = getDOMElements();
+    
+    if (!elements.poemNation || !elements.poemTypeSelect || !elements.patternDisplay) {
+        console.error('❌ Elementi essenziali non trovati');
+        return;
+    }
+    
+    // Configurazione iniziale
+    document.body.classList.remove('loading');
+    
+    // Setup event listeners
+    setupEventListeners(elements);
+    
+    // Inizializzazione con delay per assicurarsi che tutto sia caricato
+    setTimeout(() => {
+        initializeApplication(elements);
+    }, 100);
+});
+
+/**
+ * Ottiene tutti gli elementi DOM necessari
+ * @returns {Object} Oggetto con gli elementi DOM
+ */
+function getDOMElements() {
+    return {
+        poemNation: document.getElementById('poemNation'),
+        poemTypeSelect: document.getElementById('poemType'),
+        patternDisplay: document.getElementById('patternDisplay'),
+        poemText: document.getElementById('poemText'),
+        poemForm: document.getElementById('poemForm'),
+        copyBtn: document.getElementById('copyBtn'),
+        publishCheckbox: document.getElementById('publishPoem'),
+        publishFields: document.getElementById('publishFields'),
+        submitBtnText: document.getElementById('submitBtnText')
+    };
+}
+
+/**
+ * Configura tutti gli event listeners
+ * @param {Object} elements - Elementi DOM
+ */
+function setupEventListeners(elements) {
+    const { poemNation, poemTypeSelect, poemText, poemForm, copyBtn, publishCheckbox, patternDisplay } = elements;
+    
+    // Event listener per cambio nazione
+    if (poemNation) {
+        poemNation.addEventListener('change', () => {
+            const updateCallback = (type) => updatePatternDisplay(type, patternDisplay);
+            populatePoemTypes(poemNation.value, poemTypeSelect, updateCallback, !isRestoringState);
+            
+            if (!isRestoringState) {
+                saveSelectionState(poemNation.value, poemTypeSelect.value);
+            }
+        });
+    }
+    
+    // Event listener per cambio tipo poesia
+    if (poemTypeSelect) {
+        poemTypeSelect.addEventListener('change', () => {
+            const selectedType = poemTypeSelect.value;
+            console.log('🎛️ Cambio tipo poesia a:', selectedType);
+            
+            updatePatternDisplay(selectedType, patternDisplay);
+            
+            // Aggiorna placeholder del textarea
+            if (poemText) {
+                if (selectedType === 'versi_liberi') {
+                    poemText.placeholder = "Non ti ferma più nessuno!!";
+                } else {
+                    poemText.placeholder = "Scrivi qui i tuoi versi :3";
+                }
+            }
+            
+            // Animazione
+            poemTypeSelect.classList.add('animate__pulse');
+            setTimeout(() => {
+                poemTypeSelect.classList.remove('animate__pulse');
+            }, 500);
+            
+            // Salva stato se non stiamo ripristinando
+            if (!isRestoringState) {
+                console.log('💾 Salvataggio nuovo stato dopo cambio tipo');
+                saveSelectionState(poemNation.value, selectedType);
+            }
+        });
+    }
+    
+    // Event listeners per focus/blur del textarea
+    if (poemText && patternDisplay) {
+        poemText.addEventListener('focus', () => {
+            poemText.style.borderColor = 'var(--primary)';
+            const firstBadge = patternDisplay.querySelector('.badge');
+            if (firstBadge) firstBadge.classList.add('pulse');
+        });
+        
+        poemText.addEventListener('blur', () => {
+            poemText.style.borderColor = '';
+        });
+        
+        // Event listener per input del textarea
+        poemText.addEventListener('input', (e) => {
+            handlePoemTextInput(e, poemTypeSelect);
+        });
+    }
+    
+    // Event listener per checkbox pubblicazione
+    if (publishCheckbox) {
+        publishCheckbox.addEventListener('change', () => {
+            handlePublishToggle(publishCheckbox.checked);
+        });
+    }
+    
+    // Event listener per submit del form
+    if (poemForm) {
+        poemForm.addEventListener('submit', (e) => {
+            handleFormSubmit(e, elements);
+        });
+    }
+    
+    // Event listener per bottone copia
+    if (copyBtn && poemText) {
+        copyBtn.addEventListener('click', async () => {
+            const success = await copyToClipboard(poemText.value);
+            
+            if (success) {
+                vibrate(7);
+                showBootstrapToast('copyToast');
+            } else {
+                alert('Copia non supportata su questo dispositivo. Seleziona e copia manualmente.');
+            }
+        });
+    }
+    
+    // Animazioni per il selettore tipo poesia
+    if (poemTypeSelect) {
+        poemTypeSelect.addEventListener('mouseenter', () => {
+            poemTypeSelect.style.transform = 'translateY(-2px)';
+        });
+        
+        poemTypeSelect.addEventListener('mouseleave', () => {
+            poemTypeSelect.style.transform = 'translateY(0)';
+        });
+    }
+}
+
+/**
+ * Inizializza l'applicazione con valori di default e ripristino stato
+ * @param {Object} elements - Elementi DOM
+ */
+function initializeApplication(elements) {
+    const { poemNation, poemTypeSelect, patternDisplay } = elements;
+    
+    console.log('🔧 Inizializzazione applicazione');
+    
+    // Impostazioni di default
+    poemNation.value = 'giapponesi';
+    const updateCallback = (type) => updatePatternDisplay(type, patternDisplay);
+    populatePoemTypes('giapponesi', poemTypeSelect, updateCallback, false);
+    poemTypeSelect.value = 'haiku';
+    updatePatternDisplay('haiku', patternDisplay);
+    
+    // Tentativo di ripristino stato
+    try {
+        isRestoringState = true;
+        const savedState = restoreSelectionState(poemTypes);
+        
+        if (savedState) {
+            console.log('✅ Ripristino stato trovato:', savedState);
+            
+            // Applica stato ripristinato
+            poemNation.value = savedState.nation;
+            populatePoemTypes(savedState.nation, poemTypeSelect, updateCallback, false);
+            poemTypeSelect.value = savedState.type;
+            updatePatternDisplay(savedState.type, patternDisplay);
+            
+            if (savedState.partial) {
+                console.log('⚠️ Ripristino parziale completato');
+            }
+        } else {
+            console.log('📭 Nessuno stato salvato, uso defaults');
+        }
+    } catch (e) {
+        console.warn('❌ Errore durante il ripristino:', e);
+    } finally {
+        isRestoringState = false;
+        console.log('✅ Inizializzazione completata');
+    }
+}
+
+// Esporta funzioni per debugging e testing
+window.PoetryApp = {
+    updatePatternDisplay: (type, element) => updatePatternDisplay(type, element),
+    saveState: saveSelectionState,
+    restoreState: restoreSelectionState,
+    showResults,
+    poemTypes,
+    isRestoringState: () => isRestoringState
+};
+
+console.log('📚 Poetry Analyzer App - Versione modulare caricata');
