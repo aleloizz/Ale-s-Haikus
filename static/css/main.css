@@ -863,3 +863,50 @@ textarea:focus {
       max-width: 400px; /* Toast più larghi per contenere i dettagli */
   }
 }
+
+/* Stili Desktop - Glassmorphism per publishFields */
+@media (min-width: 768px) {
+  #publishFields {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  #publishFields:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  #publishFields input {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    color: var(--text, #333);
+    transition: all 0.3s ease;
+  }
+
+  #publishFields input:focus {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: var(--primary, #a084e8);
+    box-shadow: 0 0 0 0.2rem rgba(212, 184, 255, 0.25);
+    transform: scale(1.02);
+  }
+
+  #publishFields input:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  #publishFields input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
