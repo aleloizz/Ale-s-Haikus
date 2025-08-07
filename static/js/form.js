@@ -380,18 +380,12 @@ function renderRhymeAnalysis(data) {
  * @param {HTMLElement} poemTypeSelect - Select del tipo di poesia
  */
 export function handlePoemTextInput(e, poemTypeSelect) {
-    const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
-    const currentType = poemTypeSelect.value;
+    // La schermata dei risultati ora rimane visibile fino a quando 
+    // l'utente non decide attivamente di fare una nuova analisi.
+    // Questo migliora l'esperienza utente evitando che i risultati
+    // scompaiano improvvisamente durante la modifica del testo.
     
-    // Verifica che il pattern esista prima di accedervi
-    if (patterns[currentType] && patterns[currentType].syllables) {
-        const requiredLines = patterns[currentType].syllables.length;
-        
-        if (lines.length === requiredLines) {
-            const errorContainer = document.getElementById('resultContainer');
-            if (errorContainer && errorContainer.querySelector('.alert-warning, .alert-danger')) {
-                errorContainer.style.display = 'none';
-            }
-        }
-    }
+    // Nota: Il comportamento precedente nascondeva automaticamente 
+    // i risultati quando il numero di versi corrispondeva ai requisiti,
+    // ma questo creava un'esperienza confusa per l'utente.
 }
