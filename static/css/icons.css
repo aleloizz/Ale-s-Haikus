@@ -1,11 +1,8 @@
-/* Bootstrap Icons - Solo icone utilizzate nel progetto */
+/* Bootstrap Icons - Caricamento da CDN per compatibilità */
 
-@font-face {
-  font-family: "bootstrap-icons";
-  src: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/fonts/bootstrap-icons.woff2?b9c90b8dd9") format("woff2"),
-       url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/fonts/bootstrap-icons.woff?b9c90b8dd9") format("woff");
-}
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css');
 
+/* Override per ottimizzazione - mantiene solo le icone usate */
 .bi {
   font-family: "bootstrap-icons" !important;
   font-size: 1rem;
@@ -18,36 +15,3 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-/* Icone utilizzate nel progetto */
-
-.bi-chevron-down::before { content: "\f282"; }
-.bi-share::before { content: "\f52d"; }
-.bi-gear::before { content: "\f3e2"; }
-.bi-clipboard::before { content: "\f2a8"; }
-.bi-check-circle::before { content: "\f26d"; }
-.bi-heart-fill::before { content: "\f414"; }
-.bi-stars::before { content: "\f535"; }
-.bi-check-circle-fill::before { content: "\f26e"; }
-.bi-journal-bookmark-fill::before { content: "\f455"; }
-.bi-plus-circle::before { content: "\f4c2"; }
-.bi-person::before { content: "\f4da"; }
-.bi-bookmark::before { content: "\f26a"; }
-.bi-heart::before { content: "\f412"; }
-.bi-info-circle::before { content: "\f431"; }
-.bi-house::before { content: "\f425"; }
-.bi-grid::before { content: "\f3f5"; }
-.bi-book-half::before { content: "\f223"; }
-.bi-arrow-left::before { content: "\f128"; }
-.bi-music-note-beamed::before { content: "\f4aa"; }
-.bi-collection::before { content: "\f2a9"; }
-.bi-exclamation-triangle-fill::before { content: "\f33a"; }
-.bi-arrow-down-circle-fill::before { content: "\f136"; }
-.bi-arrow-up-circle-fill::before { content: "\f144"; }
-.bi-info-circle-fill::before { content: "\f432"; }
-.bi-x-circle-fill::before { content: "\f570"; }
-.bi-bug-fill::before { content: "\f230"; }
-.bi-check-lg::before { content: "\f26b"; }
-.bi-x-lg::before { content: "\f56e"; }
-.bi-exclamation-triangle::before { content: "\f339"; }
-.bi-check2-circle::before { content: "\f26a"; }
