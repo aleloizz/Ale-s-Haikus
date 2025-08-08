@@ -313,7 +313,7 @@ button:active {
 .btn-haiku {
   transition: all 0.3s ease;
   border-radius: 50px;
-  padding: 12px 24px !important;
+  padding: 10px 16px !important;
 }
 
 .btn-haiku.btn-primary {
@@ -336,7 +336,7 @@ button:active {
 .btn-haiku {
   font-size: 1rem !important;
   line-height: 1.5 !important;
-  min-height: 48px !important;
+  min-height: 44px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -345,6 +345,21 @@ button:active {
   border-radius: 2rem !important;
 }
 .btn-haiku i{margin-right:.5rem;display:inline-block;line-height:0}
+
+/* Checkbox label alignment (publishPoem, useTolerance) */
+.form-check{
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.form-check-input{
+  margin: 0 !important;
+}
+.form-check-label{
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
 
 .syllable-badge {
   background: var(--secondary);
