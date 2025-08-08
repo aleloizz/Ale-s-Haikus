@@ -140,9 +140,11 @@ function setupEventListeners(elements) {
         });
     }
     
-    // Event listener per submit del form
-    if (poemForm) {
-        poemForm.addEventListener('submit', (e) => {
+    // Gestione invio tramite bottone, evitando submit nativo
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             handleFormSubmit(e, elements);
         });
     }

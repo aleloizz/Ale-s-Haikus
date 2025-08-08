@@ -176,7 +176,7 @@ body.loading{background:#fbbda3!important}
                                     </div>
 
                                     <!-- Textarea unico -->
-                                    <form method="POST" id="poemForm">
+                                    <form method="POST" id="poemForm" onsubmit="return false;">
                                         <!-- Campi per pubblicazione -->
                                         <div id="publishFields" class="mb-3" style="display: none;">
                                             <div class="row">
@@ -227,7 +227,7 @@ body.loading{background:#fbbda3!important}
                                                 <button type="button" class="btn btn-haiku btn-secondary" id="copyBtn">
                                                     <i class="bi bi-clipboard"></i> Copia
                                                 </button>
-                                                <button type="submit" class="btn btn-haiku btn-primary" id="submitBtn" disabled>
+                                                <button type="button" class="btn btn-haiku btn-primary" id="submitBtn" disabled>
                                                     <i class="bi bi-check-circle"></i> <span id="submitBtnText">Verifica</span>
                                                 </button>
                                             </div>
