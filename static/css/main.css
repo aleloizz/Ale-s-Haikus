@@ -354,11 +354,22 @@ button:active {
 }
 .form-check-input{
   margin: 0 !important;
+  flex: 0 0 auto !important; /* do not shrink */
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  min-width: 1.1rem !important;
+  min-height: 1.1rem !important;
 }
 .form-check-label{
   display: inline-flex;
   align-items: center;
   gap: .35rem;
+  line-height: 1.2;
+}
+
+/* Prevent checkbox column from shrinking next to buttons on md+ */
+.d-md-flex.justify-content-md-between > .d-flex.flex-column {
+  flex-shrink: 0 !important;
 }
 
 .syllable-badge {
@@ -904,6 +915,13 @@ textarea:focus {
 
 /* Stili Desktop - Glassmorphism per publishFields */
 @media (min-width: 768px) {
+  /* keep the controls block steady when publishFields toggles */
+  .d-grid.gap-2.d-md-flex.justify-content-md-between{
+    align-items: flex-start;
+  }
+  .d-grid.gap-2.d-md-flex.justify-content-md-between > .d-flex.flex-column{
+    min-width: 280px; /* reserve space for two lines of controls */
+  }
   #publishFields {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
