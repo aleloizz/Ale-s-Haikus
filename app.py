@@ -56,7 +56,8 @@ def create_app(config_name=None):
     def sitemap():
         return send_from_directory('static', 'sitemap.xml')
     
-    @app.route('/<path:filename>')
+    # Override della route built-in per static files con cache ottimizzata
+    @app.route('/static/<path:filename>')
     def static_files(filename):
         response = send_from_directory(app.static_folder, filename)
         
@@ -65,13 +66,20 @@ def create_app(config_name=None):
             # CSS e JS: cache per 1 anno con validazione
             response.cache_control.max_age = 31536000  # 1 anno
             response.cache_control.public = True
+            response.cache_control.must_revalidate = False
             # Aggiungi ETag per validazione
             response.add_etag()
+            # Header espliciti per sovrascrivere proxy
+            response.headers['Cache-Control'] = 'public, max-age=31536000'
+            response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
         elif filename.endswith(('.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg')):
             # Immagini e icone: cache per 1 anno
             response.cache_control.max_age = 31536000  # 1 anno
             response.cache_control.public = True
             response.cache_control.immutable = True
+            # Header espliciti
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+            response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
         elif filename.endswith(('.woff', '.woff2', '.ttf', '.otf')):
             # Font: cache per 1 anno
             response.cache_control.max_age = 31536000  # 1 anno
