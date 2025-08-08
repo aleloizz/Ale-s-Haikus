@@ -69,6 +69,8 @@ body.loading{background:#fbbda3!important}
         <!-- Fonts - optimized loading -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect for JS CDN used later (Bootstrap JS lazy-loaded) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap"></noscript>
 
@@ -303,9 +305,31 @@ body.loading{background:#fbbda3!important}
                 </div>
             </div>
             
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <!-- Modulepreload dependencies to avoid ESM waterfall -->
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/utils.js') }}">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/storage.js') }}">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}">
             <!-- JavaScript modulare - caricato alla fine per garantire DOM ready -->
             <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+                        <!-- Lazy-load Bootstrap JS after idle to keep it out of LCP chain -->
+                        <script>
+                            (function(){
+                                function loadBootstrap(){
+                                    if (window.bootstrap) return;
+                                    var s=document.createElement('script');
+                                    s.src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+                                    s.defer=true; s.crossOrigin='anonymous';
+                                    document.head.appendChild(s);
+                                }
+                                if ('requestIdleCallback' in window) {
+                                    requestIdleCallback(loadBootstrap, {timeout: 2000});
+                                } else {
+                                    window.addEventListener('load', function(){ setTimeout(loadBootstrap, 1500); });
+                                }
+                            })();
+                        </script>
         </div>
     </body>
 </html>
