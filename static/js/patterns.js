@@ -80,6 +80,10 @@ export function updatePatternDisplay(type, patternDisplay) {
 
     console.log('📋 Pattern trovato:', pattern);
 
+    // Preserve height during content change to prevent CLS
+    const currentHeight = patternDisplay.offsetHeight;
+    patternDisplay.style.minHeight = currentHeight + 'px';
+    
     // Gestione speciale per versi liberi
     if (type === 'versi_liberi') {
         patternDisplay.innerHTML = `
@@ -89,6 +93,8 @@ export function updatePatternDisplay(type, patternDisplay) {
             </div>
         `;
         console.log('✅ Pattern "versi liberi" applicato');
+        // Reset min-height after content settles
+        setTimeout(() => patternDisplay.style.minHeight = '', 50);
         return;
     }
 
@@ -105,6 +111,8 @@ export function updatePatternDisplay(type, patternDisplay) {
     }
 
     patternDisplay.innerHTML = html;
+    // Reset min-height after content settles
+    setTimeout(() => patternDisplay.style.minHeight = '', 50);
     console.log('✅ Pattern HTML aggiornato per tipo:', type);
 }
 

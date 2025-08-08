@@ -13,7 +13,7 @@ ECCEZIONI = {
     "fui": 1, "fù": 1, "ambiguò" :4, "ambiguità": 4, 
     "già": 1, "giù": 1, "giú": 1, "giù": 1,
     "asciugamano": 5, "asciugamani": 5, "whisky": 2,
-    "quiz": 1, "quizz": 1, "guizzare" :3, "quindicina": 4,
+    "quiz": 1, "quizz": 1, "guizzare" :3, "quindicina": 4, "duetto": 3, "duetti": 3, "duettante": 4, "duettare": 4
 }
 
 # Combinazioni consonantiche
