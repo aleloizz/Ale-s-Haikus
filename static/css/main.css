@@ -74,6 +74,15 @@ footer {
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 
+/* Header/Footer background helper used in index.html */
+.bg-haiku-primary{
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -304,7 +313,7 @@ button:active {
 .btn-haiku {
   transition: all 0.3s ease;
   border-radius: 50px;
-  padding: 12px 24px;
+  padding: 12px 24px !important;
 }
 
 .btn-haiku.btn-primary {
@@ -332,7 +341,10 @@ button:active {
   align-items: center !important;
   justify-content: center !important;
   white-space: nowrap !important;
+  font-weight: 500 !important;
+  border-radius: 2rem !important;
 }
+.btn-haiku i{margin-right:.5rem;display:inline-block;line-height:0}
 
 .syllable-badge {
   background: var(--secondary);
