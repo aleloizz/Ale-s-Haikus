@@ -83,13 +83,13 @@
 }
 
 .btn-primary {
-  color: #fff;
+  color: var(--text);
   background-color: #0d6efd;
   border-color: #0d6efd;
 }
 
 .btn-secondary {
-  color: #fff;
+  color: var(--text);
   background-color: #6c757d;
   border-color: #6c757d;
 }
