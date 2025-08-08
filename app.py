@@ -5,6 +5,14 @@ Versione modulare per miglior manutenibilità
 import os
 from flask import Flask, request, render_template, redirect, send_from_directory
 
+# Tentativo import Flask-Compress (opzionale per sviluppo)
+try:
+    from flask_compress import Compress
+    COMPRESS_AVAILABLE = True
+except ImportError:
+    COMPRESS_AVAILABLE = False
+    print("Flask-Compress non disponibile - continuando senza compressione")
+
 # Import dei moduli personalizzati
 from config.app_config import config
 from models.poem import db
@@ -30,6 +38,11 @@ def create_app(config_name=None):
     # Inizializza le estensioni
     db.init_app(app)
     
+    # Inizializza compressione se disponibile
+    if COMPRESS_AVAILABLE:
+        Compress(app)
+        print("✅ Compressione gzip attivata")
+    
     # Registra i blueprint
     app.register_blueprint(api_bp)
     app.register_blueprint(web_bp)
@@ -45,13 +58,58 @@ def create_app(config_name=None):
     
     @app.route('/<path:filename>')
     def static_files(filename):
-        return send_from_directory(app.static_folder, filename)
+        response = send_from_directory(app.static_folder, filename)
+        
+        # Configurazione cache per diversi tipi di file
+        if filename.endswith(('.css', '.js')):
+            # CSS e JS: cache per 1 anno con validazione
+            response.cache_control.max_age = 31536000  # 1 anno
+            response.cache_control.public = True
+            # Aggiungi ETag per validazione
+            response.add_etag()
+        elif filename.endswith(('.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg')):
+            # Immagini e icone: cache per 1 anno
+            response.cache_control.max_age = 31536000  # 1 anno
+            response.cache_control.public = True
+            response.cache_control.immutable = True
+        elif filename.endswith(('.woff', '.woff2', '.ttf', '.otf')):
+            # Font: cache per 1 anno
+            response.cache_control.max_age = 31536000  # 1 anno
+            response.cache_control.public = True
+            response.cache_control.immutable = True
+        elif filename.endswith(('.xml', '.txt', '.json')):
+            # File di configurazione: cache breve con validazione
+            response.cache_control.max_age = 3600  # 1 ora
+            response.cache_control.public = True
+            response.add_etag()
+        else:
+            # Altri file: cache media
+            response.cache_control.max_age = 86400  # 1 giorno
+            response.cache_control.public = True
+            
+        return response
     
     @app.before_request
     def enforce_https_and_www():
         """Forza HTTPS e www in produzione"""
         if not app.debug and request.headers.get('X-Forwarded-Proto') != 'https':
             return redirect(request.url.replace('http://', 'https://'), code=301)
+    
+    @app.after_request
+    def add_security_headers(response):
+        """Aggiunge header di sicurezza e cache ottimizzati"""
+        # Header di sicurezza
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        
+        # Cache per pagine HTML: validazione con ETag ma cache breve
+        if response.content_type and 'text/html' in response.content_type:
+            response.cache_control.max_age = 300  # 5 minuti
+            response.cache_control.public = True
+            response.add_etag()
+        
+        return response
     
     # Route legacy per analisi haiku (mantenuta per compatibilità)
     @app.route('/analizza', methods=['POST'])
