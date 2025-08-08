@@ -29,8 +29,8 @@ def create_app(config_name=None):
         if config_name not in config:
             config_name = 'default'
     
-    # Crea l'app
-    app = Flask(__name__, static_folder='static', template_folder='templates')
+    # Crea l'app con static files disabilitati per forzare la nostra route
+    app = Flask(__name__, static_folder=None, template_folder='templates')
     
     # Carica la configurazione
     app.config.from_object(config[config_name])
@@ -59,7 +59,8 @@ def create_app(config_name=None):
     # Override della route built-in per static files con cache ottimizzata
     @app.route('/static/<path:filename>')
     def static_files(filename):
-        response = send_from_directory(app.static_folder, filename)
+        static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+        response = send_from_directory(static_folder, filename)
         
         # Configurazione cache per diversi tipi di file
         if filename.endswith(('.css', '.js')):
@@ -111,8 +112,31 @@ def create_app(config_name=None):
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
         
+        # FORZA CACHE HEADERS per static files anche se serviti da Heroku
+        path = request.path
+        if path.startswith('/static/'):
+            filename = path.split('/')[-1]
+            
+            if any(filename.endswith(ext) for ext in ['.css', '.js']):
+                # CSS e JS: cache per 1 anno
+                response.headers['Cache-Control'] = 'public, max-age=31536000'
+                response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
+            elif any(filename.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg']):
+                # Immagini: cache per 1 anno con immutable
+                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+                response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
+            elif any(filename.endswith(ext) for ext in ['.woff', '.woff2', '.ttf', '.otf']):
+                # Font: cache per 1 anno con immutable
+                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+            elif any(filename.endswith(ext) for ext in ['.xml', '.txt', '.json']):
+                # Configurazioni: cache breve
+                response.headers['Cache-Control'] = 'public, max-age=3600'
+            else:
+                # Altri static: cache media
+                response.headers['Cache-Control'] = 'public, max-age=86400'
+        
         # Cache per pagine HTML: validazione con ETag ma cache breve
-        if response.content_type and 'text/html' in response.content_type:
+        elif response.content_type and 'text/html' in response.content_type:
             response.cache_control.max_age = 300  # 5 minuti
             response.cache_control.public = True
             response.add_etag()
