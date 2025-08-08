@@ -787,6 +787,8 @@ textarea:focus {
   #patternDisplay {
     gap: 0.35rem;
     padding-bottom: 0.5rem;
+    min-height: 40px !important; /* Altezza ridotta per mobile */
+    height: auto !important; /* Altezza flessibile per mobile */
   }
   #patternDisplay .badge {
     font-size: 0.95em;
@@ -808,6 +810,8 @@ textarea:focus {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: auto !important; /* Rimuovi altezza fissa su mobile */
+    height: auto !important;
   }
 
   body {
@@ -819,6 +823,7 @@ textarea:focus {
   main {
     padding: 0.5rem;
     padding-bottom: 0;
+    min-height: auto !important; /* Rimuovi altezza fissa su mobile */
   }
   .header-content {
     padding: 2rem 0.5rem;
@@ -828,9 +833,14 @@ textarea:focus {
     min-width: 0;
     padding: 0.7rem 1.2rem;
   }
+  .form-select-container {
+    height: auto !important; /* Altezza automatica su mobile */
+    min-height: auto !important;
+  }
   #poemText {
     font-size: 1rem;
     min-height: 120px;
+    height: auto !important; /* Altezza flessibile su mobile */
   }
   .rhyme-scheme-container {
     gap: 8px;
@@ -856,6 +866,7 @@ textarea:focus {
       border-radius: 12px;
       padding: 1rem;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      min-height: auto !important; /* Rimuovi altezza fissa su mobile */
   }
 
   #publishFields input {
@@ -940,6 +951,7 @@ textarea:focus {
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    min-height: 80px; /* Fixed height for CLS prevention */
   }
 
   #publishFields:hover {
@@ -972,5 +984,145 @@ textarea:focus {
 
   #publishFields input::placeholder {
     color: var(--text, #333);
+  }
+}
+
+/* ===== DESKTOP CLS FIXES (min-width: 992px) ===== */
+@media (min-width: 992px) {
+  /* Fixed card dimensions to completely prevent layout shift */
+  .card {
+    min-height: 700px !important;
+    max-height: 800px !important;
+    width: 600px !important;
+    max-width: 600px !important;
+    margin: 2rem auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+    contain: layout style size !important;
+    position: relative !important;
+  }
+
+  .card-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    padding: 2rem !important;
+    overflow-y: auto !important;
+  }
+
+  /* Fixed main dimensions */
+  main {
+    min-height: calc(100vh - 320px) !important;
+    contain: layout !important;
+  }
+
+  /* Pattern display with absolutely fixed dimensions */
+  #patternDisplay {
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    contain: strict !important;
+    overflow: hidden !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Fixed badge dimensions */
+  .badge.syllable-badge {
+    min-width: 40px !important;
+    width: auto !important;
+    max-width: 80px !important;
+    height: 32px !important;
+    line-height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 16px !important;
+    padding: 0 0.5rem !important;
+    margin: 0 0.25rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Form select container fixed height */
+  .form-select-container {
+    height: 140px !important;
+    min-height: 140px !important;
+    max-height: 140px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    contain: layout !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Textarea with fixed height */
+  #poemText {
+    min-height: 150px !important;
+    height: 150px !important;
+    max-height: 200px !important;
+    resize: vertical !important;
+    contain: layout !important;
+  }
+
+  /* Result container with layout containment */
+  #resultContainer {
+    min-height: 100px !important;
+    contain: layout style !important;
+    margin-top: 1.5rem !important;
+  }
+
+  /* Publish fields with exact dimensions */
+  #publishFields[style*="display: block"] {
+    height: 80px !important;
+    min-height: 80px !important;
+    max-height: 120px !important;
+    opacity: 1 !important;
+    margin-bottom: 1rem !important;
+    contain: layout !important;
+  }
+
+  #publishFields[style*="display: none"] {
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Form actions with stable layout */
+  .d-grid.gap-2.d-md-flex.justify-content-md-between {
+    min-height: 44px !important;
+    contain: layout !important;
+  }
+
+  /* Ensure buttons don't cause layout shift */
+  .btn-haiku {
+    min-width: 100px !important;
+    height: 44px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Container with layout stability */
+  .container {
+    contain: layout !important;
+  }
+
+  /* Row stability */
+  .row {
+    contain: layout !important;
   }
 }

@@ -101,6 +101,12 @@ export function showResults(data) {
         return;
     }
     
+    // CLS Prevention: Stabilizza le dimensioni del container prima del display
+    if (window.innerWidth >= 992) {
+        resultContainer.style.minHeight = '100px';
+        resultContainer.style.contain = 'layout style';
+    }
+    
     resultContainer.style.display = 'block';
     syllableDetails.innerHTML = '';
 

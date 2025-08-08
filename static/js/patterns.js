@@ -80,39 +80,37 @@ export function updatePatternDisplay(type, patternDisplay) {
 
     console.log('📋 Pattern trovato:', pattern);
 
-    // Preserve height during content change to prevent CLS
-    const currentHeight = patternDisplay.offsetHeight;
-    patternDisplay.style.minHeight = currentHeight + 'px';
+    // CRITICAL CLS FIX: Force layout containment and maintain exact dimensions
+    patternDisplay.style.contain = 'layout style';
+    patternDisplay.style.height = '60px';
+    patternDisplay.style.minHeight = '60px';
     
     // Gestione speciale per versi liberi
     if (type === 'versi_liberi') {
         patternDisplay.innerHTML = `
-            <span class="badge bg-haiku-secondary syllable-badge">Nessun vincolo metrico</span>
-            <div class="mt-2 small text-muted">
-                Libera la tua creatività, ogni verso sarà analizzato per sillabe e rime.
-            </div>
+            <span class="badge bg-haiku-secondary syllable-badge" style="min-width:auto;white-space:nowrap;padding:0.35em 0.65em;">Nessun vincolo metrico</span>
         `;
         console.log('✅ Pattern "versi liberi" applicato');
-        // Reset min-height after content settles
-        setTimeout(() => patternDisplay.style.minHeight = '', 50);
         return;
     }
 
-    // Genera badge per le sillabe
+    // Genera badge per le sillabe con dimensioni fisse
     let html = pattern.syllables.map(count => `
         <span class="badge bg-haiku-secondary syllable-badge">${count}</span>
     `).join('');
 
-    // Mostra schema rimico solo se richiesto dal tipo di poesia
-    if (pattern.rhyme && pattern.rhyme !== null) {
-        html += `<div class="mt-2 rhyme-pattern small text-muted">
-            <i class="bi bi-music-note-beamed"></i> Schema: ${pattern.rhyme.join(' ')}
-        </div>`;
+    // Per desktop: Mostra schema rimico in modo compatto per non causare CLS
+    if (pattern.rhyme && pattern.rhyme !== null && window.innerWidth >= 992) {
+        // Mostra solo la prima parte dello schema per mantenere l'altezza fissa
+        const firstScheme = pattern.rhyme[0] || '';
+        if (firstScheme.length <= 6) { // Solo per schemi brevi
+            html += `<div class="small text-muted" style="margin-top:2px;font-size:0.75rem;line-height:1;">
+                ${firstScheme}
+            </div>`;
+        }
     }
 
     patternDisplay.innerHTML = html;
-    // Reset min-height after content settles
-    setTimeout(() => patternDisplay.style.minHeight = '', 50);
     console.log('✅ Pattern HTML aggiornato per tipo:', type);
 }
 
