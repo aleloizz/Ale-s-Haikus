@@ -915,12 +915,22 @@ textarea:focus {
 
 /* Stili Desktop - Glassmorphism per publishFields */
 @media (min-width: 768px) {
-  /* keep the controls block steady when publishFields toggles */
+  /* Center actions row (checkboxes + buttons) and prevent overflow */
   .d-grid.gap-2.d-md-flex.justify-content-md-between{
-    align-items: flex-start;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 auto;
+    row-gap: 0.75rem;
+    column-gap: 1rem;
+  }
+  .d-grid.gap-2.d-md-flex.justify-content-md-between > .d-flex{
+    max-width: 100%;
+    flex: 0 1 auto;
   }
   .d-grid.gap-2.d-md-flex.justify-content-md-between > .d-flex.flex-column{
-    min-width: 280px; /* reserve space for two lines of controls */
+    min-width: 0 !important; /* avoid forcing overflow */
   }
   #publishFields {
     background: rgba(255, 255, 255, 0.1);
