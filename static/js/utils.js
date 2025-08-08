@@ -140,8 +140,22 @@ export function applyStaggeredAnimations(selector, animationClass = 'animate__he
  */
 export function showBootstrapToast(toastId) {
     const toastElement = document.getElementById(toastId);
-    if (toastElement && window.bootstrap) {
-        const toast = new bootstrap.Toast(toastElement);
-        toast.show();
+    if (!toastElement) return;
+    const reveal = () => {
+        try { new bootstrap.Toast(toastElement).show(); } catch(e) { console.warn('Toast failed:', e); }
+    };
+    if (window.bootstrap && window.bootstrap.Toast) {
+        reveal();
+    } else {
+        // Wait for bootstrap to lazy-load
+        let tries = 0;
+        const timer = setInterval(() => {
+            if (window.bootstrap && window.bootstrap.Toast) {
+                clearInterval(timer);
+                reveal();
+            } else if (++tries > 20) {
+                clearInterval(timer);
+            }
+        }, 100);
     }
 }
