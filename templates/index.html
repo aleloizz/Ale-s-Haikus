@@ -66,6 +66,9 @@ body.loading{background:#fbbda3!important}
         <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}"></noscript>
 
+    <!-- Preload main module early to avoid ESM fetch latency in LCP chain -->
+    <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}">
+
         <!-- Fonts - optimized loading -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -311,8 +314,18 @@ body.loading{background:#fbbda3!important}
             <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}">
-            <!-- JavaScript modulare - caricato alla fine per garantire DOM ready -->
-            <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+                        <!-- JavaScript modulare: carica su idle/first-interaction per escluderlo dalla catena LCP -->
+                                    <script type="module">
+                                        const loadApp = () => import("{{ url_for('static', filename='js/main.js') }}");
+                                        if ('requestIdleCallback' in window) {
+                                            requestIdleCallback(loadApp, { timeout: 1500 });
+                                        } else {
+                                            window.addEventListener('load', () => setTimeout(loadApp, 800));
+                                        }
+                                        // Anticipa su prima interazione dell'utente
+                                        const eagerEvents = ['click','touchstart','keydown','mousemove'];
+                                        eagerEvents.forEach(ev => window.addEventListener(ev, loadApp, { once: true, passive: true }));
+                                    </script>
                         <!-- Lazy-load Bootstrap JS after idle to keep it out of LCP chain -->
                         <script>
                             (function(){
