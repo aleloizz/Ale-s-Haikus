@@ -155,14 +155,24 @@ body.loading{background:#fbbda3!important}
                                         </div>
                                         <label for="poemType" class="form-select-label">Tipo di poesia:</label>
                                         <div class="position-relative">
-                                            <select class="form-select type-label" id="poemType"></select>
+                                            <select class="form-select type-label" id="poemType">
+                                                <!-- Fallback server-side options to avoid empty select before JS initializes -->
+                                                <option value="haiku" selected>Haiku</option>
+                                                <option value="tanka">Tanka</option>
+                                                <option value="katauta">Katauta</option>
+                                                <option value="choka">Choka</option>
+                                                <option value="sedoka">Sedoka</option>
+                                            </select>
                                             <div class="select-icon"><i class="bi bi-chevron-down"></i></div>
                                         </div>
                                     </div>
 
                                     <!-- Visualizzazione pattern-->
                                     <div class="d-flex justify-content-center gap-2 mb-4" id="patternDisplay">
-                                        <!-- I badge verranno popolati dinamicamente da JavaScript -->
+                                        <!-- Fallback badges (Haiku 5-7-5) shown until JS updates -->
+                                        <span class="badge bg-haiku-secondary syllable-badge">5</span>
+                                        <span class="badge bg-haiku-secondary syllable-badge">7</span>
+                                        <span class="badge bg-haiku-secondary syllable-badge">5</span>
                                     </div>
 
                                     <!-- Textarea unico -->
@@ -222,7 +232,7 @@ body.loading{background:#fbbda3!important}
                                                 </button>
                                             </div>
                                         </div>
-                                        <input type="hidden" name="poemType" id="hiddenPoemType">
+                                        <input type="hidden" name="poemType" id="hiddenPoemType" value="haiku">
                                     </form>
 
                                     <!-- Risultati -->
