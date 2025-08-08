@@ -29,8 +29,8 @@ def create_app(config_name=None):
         if config_name not in config:
             config_name = 'default'
     
-    # Crea l'app con static files disabilitati per forzare la nostra route
-    app = Flask(__name__, static_folder=None, template_folder='templates')
+    # Crea l'app con static folder abilitato ma useremo la nostra route per override
+    app = Flask(__name__, static_folder='static', template_folder='templates')
     
     # Carica la configurazione
     app.config.from_object(config[config_name])
@@ -59,8 +59,7 @@ def create_app(config_name=None):
     # Override della route built-in per static files con cache ottimizzata
     @app.route('/static/<path:filename>')
     def static_files(filename):
-        static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
-        response = send_from_directory(static_folder, filename)
+        response = send_from_directory(app.static_folder, filename)
         
         # Configurazione cache per diversi tipi di file
         if filename.endswith(('.css', '.js')):
