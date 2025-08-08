@@ -13,30 +13,39 @@ import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
 let isRestoringState = false;
 
 /**
- * Inizializzazione dell'applicazione
+ * Inizializzazione dell'applicazione (idempotente)
  */
-document.addEventListener('DOMContentLoaded', () => {
+function bootstrap() {
     console.log('🚀 Inizializzazione app.js modulare');
-    
+
     // Ottenimento elementi DOM
     const elements = getDOMElements();
-    
+
     if (!elements.poemNation || !elements.poemTypeSelect || !elements.patternDisplay) {
         console.error('❌ Elementi essenziali non trovati');
         return;
     }
-    
+
     // Configurazione iniziale
     document.body.classList.remove('loading');
-    
+
     // Setup event listeners
     setupEventListeners(elements);
-    
+
     // Inizializzazione con delay per assicurarsi che tutto sia caricato
     setTimeout(() => {
         initializeApplication(elements);
+        // Segnala al bootstrapper inline che l'app è pronta
+        document.dispatchEvent(new CustomEvent('app:ready'));
     }, 100);
-});
+}
+
+// Esegui immediatamente se il DOM è già pronto (import dinamico post-DOMContentLoaded)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
+} else {
+    bootstrap();
+}
 
 /**
  * Ottiene tutti gli elementi DOM necessari
@@ -173,12 +182,17 @@ function initializeApplication(elements) {
     
     console.log('🔧 Inizializzazione applicazione');
     
-    // Impostazioni di default
-    poemNation.value = 'giapponesi';
+    // Impostazioni iniziali basate sullo stato attuale del DOM (non sovrascrivere scelte utente)
+    const currentNation = poemNation.value || 'giapponesi';
     const updateCallback = (type) => updatePatternDisplay(type, patternDisplay);
-    populatePoemTypes('giapponesi', poemTypeSelect, updateCallback, false);
-    poemTypeSelect.value = 'haiku';
-    updatePatternDisplay('haiku', patternDisplay);
+
+    // Popola il select dei tipi in base alla nazione corrente
+    populatePoemTypes(currentNation, poemTypeSelect, updateCallback, false);
+
+    // Mantieni il tipo attuale se presente; altrimenti fallback sensato
+    const currentType = poemTypeSelect.value || (currentNation === 'giapponesi' ? 'haiku' : (currentNation === 'italiane' ? 'sonetto' : 'limerick'));
+    poemTypeSelect.value = currentType;
+    updatePatternDisplay(currentType, patternDisplay);
     
     // Tentativo di ripristino stato
     try {

@@ -227,7 +227,7 @@ body.loading{background:#fbbda3!important}
                                                 <button type="button" class="btn btn-haiku btn-secondary" id="copyBtn">
                                                     <i class="bi bi-clipboard"></i> Copia
                                                 </button>
-                                                <button type="submit" class="btn btn-haiku btn-primary" id="submitBtn">
+                                                <button type="submit" class="btn btn-haiku btn-primary" id="submitBtn" disabled>
                                                     <i class="bi bi-check-circle"></i> <span id="submitBtnText">Verifica</span>
                                                 </button>
                                             </div>
@@ -251,12 +251,28 @@ body.loading{background:#fbbda3!important}
                                         </div>
                                     </div>
 
-                                    <script>                    
+                                    <script>
                                         // Aggiorna il campo nascosto quando cambia il select
                                         document.getElementById('poemType').addEventListener('change', function() {
                                             document.getElementById('hiddenPoemType').value = this.value;
                                         });
-
+                                        // Evita submit nativo se l'app non è ancora pronta (previene 405)
+                                        (function(){
+                                            let appReady = false;
+                                            document.addEventListener('app:ready', function(){
+                                                appReady = true;
+                                                const btn = document.getElementById('submitBtn');
+                                                if (btn) btn.disabled = false;
+                                            }, { once: true });
+                                            const form = document.getElementById('poemForm');
+                                            if (form) {
+                                                form.addEventListener('submit', function(e){
+                                                    if (!appReady) {
+                                                        e.preventDefault();
+                                                    }
+                                                });
+                                            }
+                                        })();
                                     </script>
                                 </div>
                             </div>
@@ -324,18 +340,25 @@ body.loading{background:#fbbda3!important}
             <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}">
-                        <!-- JavaScript modulare: carica su idle/first-interaction per escluderlo dalla catena LCP -->
-                                    <script type="module">
-                                        const loadApp = () => import("{{ url_for('static', filename='js/main.js') }}");
-                                        if ('requestIdleCallback' in window) {
-                                            requestIdleCallback(loadApp, { timeout: 1500 });
-                                        } else {
-                                            window.addEventListener('load', () => setTimeout(loadApp, 800));
-                                        }
-                                        // Anticipa su prima interazione dell'utente
-                                        const eagerEvents = ['click','touchstart','keydown','mousemove'];
-                                        eagerEvents.forEach(ev => window.addEventListener(ev, loadApp, { once: true, passive: true }));
-                                    </script>
+                        <!-- JavaScript modulare: importa su DOMContentLoaded (con guardia singola), con fallback su prima interazione -->
+                        <script type="module">
+                            let appLoaded = false;
+                            const loadApp = () => {
+                                if (appLoaded) return;
+                                appLoaded = true;
+                                return import("{{ url_for('static', filename='js/main.js') }}");
+                            };
+                            // Carica non appena il DOM è pronto (non blocca LCP e assicura i listener)
+                            if (document.readyState === 'loading') {
+                                document.addEventListener('DOMContentLoaded', loadApp, { once: true });
+                            } else {
+                                loadApp();
+                            }
+                            // Backup: prima interazione
+                            ['click','touchstart','keydown','mousemove'].forEach(ev =>
+                                window.addEventListener(ev, loadApp, { once: true, passive: true })
+                            );
+                        </script>
                         <!-- Lazy-load Bootstrap JS after idle to keep it out of LCP chain -->
                         <script>
                             (function(){
