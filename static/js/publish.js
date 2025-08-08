@@ -177,15 +177,27 @@ export function handlePublishToggle(isChecked) {
     
     if (isChecked) {
         if (publishFields) {
+            // Use height animation to prevent CLS
             publishFields.style.display = 'block';
-            publishFields.style.animation = 'fadeIn 0.3s ease';
+            publishFields.style.height = 'auto';
+            const targetHeight = publishFields.scrollHeight + 'px';
+            publishFields.style.height = '0px';
+            publishFields.offsetHeight; // Force reflow
+            publishFields.style.height = targetHeight;
+            publishFields.style.opacity = '1';
         }
         if (submitBtnText) {
             submitBtnText.textContent = 'Verifica e Pubblica';
         }
     } else {
         if (publishFields) {
-            publishFields.style.display = 'none';
+            publishFields.style.height = '0px';
+            publishFields.style.opacity = '0';
+            setTimeout(() => {
+                if (publishFields.style.height === '0px') {
+                    publishFields.style.display = 'none';
+                }
+            }, 300); // Match CSS transition duration
         }
         if (submitBtnText) {
             submitBtnText.textContent = 'Verifica';

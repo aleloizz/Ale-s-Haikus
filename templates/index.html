@@ -52,6 +52,16 @@ body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:
 .btn-haiku.btn-primary{background:var(--primary);border:none}
 .btn-haiku.btn-secondary{background:var(--secondary);color:var(--text);border:none}
 body.loading{background:#fbbda3!important}
+/* CLS Prevention - Reserve space for dynamic elements */
+#patternDisplay{min-height:50px;display:flex!important;justify-content:center!important;align-items:center;flex-wrap:wrap}
+.badge.syllable-badge{min-width:32px;height:32px;line-height:32px;text-align:center;display:inline-block;margin:0 0.25rem}
+#publishFields{overflow:hidden;transition:height 0.3s ease,opacity 0.3s ease}
+#publishFields[style*="display: none"]{height:0!important;opacity:0}
+#publishFields[style*="display: block"]{opacity:1}
+main{min-height:calc(100vh - 400px)}
+/* Font display swap for better CLS */
+@font-face{font-family:'Inter';font-display:swap;src:local('Inter')}
+@font-face{font-family:'Playfair Display';font-display:swap;src:local('Playfair Display')}
         </style>
 
         <!-- Preload essential resources -->
@@ -72,8 +82,12 @@ body.loading{background:#fbbda3!important}
         <!-- Fonts - optimized loading -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Preconnect for JS CDN used later (Bootstrap JS lazy-loaded) -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <!-- Preconnect for JS CDN used later (Bootstrap JS lazy-loaded) -->
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <!-- Preload critical font files to prevent CLS -->
+        <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="https://fonts.gstatic.com/s/playfairdisplay/v37/nuFiD-vYSZviVYUb_rj3ij__anPXBYf9pzDTwBH5ORMnVRVME8vr.woff2" as="font" type="font/woff2" crossorigin>
+        <!-- Add font-display: swap to CSS to prevent invisible text and CLS -->
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap"></noscript>
 
