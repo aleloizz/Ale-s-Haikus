@@ -65,19 +65,19 @@ main{min-height:calc(100vh - 400px)}
         </style>
 
         <!-- Preload essential resources -->
-        <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}"></noscript>
+        <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2"></noscript>
         
         <!-- Async load non-critical CSS -->
-        <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"></noscript>
+        <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.2"></noscript>
         
         <!-- Icons - load async -->
-        <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}"></noscript>
+        <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=1.2"></noscript>
 
     <!-- Preload main module early to avoid ESM fetch latency in LCP chain -->
-    <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}">
+    <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}?v=1.2">
 
         <!-- Fonts - optimized loading -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -349,18 +349,18 @@ main{min-height:calc(100vh - 400px)}
             </div>
             
             <!-- Modulepreload dependencies to avoid ESM waterfall -->
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/utils.js') }}">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/storage.js') }}">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/utils.js') }}?v=1.2">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/storage.js') }}?v=1.2">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}?v=1.2">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}?v=1.2">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}?v=1.2">
                         <!-- JavaScript modulare: importa su DOMContentLoaded (con guardia singola), con fallback su prima interazione -->
                         <script type="module">
                             let appLoaded = false;
                             const loadApp = () => {
                                 if (appLoaded) return;
                                 appLoaded = true;
-                                return import("{{ url_for('static', filename='js/main.js') }}");
+                                return import("{{ url_for('static', filename='js/main.js') }}?v=1.2");
                             };
                             // Carica non appena il DOM è pronto (non blocca LCP e assicura i listener)
                             if (document.readyState === 'loading') {
