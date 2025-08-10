@@ -319,6 +319,31 @@ body {
                 });
             </script>
             <header>
+                <!-- Barra navigazione discreta -->
+                <nav class="navbar navbar-expand-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <div class="container">
+                        <div class="d-flex w-100 justify-content-center">
+                            <ul class="navbar-nav flex-row gap-4">
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{{ url_for('web.index') }}" title="Analizzatore poetico">
+                                        <i class="bi bi-pencil-square me-1"></i>Analizza
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{{ url_for('web.bacheca') }}" title="Bacheca delle poesie">
+                                        <i class="bi bi-collection me-1"></i>Bacheca
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{{ url_for('web.wiki') }}" title="Wiki della poesia">
+                                        <i class="bi bi-book me-1"></i>Wiki
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                
                 <div class="bg-haiku-primary text-white text-center py-5 header-content">
                     <div class="container">
                     <h1 class="display-4">Benvenuto su Ale's Haikus!</h1>

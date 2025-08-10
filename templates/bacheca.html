@@ -2,82 +2,363 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#faf7ff">
-    <meta name="description" content="Scopri le poesie create dalla community di Ale's Haikus">
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Scopri le poesie create dalla community di Ale's Haikus. Condividi, leggi e lasciati ispirare dalle creazioni poetiche dei tuoi peers.">
+    <meta property="og:title" content="Bacheca Poetica | Ale's Haikus">
+    <meta property="og:description" content="Condividi le tue poesie con la community">
+    <meta property="og:image" content="https://www.aleshaikus.me/static/og-image.jpg">
     
-    <title>Haikus Hub | Bacheca delle Poesie</title>
+    <title>Bacheca Poetica | Ale's Haikus</title>
     
-    <!-- Aggiungi favicons come in index.html -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <!-- ...altri favicons... -->
+    <!-- Favicons complete set -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=1.2">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.png') }}?v=1.2">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=1.2">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=1.2">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=1.2">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=1.2">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.2">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}?v=1.2">
+    <meta name="msapplication-TileColor" content="#faf7ff">
+    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='ms-icon-144x144.png') }}?v=1.2">
+    <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.2">
+
+    <!-- Critical Above-the-fold CSS - Inline per zero blocking -->
+    <style>
+/* Above-the-fold Critical CSS */
+:root{--primary:#D4B8FF;--secondary:#FFE5D9;--accent:#A2D7D8;--text:#5E5E5E;--bg:#FAF7FF;--error:#ff6b6b;--success:#3bb156}
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:flex;flex-direction:column;background-color:#fbbda3;background-image:url('../images/background.jpg');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed}
+@supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {body{background-image:url('../images/background.webp')}}
+.main-wrapper{flex:1;display:flex;flex-direction:column}
+.container{width:100%;max-width:1140px;margin:0 auto;padding:0 0.75rem}
+.bg-haiku-primary{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:none!important;box-shadow:none!important}
+.text-white{color:#fff!important}.text-center{text-align:center!important}
+.py-5{padding:3rem 0!important}.py-4{padding:1.5rem 0!important}
+.display-4{font-size:calc(1.475rem + 2.7vw);font-weight:300;line-height:1.2;margin:0}
+.display-5{font-size:calc(1.375rem + 1.5vw);font-weight:300;line-height:1.2;margin:0}
+.lead{font-size:1.25rem;font-weight:300;margin-bottom:1rem}
+.card{background:rgba(255,255,233,0.200);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;border:1px solid rgba(255,255,255,0.3);box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 2px 30px rgba(149,117,205,0.1),0 0 60px rgba(149,117,205,0.05);transition:transform 0.3s ease,box-shadow 0.3s ease}
+.glass-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2)}
+.h4,h4{font-size:calc(1.275rem + 0.3vw);margin-bottom:1rem}
+.btn-haiku{transition:all 0.3s ease;border-radius:2rem!important;padding:10px 16px!important;font-size:1rem!important;line-height:1.5!important;min-height:44px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;font-weight:500!important}
+.btn-haiku i{margin-right:.5rem;display:inline-block;line-height:0}
+.btn-haiku.btn-primary{background:var(--primary);border:none;color:#fff}
+.btn-haiku.btn-secondary{background:var(--secondary);color:var(--text);border:none}
+.btn-haiku.btn-accent{background:var(--accent);color:#fff;border:none}
+.form-control,.form-select{display:block;width:100%;padding:0.75rem;font-size:1rem;border:1px solid rgba(255,255,255,0.3);border-radius:1rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);color:var(--text);transition:all 0.3s ease}
+.form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 0.2rem rgba(212,184,255,0.25);outline:0;background:rgba(255,255,255,0.2)}
+.mb-3{margin-bottom:1rem!important}.mb-4{margin-bottom:1.5rem!important}
+.d-flex{display:flex!important}.justify-content-between{justify-content:space-between!important}
+.align-items-center{align-items:center!important}.gap-2{gap:0.5rem!important}
+.row{display:flex;flex-wrap:wrap;margin:0 -0.75rem}.col-md-6{flex:0 0 auto;width:50%}.col-md-4{flex:0 0 auto;width:33.333333%}.col-lg-4{flex:0 0 auto;width:33.333333%}
+@media (max-width: 767.98px) {.col-md-6,.col-md-4,.col-lg-4{width:100%}}
+.filter-card{background:rgba(255,255,255,0.95);backdrop-filter:blur(15px);border-radius:1.5rem;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.4);box-shadow:0 8px 32px rgba(149,117,205,0.12)}
+body.loading{background:#fbbda3!important}
+
+/* Font display optimizations */
+@font-face{font-family:'Inter';font-display:swap;src:local('Inter')}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+</style>
+
+    <!-- Preload essential resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2"></noscript>
     
-    <!-- Critical CSS ottimizzato -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}">
-    <!-- Icone Bootstrap ottimizzate -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}">
-    <!-- Stili personalizzati -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!-- Async load non-critical CSS -->
+    <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.2"></noscript>
+    
+    <!-- Bacheca specific CSS -->
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=1.0" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=1.0"></noscript>
+    
+    <!-- Icons - load async -->
+    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=1.2"></noscript>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 300;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa25L7W0Q5nw.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa2JL7W0Q5nw.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    </style>
+
+    <style>
+        body.loading {
+          background: #fbbda3 !important;
+        }
+    </style>
 </head>
-<body>
+<<body class="loading">
     <div class="main-wrapper">
+        <script>
+            // Rimuove la classe loading quando l'immagine è caricata
+            window.addEventListener('load', () => {
+            document.body.classList.remove('loading');
+            });
+        </script>
+        
         <header>
-            <div class="bg-haiku-primary text-white text-center py-4">
+            <!-- Barra navigazione discreta -->
+            <nav class="navbar navbar-expand-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div class="container">
-                    <h1 class="display-5">Bacheca delle Poesie</h1>
-                    <p class="lead">Condividi le tue creazioni con la community</p>
+                    <div class="d-flex w-100 justify-content-center">
+                        <ul class="navbar-nav flex-row gap-4">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ url_for('web.index') }}" title="Analizzatore poetico">
+                                    <i class="bi bi-pencil-square me-1"></i>Analizza
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 fw-medium" href="{{ url_for('web.bacheca') }}" title="Bacheca delle poesie" style="pointer-events: none;">
+                                    <i class="bi bi-collection me-1"></i>Bacheca
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ url_for('web.wiki') }}" title="Wiki della poesia">
+                                    <i class="bi bi-book me-1"></i>Wiki
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="bg-haiku-primary text-white text-center py-4 header-content">
+                <div class="container">
+                    <h1 class="display-5">Bacheca Poetica</h1>
+                    <p class="lead">Condividi, scopri e lasciati ispirare dalle creazioni dei poeti della community</p>
                 </div>
             </div>
         </header>
 
         <main class="flex-grow-1 py-4">
             <div class="container">
-                <!-- Filtri -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <select id="typeFilter" class="form-select">
-                            <option value="all">Tutti i tipi</option>
-                            {% if tipi_disponibili %}
-                            {% for poem_type in tipi_disponibili %}
-                            <option value="{{ poem_type }}" {% if poem_type == tipo_filtro %}selected{% endif %}>
-                                {{ poem_type.title() }}
-                            </option>
-                            {% endfor %}
-                            {% endif %}
-                        </select>
+                
+                <!-- Barra filtri avanzata -->
+                <div class="filter-card">
+                    <div class="row align-items-end">
+                        <!-- Ricerca per testo -->
+                        <div class="col-md-4 mb-3">
+                            <label for="searchText" class="form-label fw-medium text-muted">
+                                <i class="bi bi-search me-1"></i>Cerca poesia
+                            </label>
+                            <input type="text" id="searchText" class="form-control" placeholder="Titolo, contenuto, autore...">
+                        </div>
+                        
+                        <!-- Filtro per tipologia -->
+                        <div class="col-md-3 mb-3">
+                            <label for="typeFilter" class="form-label fw-medium text-muted">
+                                <i class="bi bi-bookmark me-1"></i>Tipologia
+                            </label>
+                            <select id="typeFilter" class="form-select">
+                                <option value="all">Tutte le tipologie</option>
+                                {% if tipi_disponibili %}
+                                {% for poem_type in tipi_disponibili %}
+                                <option value="{{ poem_type }}" {% if poem_type == tipo_filtro %}selected{% endif %}>
+                                    {{ poem_type.replace('_', ' ').title() }}
+                                </option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <!-- Filtro per autore -->
+                        <div class="col-md-3 mb-3">
+                            <label for="authorFilter" class="form-label fw-medium text-muted">
+                                <i class="bi bi-person me-1"></i>Autore
+                            </label>
+                            <select id="authorFilter" class="form-select">
+                                <option value="all">Tutti gli autori</option>
+                                {% if autori_disponibili %}
+                                {% for author in autori_disponibili %}
+                                <option value="{{ author }}" {% if author == autore_filtro %}selected{% endif %}>
+                                    {{ author }}
+                                </option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        
+                        <!-- Controlli aggiuntivi -->
+                        <div class="col-md-2 mb-3 d-flex flex-column gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="onlyValidFilter" {% if solo_valide %}checked{% endif %}>
+                                <label class="form-check-label text-muted" for="onlyValidFilter">
+                                    <i class="bi bi-check-circle text-success"></i> Solo valide
+                                </label>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-haiku btn-primary btn-sm" id="applyFilters">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
+                                <button type="button" class="btn btn-haiku btn-secondary btn-sm" id="clearFilters">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6 text-end">
-                        <a href="{{ url_for('web.index') }}" class="btn btn-haiku btn-primary">
-                            <i class="bi bi-plus-circle"></i> Pubblica Poesia
-                        </a>
+                    
+                    <!-- Barra azioni superiore -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="dropdown">
+                                <button class="btn btn-haiku btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-sort-down me-1"></i>Ordina per
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-sort="recent">Più recenti</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="oldest">Più vecchie</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="title">Titolo (A-Z)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="author">Autore (A-Z)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="type">Tipologia</a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="viewMode" id="viewGrid" checked>
+                                <label class="btn btn-outline-primary" for="viewGrid">
+                                    <i class="bi bi-grid-3x2"></i>
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="viewMode" id="viewList">
+                                <label class="btn btn-outline-primary" for="viewList">
+                                    <i class="bi bi-list"></i>
+                                </label>
+                            </div>
+                            
+                            <span class="text-muted small">
+                                <span id="poemCount">{{ poesie.total if poesie else 0 }}</span> poesie trovate
+                            </span>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-haiku btn-accent btn-sm" onclick="window.location.reload()">
+                                <i class="bi bi-arrow-clockwise"></i> Aggiorna
+                            </button>
+                            <a href="{{ url_for('web.index') }}" class="btn btn-haiku btn-primary">
+                                <i class="bi bi-plus-circle"></i> Pubblica Poesia
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Lista poesie -->
-                <div id="poemsContainer" class="row">
-                    {% if poesie %}
+                <!-- Loading indicator -->
+                <div id="loadingIndicator" class="text-center py-4" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Caricamento...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Caricamento poesie...</p>
+                </div>
+
+                <!-- Griglia poesie -->
+                <div id="poemsContainer" class="poems-grid">
+                    {% if poesie and poesie.items %}
                     {% for poem in poesie.items %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card glass-card h-100">
-                            <div class="card-body">
-                                {% if poem.title %}
-                                <h5 class="card-title">{{ poem.title }}</h5>
-                                {% endif %}
-                                <div class="poem-text mb-3">
-                                    {{ poem.content|replace('\n', '<br>')|safe }}
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <i class="bi bi-person"></i> {{ poem.author }}<br>
-                                        <i class="bi bi-bookmark"></i> {{ poem.poem_type.title() if poem.poem_type else 'Libero' }}
-                                        {% if poem.is_valid %}
-                                        <i class="bi bi-check-circle text-success"></i>
+                    <div class="poem-card-wrapper" data-poem-type="{{ poem.poem_type|lower }}" data-author="{{ poem.author|lower }}" data-valid="{{ poem.is_valid|lower }}">
+                        <div class="card glass-card h-100 poem-card" data-poem-id="{{ poem.id }}">
+                            <div class="card-body d-flex flex-column">
+                                <!-- Header della card -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        {% if poem.title %}
+                                        <h5 class="card-title text-white fw-semibold mb-1">{{ poem.title }}</h5>
                                         {% endif %}
-                                    </small>
-                                    <button class="btn btn-sm btn-outline-primary like-btn" 
-                                            data-poem-id="{{ poem.id }}">
-                                        <i class="bi bi-heart"></i> <span>0</span>
-                                    </button>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge bg-primary badge-poem-type">
+                                                {{ poem.poem_type.replace('_', ' ').title() if poem.poem_type else 'Libero' }}
+                                            </span>
+                                            {% if poem.is_valid %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Valida
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-white-50 p-1" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#" data-action="copy" data-poem-id="{{ poem.id }}">
+                                                <i class="bi bi-clipboard me-2"></i>Copia testo
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" data-action="share" data-poem-id="{{ poem.id }}">
+                                                <i class="bi bi-share me-2"></i>Condividi
+                                            </a></li>
+                                            {% if poem.title %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" data-action="detail" data-poem-id="{{ poem.id }}">
+                                                <i class="bi bi-eye me-2"></i>Vedi dettagli
+                                            </a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <!-- Contenuto poesia -->
+                                <div class="poem-content flex-grow-1 mb-3">
+                                    <div class="poem-text text-white-75" style="font-family: 'Playfair Display', serif; font-style: italic; line-height: 1.6;">
+                                        {{ poem.content|replace('\n', '<br>')|safe }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer della card -->
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top border-light border-opacity-25">
+                                    <div class="text-white-50 small">
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        <span class="fw-medium">{{ poem.author or 'Poeta Anonimo' }}</span>
+                                        <div class="mt-1">
+                                            <i class="bi bi-clock me-1"></i>
+                                            <span>{{ poem.created_at.strftime('%d/%m/%Y') if poem.created_at else 'Data sconosciuta' }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-light like-btn" 
+                                                data-poem-id="{{ poem.id }}" 
+                                                title="Apprezza questa poesia">
+                                            <i class="bi bi-heart"></i>
+                                            <span class="like-count">0</span>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-light" 
+                                                data-action="expand"
+                                                data-poem-id="{{ poem.id }}"
+                                                title="Espandi poesia">
+                                            <i class="bi bi-arrows-angle-expand"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -85,40 +366,111 @@
                     {% endfor %}
                     {% else %}
                     <div class="col-12">
-                        <div class="alert alert-info text-center">
-                            <h4><i class="bi bi-info-circle"></i> Nessuna poesia trovata</h4>
-                            <p>Non ci sono ancora poesie nella bacheca o si è verificato un problema nel caricamento.</p>
-                            <a href="{{ url_for('web.index') }}" class="btn btn-haiku btn-primary">
-                                <i class="bi bi-plus-circle"></i> Pubblica la prima poesia
-                            </a>
+                        <div class="card glass-card text-center py-5">
+                            <div class="card-body">
+                                <i class="bi bi-journal-text display-1 text-white-50 mb-3"></i>
+                                <h4 class="text-white">Nessuna poesia trovata</h4>
+                                <p class="text-white-75 mb-4">
+                                    {% if tipo_filtro or autore_filtro or solo_valide %}
+                                    Prova a modificare i filtri di ricerca oppure
+                                    {% else %}
+                                    Non ci sono ancora poesie nella bacheca.
+                                    {% endif %}
+                                </p>
+                                <div class="d-flex gap-3 justify-content-center">
+                                    {% if tipo_filtro or autore_filtro or solo_valide %}
+                                    <button type="button" class="btn btn-haiku btn-secondary" id="clearAllFilters">
+                                        <i class="bi bi-funnel-x"></i> Rimuovi filtri
+                                    </button>
+                                    {% endif %}
+                                    <a href="{{ url_for('web.index') }}" class="btn btn-haiku btn-primary">
+                                        <i class="bi bi-plus-circle"></i> Pubblica la prima poesia
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
                 </div>
 
-                <!-- Paginazione -->
+                </div>
+
+                <!-- Paginazione avanzata -->
                 {% if poesie and poesie.pages > 1 %}
-                <nav aria-label="Paginazione poesie">
+                <nav aria-label="Paginazione poesie" class="mt-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="text-white-50 small">
+                            Pagina {{ poesie.page }} di {{ poesie.pages }} 
+                            ({{ poesie.total }} poesie totali)
+                        </div>
+                        <div class="btn-group" role="group">
+                            <input type="number" id="goToPage" class="form-control form-control-sm" 
+                                   style="width: 80px;" min="1" max="{{ poesie.pages }}" 
+                                   value="{{ poesie.page }}" placeholder="Pagina">
+                            <button class="btn btn-outline-light btn-sm" onclick="goToSpecificPage()">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <ul class="pagination justify-content-center">
-                        {% if poesie.has_prev %}
+                        <!-- Primo e precedente -->
+                        {% if poesie.page > 1 %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.prev_num) }}">Precedente</a>
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=1, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Prima pagina">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.prev_num, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Pagina precedente">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
                         </li>
                         {% endif %}
                         
-                        {% for page_num in poesie.iter_pages() %}
-                        {% if page_num %}
-                        <li class="page-item {% if page_num == poesie.page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=page_num) }}">{{ page_num }}</a>
+                        <!-- Numeri di pagina dinamici -->
+                        {% set start_page = [1, poesie.page - 2]|max %}
+                        {% set end_page = [poesie.pages, poesie.page + 2]|min %}
+                        
+                        {% if start_page > 1 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=1, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}">1</a>
                         </li>
-                        {% else %}
+                        {% if start_page > 2 %}
                         <li class="page-item disabled"><span class="page-link">...</span></li>
                         {% endif %}
+                        {% endif %}
+                        
+                        {% for page_num in range(start_page, end_page + 1) %}
+                        <li class="page-item {% if page_num == poesie.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=page_num, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
                         {% endfor %}
                         
-                        {% if poesie.has_next %}
+                        {% if end_page < poesie.pages %}
+                        {% if end_page < poesie.pages - 1 %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.next_num) }}">Successivo</a>
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.pages, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}">
+                                {{ poesie.pages }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Successivo e ultimo -->
+                        {% if poesie.page < poesie.pages %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.next_num, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Pagina successiva">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.pages, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Ultima pagina">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
                         </li>
                         {% endif %}
                     </ul>
@@ -127,34 +479,164 @@
             </div>
         </main>
 
+        <!-- Footer -->
         <footer class="bg-haiku-primary text-white py-4 mt-auto">
             <div class="container text-center">
                 <p class="mb-0">Made with <i class="bi bi-heart-fill"></i> by 
-                    <a href="https://github.com/aleloizz" class="text-white">aleloizz</a>
+                    <a href="https://github.com/aleloizz" class="text-white">aleloizz</a><br>
+                    <small><small>dedicato a tutti i poeti innamorati e a tutte le loro muse</small></small>
                 </p>
             </div>
         </footer>
+
+        <!-- Toast notifications -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="copyToast" class="toast">
+                <div class="toast-header">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <strong class="me-auto">Successo</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">Testo copiato negli appunti!</div>
+            </div>
+            
+            <div id="errorToast" class="toast">
+                <div class="toast-header">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                    <strong class="me-auto">Errore</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body" id="errorToastBody">Si è verificato un errore.</div>
+            </div>
+
+            <div id="likeToast" class="toast">
+                <div class="toast-header">
+                    <i class="bi bi-heart-fill text-danger me-2"></i>
+                    <strong class="me-auto">Apprezzamento</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body" id="likeToastBody">Grazie per il tuo apprezzamento!</div>
+            </div>
+        </div>
+
+        <!-- Modal poesia espansa -->
+        <div class="modal fade" id="expandedPoemModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content glass-card border-0 rounded-4 shadow-lg" style="backdrop-filter: blur(16px);">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-white" id="expandedPoemTitle">Poesia</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="expandedPoemBody">
+                        <div id="expandedPoemContent" style="font-family: 'Playfair Display', serif; font-style: italic; line-height: 1.8; font-size: 1.2em;"></div>
+                        <div class="mt-3 pt-3 border-top border-light border-opacity-25">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-white-50">
+                                    <div><strong id="expandedPoemAuthor"></strong></div>
+                                    <div class="small" id="expandedPoemInfo"></div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-light btn-sm" id="expandedCopyBtn">
+                                        <i class="bi bi-clipboard"></i> Copia
+                                    </button>
+                                    <button class="btn btn-outline-light btn-sm" id="expandedLikeBtn">
+                                        <i class="bi bi-heart"></i> <span id="expandedLikeCount">0</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Lazy-load Bootstrap JS -->
     <script>
-        // Gestione like
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const poemId = btn.dataset.poemId;
-                try {
-                    const response = await fetch(`/api/poems/${poemId}/like`, {
-                        method: 'POST'
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        btn.querySelector('span').textContent = data.likes;
-                    }
-                } catch (error) {
-                    console.error('Errore nel mettere like:', error);
-                }
+        (function(){
+            function loadBootstrap(){
+                if (window.bootstrap) return;
+                var s=document.createElement('script');
+                s.src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+                s.defer=true; s.crossOrigin='anonymous';
+                document.head.appendChild(s);
+            }
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadBootstrap, {timeout: 2000});
+            } else {
+                window.addEventListener('load', function(){ setTimeout(loadBootstrap, 1500); });
+            }
+        })();
+    </script>
+
+    <!-- Preload bacheca module -->
+    <link rel="modulepreload" href="{{ url_for('static', filename='js/bacheca.js') }}?v=1.0">
+    
+    <!-- Configura dati per il modulo bacheca tramite data attributes -->
+    <div id="bachecaConfig" 
+         data-current-page="{{ poesie.page if poesie else 1 }}"
+         data-total-pages="{{ poesie.pages if poesie else 1 }}"
+         data-items-per-page="{{ poesie.per_page if poesie else 12 }}"
+         data-tipo-filtro="{{ tipo_filtro or '' }}"
+         data-autore-filtro="{{ autore_filtro or '' }}"
+         data-search-query="{{ search_query or '' }}"
+         data-solo-valide="{{ 'true' if solo_valide else 'false' }}"
+         data-sort-by="{{ sort_by or 'recent' }}"
+         data-base-url="{{ url_for('web.bacheca') }}"
+         style="display: none;">
+    </div>
+    
+    <!-- Load Bacheca JavaScript Module -->
+    <script type="module">
+        // Configura variabili globali leggendo dai data attributes
+        const config = document.getElementById('bachecaConfig');
+        window.BACHECA_DATA = {
+            currentPage: parseInt(config.dataset.currentPage) || 1,
+            totalPages: parseInt(config.dataset.totalPages) || 1,
+            itemsPerPage: parseInt(config.dataset.itemsPerPage) || 12,
+            currentFilters: {
+                tipo: config.dataset.tipoFiltro || '',
+                autore: config.dataset.autoreFiltro || '',
+                search: config.dataset.searchQuery || '',
+                solo_valide: config.dataset.soloValide === 'true'
+            },
+            sortBy: config.dataset.sortBy || 'recent',
+            baseUrl: config.dataset.baseUrl || '/bacheca'
+        };
+        
+        // Carica il modulo bacheca
+        import('{{ url_for("static", filename="js/bacheca.js") }}?v=1.0')
+            .then(module => {
+                console.log('Modulo bacheca caricato');
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento modulo bacheca:', error);
             });
-        });
+    </script>
+        // Carica il modulo bacheca
+        import('{{ url_for("static", filename="js/bacheca.js") }}?v=1.0')
+            .then(module => {
+                console.log('Modulo bacheca caricato');
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento modulo bacheca:', error);
+            });
+    </script>
+
+    <!-- Fallback per funzioni globali necessarie -->
+    <script>
+        // Funzioni globali per compatibilità con template
+        function goToSpecificPage() {
+            if (window.bachecaManager) {
+                window.bachecaManager.goToSpecificPage();
+            }
+        }
+        
+        function expandPoem(poemId) {
+            if (window.bachecaManager) {
+                window.bachecaManager.expandPoem(poemId);
+            }
+        }
     </script>
 </body>
 </html>

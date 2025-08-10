@@ -479,3 +479,85 @@ def api_poesia_dettaglio(poesia_id):
         
     except Exception as e:
         return jsonify({'error': f'Errore nel recupero della poesia: {str(e)}'}), 500
+
+@api_bp.route('/poems/<int:poem_id>/like', methods=['POST'])
+def api_like_poem(poem_id):
+    """API endpoint per dare like a una poesia"""
+    try:
+        # Trova la poesia
+        poem = Poem.query.get_or_404(poem_id)
+        
+        # Per ora incrementa semplicemente il conteggio
+        # In futuro si potrebbbe implementare un sistema più sofisticato
+        # con utenti registrati e tracciamento dei like per utente
+        
+        # Simula un incremento di like
+        # Nota: questa è una implementazione semplice senza persistenza
+        # In produzione dovresti avere una tabella likes separata
+        current_likes = getattr(poem, '_likes', 0)
+        new_likes = current_likes + 1
+        setattr(poem, '_likes', new_likes)
+        
+        return jsonify({
+            'success': True,
+            'likes': new_likes,
+            'message': 'Like aggiunto con successo!'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Errore nel dare like: {str(e)}'
+        }), 500
+
+@api_bp.route('/poems/<int:poem_id>/unlike', methods=['POST'])
+def api_unlike_poem(poem_id):
+    """API endpoint per rimuovere like da una poesia"""
+    try:
+        # Trova la poesia
+        poem = Poem.query.get_or_404(poem_id)
+        
+        # Simula rimozione like
+        current_likes = max(0, getattr(poem, '_likes', 0) - 1)
+        setattr(poem, '_likes', current_likes)
+        
+        return jsonify({
+            'success': True,
+            'likes': current_likes,
+            'message': 'Like rimosso!'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Errore nel rimuovere like: {str(e)}'
+        }), 500
+
+@api_bp.route('/stats', methods=['GET'])
+def api_stats():
+    """API endpoint per statistiche generali della bacheca"""
+    try:
+        total_poems = Poem.query.count()
+        valid_poems = Poem.query.filter(Poem.is_valid == True).count()
+        authors_count = db.session.query(Poem.author).distinct().count()
+        
+        # Conta poesie per tipo
+        poems_by_type = db.session.query(
+            Poem.poem_type, 
+            db.func.count(Poem.id)
+        ).filter(
+            Poem.poem_type.isnot(None)
+        ).group_by(Poem.poem_type).all()
+        
+        type_stats = {tipo: count for tipo, count in poems_by_type}
+        
+        return jsonify({
+            'total_poems': total_poems,
+            'valid_poems': valid_poems,
+            'total_authors': authors_count,
+            'poems_by_type': type_stats,
+            'success_rate': round((valid_poems / total_poems * 100) if total_poems > 0 else 0, 2)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Errore nel recupero statistiche: {str(e)}'}), 500
