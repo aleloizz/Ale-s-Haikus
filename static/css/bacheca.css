@@ -1,0 +1,571 @@
+/* Bacheca Poetica - CSS Avanzato */
+/* Stili specifici per la bacheca delle poesie */
+
+/* ===== LAYOUT GRIGLIA E LISTA ===== */
+.poems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.poems-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.poems-list .poem-card-wrapper {
+    max-width: none;
+}
+
+.poems-list .card {
+    max-width: none;
+}
+
+.poems-list .card-body {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.poems-list .poem-content {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.poems-list .card .card-title {
+    margin-bottom: 0.5rem;
+}
+
+/* ===== CARD POESIA AVANZATA ===== */
+.poem-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.poem-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent
+    );
+    transition: left 0.6s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.poem-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 20px 60px rgba(149, 117, 205, 0.25),
+        0 8px 24px rgba(149, 117, 205, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.3);
+    border-color: rgba(212, 184, 255, 0.4);
+}
+
+.poem-card:hover::before {
+    left: 100%;
+}
+
+.poem-card .card-body {
+    position: relative;
+    z-index: 2;
+    padding: 1.5rem;
+}
+
+/* ===== CONTENUTO POESIA ===== */
+.poem-content {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.poem-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 0.3s ease;
+    margin-bottom: 0;
+    text-align: left;
+    hyphens: auto;
+    word-wrap: break-word;
+}
+
+.poem-card:hover .poem-text {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== BADGES E INDICATORI ===== */
+.badge-poem-type {
+    background: linear-gradient(135deg, var(--primary), #a084e8) !important;
+    color: white;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 1rem;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, var(--success), #2ea44f) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ===== PULSANTI LIKE E AZIONI ===== */
+.like-btn {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.like-btn:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.like-btn:active {
+    transform: scale(0.95);
+}
+
+.like-btn .bi-heart {
+    transition: all 0.3s ease;
+}
+
+.like-btn:hover .bi-heart {
+    animation: heartBeat 0.8s ease-in-out;
+}
+
+.animate-like {
+    animation: likeAnimation 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.15); }
+}
+
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { 
+        transform: scale(1.3) rotate(5deg); 
+        background: rgba(220, 53, 69, 0.3) !important;
+    }
+    100% { transform: scale(1); }
+}
+
+.like-count {
+    font-weight: 600;
+    margin-left: 0.3rem;
+    font-size: 0.9rem;
+}
+
+/* ===== DROPDOWN AZIONI ===== */
+.dropdown-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1rem;
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.2),
+        0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+}
+
+.dropdown-item {
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    margin: 0.1rem 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(212, 184, 255, 0.2);
+    color: var(--text);
+    transform: translateX(4px);
+}
+
+.dropdown-item i {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.dropdown-item:hover i {
+    opacity: 1;
+}
+
+/* ===== FILTRI AVANZATI ===== */
+.filter-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 8px 32px rgba(149, 117, 205, 0.15),
+        0 2px 8px rgba(149, 117, 205, 0.1);
+    transition: all 0.3s ease;
+}
+
+.filter-card:hover {
+    box-shadow: 
+        0 12px 48px rgba(149, 117, 205, 0.2),
+        0 4px 16px rgba(149, 117, 205, 0.15);
+}
+
+.filter-card .form-control,
+.filter-card .form-select {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(149, 117, 205, 0.2);
+    border-radius: 0.8rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.filter-card .form-control:focus,
+.filter-card .form-select:focus {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: var(--primary);
+    box-shadow: 
+        0 0 0 0.2rem rgba(212, 184, 255, 0.25),
+        0 4px 12px rgba(212, 184, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.filter-card .form-label {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.filter-card .form-check-input:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ===== PAGINAZIONE AVANZATA ===== */
+.pagination {
+    margin: 0;
+    padding: 1rem 0;
+}
+
+.page-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 0.5rem !important;
+    margin: 0 0.2rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.page-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 184, 255, 0.3);
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary), #a084e8);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 16px rgba(212, 184, 255, 0.4);
+}
+
+.page-item.disabled .page-link {
+    opacity: 0.5;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+}
+
+#goToPage {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 0.5rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#goToPage:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(212, 184, 255, 0.25);
+    color: white;
+}
+
+/* ===== MODAL ESPANSO ===== */
+#expandedPoemModal .modal-content {
+    background: rgba(255, 255, 233, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.5rem;
+    box-shadow: 
+        0 20px 80px rgba(149, 117, 205, 0.3),
+        0 8px 32px rgba(149, 117, 205, 0.2);
+}
+
+#expandedPoemModal .modal-header {
+    background: linear-gradient(135deg, 
+        rgba(212, 184, 255, 0.3),
+        rgba(255, 229, 217, 0.3)
+    );
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.5rem 1.5rem 0 0;
+    padding: 1.5rem 2rem;
+}
+
+#expandedPoemModal .modal-body {
+    padding: 2rem;
+}
+
+#expandedPoemContent {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    line-height: 1.8;
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== LOADING E STATI ===== */
+.loading-indicator {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.spinner-border.text-primary {
+    border-color: rgba(212, 184, 255, 0.3);
+    border-top-color: var(--primary);
+    width: 3rem;
+    height: 3rem;
+}
+
+/* ===== TOAST NOTIFICHE ===== */
+.toast {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.toast-header {
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1rem 1rem 0 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .poems-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .filter-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 1rem;
+    }
+    
+    .filter-card .row > div {
+        margin-bottom: 1rem;
+    }
+    
+    .poems-list .card-body {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .poem-card:hover {
+        transform: translateY(-4px);
+    }
+    
+    #expandedPoemModal .modal-body {
+        padding: 1rem;
+    }
+    
+    #expandedPoemContent {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+}
+
+@media (max-width: 576px) {
+    .filter-card .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .btn-haiku.btn-sm {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* ===== ANIMAZIONI AVANZATE ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.poem-card-wrapper {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.poem-card-wrapper:nth-child(odd) {
+    animation-delay: 0.1s;
+}
+
+.poem-card-wrapper:nth-child(even) {
+    animation-delay: 0.2s;
+}
+
+.filter-card {
+    animation: slideInFromLeft 0.8s ease-out;
+}
+
+/* ===== ACCESSIBILITÀ ===== */
+@media (prefers-reduced-motion: reduce) {
+    .poem-card,
+    .like-btn,
+    .filter-card,
+    .page-link {
+        transition: none;
+    }
+    
+    .poem-card:hover {
+        transform: none;
+    }
+    
+    .animate-like {
+        animation: none;
+    }
+    
+    .poem-card-wrapper {
+        animation: none;
+    }
+}
+
+/* Focus per accessibilità */
+.poem-card:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+}
+
+.like-btn:focus {
+    outline: 2px solid rgba(220, 53, 69, 0.5);
+    outline-offset: 2px;
+}
+
+/* ===== UTILITIES ===== */
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary), #a084e8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-glow {
+    box-shadow: 0 0 20px rgba(212, 184, 255, 0.3);
+}
+
+.hover-lift {
+    transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+    .filter-card {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dropdown-menu {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .toast {
+        background: rgba(0, 0, 0, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}

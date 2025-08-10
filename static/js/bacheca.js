@@ -1,0 +1,960 @@
+/**
+ * Bacheca delle Poesie - JavaScript Module
+ * Gestisce l'interfaccia interattiva della bacheca poetica
+ * @version 1.0.0
+ */
+
+class BachecaManager {
+    constructor() {
+        this.currentFilters = {
+            search: '',
+            type: 'all',
+            author: 'all',
+            valid_only: false
+        };
+        
+        this.currentSort = 'recent';
+        this.currentPage = 1;
+        this.totalPages = 1;
+        this.isLoading = false;
+        
+        // Cache elementi DOM
+        this.elements = {};
+        this.toasts = {};
+        
+        // Debounce timers
+        this.searchTimeout = null;
+        
+        // Configurazione
+        this.config = {
+            searchDelay: 500,
+            animationDuration: 300,
+            loadingTimeout: 10000
+        };
+    }
+
+    /**
+     * Inizializza il manager della bacheca
+     */
+    init() {
+        this.cacheElements();
+        this.initializeEventListeners();
+        this.initializeToasts();
+        this.loadSavedPreferences();
+        this.updateUI();
+        
+        console.log('BachecaManager inizializzato');
+    }
+
+    /**
+     * Cache degli elementi DOM per performance
+     */
+    cacheElements() {
+        this.elements = {
+            // Filtri
+            searchText: document.getElementById('searchText'),
+            typeFilter: document.getElementById('typeFilter'),
+            authorFilter: document.getElementById('authorFilter'),
+            onlyValidFilter: document.getElementById('onlyValidFilter'),
+            applyFilters: document.getElementById('applyFilters'),
+            clearFilters: document.getElementById('clearFilters'),
+            clearAllFilters: document.getElementById('clearAllFilters'),
+            
+            // Container e controlli
+            poemsContainer: document.getElementById('poemsContainer'),
+            loadingIndicator: document.getElementById('loadingIndicator'),
+            poemCount: document.getElementById('poemCount'),
+            
+            // Vista
+            viewGrid: document.getElementById('viewGrid'),
+            viewList: document.getElementById('viewList'),
+            
+            // Ordinamento
+            sortButtons: document.querySelectorAll('[data-sort]'),
+            
+            // Paginazione
+            goToPage: document.getElementById('goToPage'),
+            
+            // Modal
+            expandedModal: document.getElementById('expandedPoemModal'),
+            expandedTitle: document.getElementById('expandedPoemTitle'),
+            expandedContent: document.getElementById('expandedPoemContent'),
+            expandedAuthor: document.getElementById('expandedPoemAuthor'),
+            expandedInfo: document.getElementById('expandedPoemInfo'),
+            expandedCopyBtn: document.getElementById('expandedCopyBtn'),
+            expandedLikeBtn: document.getElementById('expandedLikeBtn'),
+            expandedLikeCount: document.getElementById('expandedLikeCount')
+        };
+    }
+
+    /**
+     * Inizializza tutti gli event listeners
+     */
+    initializeEventListeners() {
+        // Filtri
+        this.setupFilterListeners();
+        
+        // Vista
+        this.setupViewListeners();
+        
+        // Azioni delle card
+        this.setupCardListeners();
+        
+        // Ordinamento
+        this.setupSortListeners();
+        
+        // Paginazione
+        this.setupPaginationListeners();
+        
+        // Tasti di scelta rapida
+        this.setupKeyboardShortcuts();
+        
+        // Eventi finestra
+        this.setupWindowEvents();
+    }
+
+    /**
+     * Setup listeners per i filtri
+     */
+    setupFilterListeners() {
+        // Ricerca con debounce
+        if (this.elements.searchText) {
+            this.elements.searchText.addEventListener('input', (e) => {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.currentFilters.search = e.target.value.trim();
+                    this.applyFilters();
+                }, this.config.searchDelay);
+            });
+        }
+
+        // Filtro tipo
+        if (this.elements.typeFilter) {
+            this.elements.typeFilter.addEventListener('change', (e) => {
+                this.currentFilters.type = e.target.value;
+                this.applyFilters();
+            });
+        }
+
+        // Filtro autore
+        if (this.elements.authorFilter) {
+            this.elements.authorFilter.addEventListener('change', (e) => {
+                this.currentFilters.author = e.target.value;
+                this.applyFilters();
+            });
+        }
+
+        // Solo valide
+        if (this.elements.onlyValidFilter) {
+            this.elements.onlyValidFilter.addEventListener('change', (e) => {
+                this.currentFilters.valid_only = e.target.checked;
+                this.applyFilters();
+            });
+        }
+
+        // Pulsanti filtri
+        if (this.elements.applyFilters) {
+            this.elements.applyFilters.addEventListener('click', () => {
+                this.applyFilters();
+            });
+        }
+
+        if (this.elements.clearFilters) {
+            this.elements.clearFilters.addEventListener('click', () => {
+                this.clearFilters();
+            });
+        }
+
+        if (this.elements.clearAllFilters) {
+            this.elements.clearAllFilters.addEventListener('click', () => {
+                this.clearAllFilters();
+            });
+        }
+    }
+
+    /**
+     * Setup listeners per le viste
+     */
+    setupViewListeners() {
+        if (this.elements.viewGrid) {
+            this.elements.viewGrid.addEventListener('change', () => {
+                if (this.elements.viewGrid.checked) {
+                    this.switchView('grid');
+                }
+            });
+        }
+
+        if (this.elements.viewList) {
+            this.elements.viewList.addEventListener('change', () => {
+                if (this.elements.viewList.checked) {
+                    this.switchView('list');
+                }
+            });
+        }
+    }
+
+    /**
+     * Setup listeners per le azioni delle card
+     */
+    setupCardListeners() {
+        // Like buttons
+        this.setupLikeButtons();
+        
+        // Action buttons
+        this.setupActionButtons();
+    }
+
+    /**
+     * Setup dei pulsanti like
+     */
+    setupLikeButtons() {
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const poemId = btn.dataset.poemId;
+                if (poemId) {
+                    await this.toggleLike(poemId, btn);
+                }
+            });
+        });
+    }
+
+    /**
+     * Setup dei pulsanti azione
+     */
+    setupActionButtons() {
+        document.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const action = btn.dataset.action;
+                const poemId = btn.dataset.poemId;
+                
+                if (action && poemId) {
+                    await this.handleCardAction(action, poemId, btn);
+                }
+            });
+        });
+    }
+
+    /**
+     * Setup listeners per l'ordinamento
+     */
+    setupSortListeners() {
+        this.elements.sortButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sortBy = btn.dataset.sort;
+                if (sortBy) {
+                    this.applySorting(sortBy);
+                }
+            });
+        });
+    }
+
+    /**
+     * Setup listeners per la paginazione
+     */
+    setupPaginationListeners() {
+        if (this.elements.goToPage) {
+            this.elements.goToPage.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.goToSpecificPage();
+                }
+            });
+        }
+
+        // Pulsante vai alla pagina
+        const goToPageBtn = document.querySelector('[onclick="goToSpecificPage()"]');
+        if (goToPageBtn) {
+            goToPageBtn.addEventListener('click', () => {
+                this.goToSpecificPage();
+            });
+        }
+    }
+
+    /**
+     * Setup scorciatoie da tastiera
+     */
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+F per focalizzare la ricerca
+            if (e.ctrlKey && e.key === 'f' && this.elements.searchText) {
+                e.preventDefault();
+                this.elements.searchText.focus();
+                this.elements.searchText.select();
+            }
+            
+            // Escape per pulire filtri
+            if (e.key === 'Escape') {
+                this.clearFilters();
+            }
+            
+            // Frecce per navigazione pagine
+            if (e.ctrlKey) {
+                if (e.key === 'ArrowLeft' && this.currentPage > 1) {
+                    e.preventDefault();
+                    this.goToPage(this.currentPage - 1);
+                } else if (e.key === 'ArrowRight' && this.currentPage < this.totalPages) {
+                    e.preventDefault();
+                    this.goToPage(this.currentPage + 1);
+                }
+            }
+        });
+    }
+
+    /**
+     * Setup eventi finestra
+     */
+    setupWindowEvents() {
+        // Resize per layout responsive
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.handleResize();
+            }, 250);
+        });
+
+        // Gestione back/forward del browser
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.bacheca) {
+                this.loadStateFromHistory(e.state);
+            }
+        });
+    }
+
+    /**
+     * Inizializza i toast
+     */
+    initializeToasts() {
+        this.toasts = {
+            copy: document.getElementById('copyToast'),
+            error: document.getElementById('errorToast'),
+            like: document.getElementById('likeToast')
+        };
+    }
+
+    /**
+     * Carica preferenze salvate
+     */
+    loadSavedPreferences() {
+        // Vista salvata
+        const savedView = localStorage.getItem('bachecaViewMode') || 'grid';
+        this.switchView(savedView);
+        
+        // Altri filtri salvati se necessario
+        const savedFilters = localStorage.getItem('bachecaFilters');
+        if (savedFilters) {
+            try {
+                const filters = JSON.parse(savedFilters);
+                this.currentFilters = { ...this.currentFilters, ...filters };
+                this.syncFiltersToUI();
+            } catch (e) {
+                console.warn('Errore nel caricamento filtri salvati:', e);
+            }
+        }
+    }
+
+    /**
+     * Sincronizza filtri con UI
+     */
+    syncFiltersToUI() {
+        if (this.elements.searchText) {
+            this.elements.searchText.value = this.currentFilters.search;
+        }
+        if (this.elements.typeFilter) {
+            this.elements.typeFilter.value = this.currentFilters.type;
+        }
+        if (this.elements.authorFilter) {
+            this.elements.authorFilter.value = this.currentFilters.author;
+        }
+        if (this.elements.onlyValidFilter) {
+            this.elements.onlyValidFilter.checked = this.currentFilters.valid_only;
+        }
+    }
+
+    /**
+     * Applica i filtri correnti
+     */
+    async applyFilters() {
+        if (this.isLoading) return;
+        
+        try {
+            this.setLoadingState(true);
+            
+            // Salva filtri
+            localStorage.setItem('bachecaFilters', JSON.stringify(this.currentFilters));
+            
+            // Costruisci URL con parametri
+            const params = new URLSearchParams();
+            
+            if (this.currentFilters.search) {
+                params.append('search', this.currentFilters.search);
+            }
+            if (this.currentFilters.type !== 'all') {
+                params.append('tipo', this.currentFilters.type);
+            }
+            if (this.currentFilters.author !== 'all') {
+                params.append('autore', this.currentFilters.author);
+            }
+            if (this.currentFilters.valid_only) {
+                params.append('solo_valide', 'true');
+            }
+            if (this.currentSort !== 'recent') {
+                params.append('sort', this.currentSort);
+            }
+            
+            params.append('page', '1'); // Reset alla prima pagina
+            
+            // Naviga alla nuova URL
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            
+            // Aggiorna history
+            history.pushState({
+                bacheca: true,
+                filters: this.currentFilters,
+                sort: this.currentSort,
+                page: 1
+            }, '', newUrl);
+            
+            // Ricarica pagina con nuovi parametri
+            window.location.href = newUrl;
+            
+        } catch (error) {
+            console.error('Errore nell\'applicazione filtri:', error);
+            this.showToast('error', 'Errore nell\'applicazione dei filtri');
+        } finally {
+            this.setLoadingState(false);
+        }
+    }
+
+    /**
+     * Pulisce tutti i filtri
+     */
+    clearFilters() {
+        this.currentFilters = {
+            search: '',
+            type: 'all',
+            author: 'all',
+            valid_only: false
+        };
+        
+        this.syncFiltersToUI();
+        localStorage.removeItem('bachecaFilters');
+    }
+
+    /**
+     * Pulisce tutti i filtri e ricarica
+     */
+    clearAllFilters() {
+        this.clearFilters();
+        
+        // Naviga alla bacheca pulita
+        history.pushState({
+            bacheca: true,
+            filters: this.currentFilters,
+            sort: 'recent',
+            page: 1
+        }, '', window.location.pathname);
+        
+        window.location.href = window.location.pathname;
+    }
+
+    /**
+     * Cambia vista (griglia/lista)
+     */
+    switchView(mode) {
+        const container = this.elements.poemsContainer;
+        if (!container) return;
+
+        // Rimuovi classi esistenti
+        container.classList.remove('poems-grid', 'poems-list');
+        container.classList.add(`poems-${mode}`);
+        
+        // Aggiorna radio buttons
+        if (mode === 'grid' && this.elements.viewGrid) {
+            this.elements.viewGrid.checked = true;
+        } else if (mode === 'list' && this.elements.viewList) {
+            this.elements.viewList.checked = true;
+        }
+        
+        // Salva preferenza
+        localStorage.setItem('bachecaViewMode', mode);
+        
+        // Animazione
+        container.style.opacity = '0.7';
+        setTimeout(() => {
+            container.style.opacity = '1';
+        }, 150);
+    }
+
+    /**
+     * Toggle like su una poesia
+     */
+    async toggleLike(poemId, btnElement) {
+        if (!poemId || !btnElement) return;
+
+        try {
+            // Animazione immediata
+            btnElement.classList.add('animate-like');
+            btnElement.disabled = true;
+
+            const response = await fetch(`/api/poems/${poemId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Aggiorna conteggio
+                const countSpan = btnElement.querySelector('.like-count');
+                if (countSpan) {
+                    countSpan.textContent = data.likes || 0;
+                }
+                
+                // Mostra toast
+                this.showToast('like', data.message || 'Grazie per il tuo apprezzamento!');
+                
+                // Sincronizza con modal se aperto
+                if (this.elements.expandedLikeCount) {
+                    this.elements.expandedLikeCount.textContent = data.likes || 0;
+                }
+            } else {
+                throw new Error(data.error || 'Errore sconosciuto');
+            }
+            
+        } catch (error) {
+            console.error('Errore nel like:', error);
+            this.showToast('error', 'Errore nell\'apprezzamento della poesia');
+        } finally {
+            // Rimuovi animazione e riabilita pulsante
+            setTimeout(() => {
+                btnElement.classList.remove('animate-like');
+                btnElement.disabled = false;
+            }, this.config.animationDuration);
+        }
+    }
+
+    /**
+     * Gestisce azioni delle card (copia, condividi, espandi, dettagli)
+     */
+    async handleCardAction(action, poemId, btnElement) {
+        switch (action) {
+            case 'copy':
+                await this.copyPoemText(poemId);
+                break;
+            case 'share':
+                await this.sharePoem(poemId);
+                break;
+            case 'expand':
+                this.expandPoem(poemId);
+                break;
+            case 'detail':
+                this.showPoemDetails(poemId);
+                break;
+            default:
+                console.warn(`Azione sconosciuta: ${action}`);
+        }
+    }
+
+    /**
+     * Copia il testo di una poesia
+     */
+    async copyPoemText(poemId) {
+        try {
+            const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
+            if (!poemCard) throw new Error('Poesia non trovata');
+
+            const poemTextElement = poemCard.querySelector('.poem-text');
+            if (!poemTextElement) throw new Error('Testo poesia non trovato');
+
+            const poemText = poemTextElement.textContent || poemTextElement.innerText;
+            
+            // Prova con Clipboard API moderna
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(poemText);
+                this.showToast('copy', 'Testo copiato negli appunti!');
+            } else {
+                // Fallback
+                this.fallbackCopyText(poemText);
+            }
+        } catch (error) {
+            console.error('Errore nella copia:', error);
+            this.showToast('error', 'Errore nella copia del testo');
+        }
+    }
+
+    /**
+     * Fallback per la copia testo
+     */
+    fallbackCopyText(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '-9999px';
+        document.body.appendChild(textArea);
+        
+        try {
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            if (successful) {
+                this.showToast('copy', 'Testo copiato negli appunti!');
+            } else {
+                throw new Error('Comando copia fallito');
+            }
+        } catch (err) {
+            console.error('Fallback copy fallito:', err);
+            this.showToast('error', 'Impossibile copiare il testo');
+        } finally {
+            document.body.removeChild(textArea);
+        }
+    }
+
+    /**
+     * Condivide una poesia
+     */
+    async sharePoem(poemId) {
+        const poemUrl = `${window.location.origin}/poesia/${poemId}`;
+        
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: 'Poesia da Ale\'s Haikus',
+                    text: 'Guarda questa bellissima poesia!',
+                    url: poemUrl
+                });
+            } else {
+                // Fallback: copia URL
+                if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(poemUrl);
+                    this.showToast('copy', 'Link copiato negli appunti!');
+                } else {
+                    this.fallbackCopyText(poemUrl);
+                }
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') { // Ignora cancellazione utente
+                console.error('Errore nella condivisione:', error);
+                this.showToast('error', 'Errore nella condivisione');
+            }
+        }
+    }
+
+    /**
+     * Espande una poesia nel modal
+     */
+    expandPoem(poemId) {
+        try {
+            const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
+            if (!poemCard) throw new Error('Poesia non trovata');
+
+            // Estrai dati dalla card
+            const title = poemCard.querySelector('.card-title')?.textContent || 'Poesia';
+            const content = poemCard.querySelector('.poem-text')?.innerHTML || '';
+            const author = poemCard.querySelector('.fw-medium')?.textContent || 'Poeta Anonimo';
+            const type = poemCard.querySelector('.badge-poem-type')?.textContent || 'Libero';
+            const dateElement = poemCard.querySelector('.bi-clock')?.parentElement;
+            const date = dateElement ? dateElement.textContent.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || '' : '';
+            
+            // Popola modal
+            if (this.elements.expandedTitle) {
+                this.elements.expandedTitle.textContent = title;
+            }
+            if (this.elements.expandedContent) {
+                this.elements.expandedContent.innerHTML = content;
+            }
+            if (this.elements.expandedAuthor) {
+                this.elements.expandedAuthor.textContent = author;
+            }
+            if (this.elements.expandedInfo) {
+                this.elements.expandedInfo.innerHTML = `
+                    <i class="bi bi-bookmark me-1"></i>${type}
+                    ${date ? ` • ${date}` : ''}
+                `;
+            }
+            
+            // Setup pulsanti modal
+            if (this.elements.expandedCopyBtn) {
+                this.elements.expandedCopyBtn.onclick = () => this.copyPoemText(poemId);
+            }
+            
+            if (this.elements.expandedLikeBtn) {
+                this.elements.expandedLikeBtn.onclick = () => {
+                    const originalBtn = poemCard.querySelector('.like-btn');
+                    if (originalBtn) {
+                        this.toggleLike(poemId, originalBtn);
+                    }
+                };
+            }
+            
+            // Sincronizza conteggio like
+            const originalLikeCount = poemCard.querySelector('.like-count');
+            if (originalLikeCount && this.elements.expandedLikeCount) {
+                this.elements.expandedLikeCount.textContent = originalLikeCount.textContent;
+            }
+            
+            // Mostra modal
+            this.showModal('expandedPoemModal');
+            
+        } catch (error) {
+            console.error('Errore nell\'espansione poesia:', error);
+            this.showToast('error', 'Errore nell\'apertura della poesia');
+        }
+    }
+
+    /**
+     * Mostra dettagli poesia (navigazione)
+     */
+    showPoemDetails(poemId) {
+        window.location.href = `/poesia/${poemId}`;
+    }
+
+    /**
+     * Applica ordinamento
+     */
+    applySorting(sortBy) {
+        this.currentSort = sortBy;
+        
+        const params = new URLSearchParams(window.location.search);
+        params.set('sort', sortBy);
+        params.set('page', '1'); // Reset alla prima pagina
+        
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        
+        // Aggiorna history
+        history.pushState({
+            bacheca: true,
+            filters: this.currentFilters,
+            sort: sortBy,
+            page: 1
+        }, '', newUrl);
+        
+        window.location.href = newUrl;
+    }
+
+    /**
+     * Va a una pagina specifica
+     */
+    goToSpecificPage() {
+        if (!this.elements.goToPage) return;
+        
+        const pageNumber = parseInt(this.elements.goToPage.value);
+        
+        if (pageNumber >= 1 && pageNumber <= this.totalPages) {
+            this.goToPage(pageNumber);
+        } else {
+            this.showToast('error', 
+                `Numero pagina non valido. Inserisci un valore tra 1 e ${this.totalPages}`);
+            this.elements.goToPage.value = this.currentPage;
+        }
+    }
+
+    /**
+     * Naviga a una pagina
+     */
+    goToPage(pageNumber) {
+        const params = new URLSearchParams(window.location.search);
+        params.set('page', pageNumber);
+        
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        
+        // Aggiorna history
+        history.pushState({
+            bacheca: true,
+            filters: this.currentFilters,
+            sort: this.currentSort,
+            page: pageNumber
+        }, '', newUrl);
+        
+        window.location.href = newUrl;
+    }
+
+    /**
+     * Mostra/nasconde stato di caricamento
+     */
+    setLoadingState(loading) {
+        this.isLoading = loading;
+        
+        if (this.elements.loadingIndicator) {
+            this.elements.loadingIndicator.style.display = loading ? 'block' : 'none';
+        }
+        
+        if (this.elements.poemsContainer) {
+            this.elements.poemsContainer.style.opacity = loading ? '0.5' : '1';
+            this.elements.poemsContainer.style.pointerEvents = loading ? 'none' : 'auto';
+        }
+        
+        // Disabilita controlli durante caricamento
+        const controls = [
+            this.elements.applyFilters,
+            this.elements.clearFilters,
+            this.elements.typeFilter,
+            this.elements.authorFilter,
+            this.elements.onlyValidFilter
+        ];
+        
+        controls.forEach(element => {
+            if (element) {
+                element.disabled = loading;
+            }
+        });
+    }
+
+    /**
+     * Mostra un toast
+     */
+    showToast(type, message = '') {
+        const toastElement = this.toasts[type];
+        if (!toastElement) {
+            console.warn(`Toast type '${type}' not found`);
+            return;
+        }
+
+        // Aggiorna messaggio se specificato
+        if (message) {
+            const bodyElement = toastElement.querySelector('.toast-body');
+            if (bodyElement) {
+                bodyElement.textContent = message;
+            }
+        }
+
+        // Mostra toast con Bootstrap se disponibile
+        if (window.bootstrap && bootstrap.Toast) {
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        } else {
+            // Fallback semplice
+            toastElement.style.display = 'block';
+            toastElement.style.opacity = '1';
+            
+            setTimeout(() => {
+                toastElement.style.opacity = '0';
+                setTimeout(() => {
+                    toastElement.style.display = 'none';
+                }, 300);
+            }, 3000);
+        }
+    }
+
+    /**
+     * Mostra un modal
+     */
+    showModal(modalId) {
+        const modalElement = document.getElementById(modalId);
+        if (!modalElement) return;
+
+        if (window.bootstrap && bootstrap.Modal) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            // Fallback semplice
+            modalElement.style.display = 'block';
+            modalElement.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    /**
+     * Gestisce resize finestra
+     */
+    handleResize() {
+        // Riadatta layout se necessario
+        if (window.innerWidth < 768) {
+            // Mobile: forza vista lista se griglia troppo stretta
+            if (this.elements.poemsContainer?.classList.contains('poems-grid')) {
+                // Potresti voler cambiare automaticamente vista
+            }
+        }
+    }
+
+    /**
+     * Carica stato da history
+     */
+    loadStateFromHistory(state) {
+        if (state.filters) {
+            this.currentFilters = { ...this.currentFilters, ...state.filters };
+        }
+        if (state.sort) {
+            this.currentSort = state.sort;
+        }
+        if (state.page) {
+            this.currentPage = state.page;
+        }
+        
+        this.syncFiltersToUI();
+    }
+
+    /**
+     * Aggiorna UI generale
+     */
+    updateUI() {
+        // Aggiorna contatori, stato, ecc.
+        this.updatePoemCount();
+        this.setupCurrentPageIndicators();
+    }
+
+    /**
+     * Aggiorna contatore poesie
+     */
+    updatePoemCount() {
+        if (this.elements.poemCount) {
+            const visiblePoems = document.querySelectorAll('.poem-card-wrapper').length;
+            this.elements.poemCount.textContent = visiblePoems;
+        }
+    }
+
+    /**
+     * Setup indicatori pagina corrente
+     */
+    setupCurrentPageIndicators() {
+        // Evidenzia pagina corrente nei controlli di paginazione
+        document.querySelectorAll('.pagination .page-item').forEach(item => {
+            const link = item.querySelector('.page-link');
+            if (link && parseInt(link.textContent) === this.currentPage) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * Cleanup e distruttore
+     */
+    destroy() {
+        // Rimuovi event listeners se necessario
+        clearTimeout(this.searchTimeout);
+        
+        // Pulisci cache
+        this.elements = {};
+        this.toasts = {};
+        
+        console.log('BachecaManager distrutto');
+    }
+}
+
+// Auto-inizializzazione quando DOM è pronto
+let bachecaManager = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    bachecaManager = new BachecaManager();
+    bachecaManager.init();
+});
+
+// Esporta per uso globale se necessario
+window.BachecaManager = BachecaManager;
+window.bachecaManager = bachecaManager;

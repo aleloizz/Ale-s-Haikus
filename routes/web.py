@@ -11,30 +11,55 @@ def index():
 
 @web_bp.route('/bacheca')
 def bacheca():
-    """Pagina della bacheca comunitaria"""
+    """Pagina della bacheca comunitaria con filtri avanzati"""
     try:
         # Parametri di paginazione e filtri
         page = request.args.get('page', 1, type=int)
-        per_page = 8  # Numero di poesie per pagina
+        per_page = 12  # Aumentato per la griglia
         
         tipo_filtro = request.args.get('tipo', '')
         autore_filtro = request.args.get('autore', '')
+        search_query = request.args.get('search', '')
         solo_valide = request.args.get('solo_valide', 'false') == 'true'
+        sort_by = request.args.get('sort', 'recent')  # recent, oldest, title, author, type
         
-        # Costruisci la query
+        # Costruisci la query base
         query = Poem.query
         
-        if tipo_filtro:
+        # Applica filtri
+        if tipo_filtro and tipo_filtro != 'all':
             query = query.filter(Poem.poem_type.ilike(f'%{tipo_filtro}%'))
         
-        if autore_filtro:
+        if autore_filtro and autore_filtro != 'all':
             query = query.filter(Poem.author.ilike(f'%{autore_filtro}%'))
+        
+        if search_query:
+            # Ricerca nel titolo, contenuto e autore
+            search_filter = f'%{search_query}%'
+            query = query.filter(
+                db.or_(
+                    Poem.title.ilike(search_filter),
+                    Poem.content.ilike(search_filter),
+                    Poem.author.ilike(search_filter)
+                )
+            )
         
         if solo_valide:
             query = query.filter(Poem.is_valid == True)
         
-        # Ordina per data di creazione (più recenti prima)
-        query = query.order_by(Poem.created_at.desc())
+        # Applica ordinamento
+        if sort_by == 'recent':
+            query = query.order_by(Poem.created_at.desc())
+        elif sort_by == 'oldest':
+            query = query.order_by(Poem.created_at.asc())
+        elif sort_by == 'title':
+            query = query.order_by(Poem.title.asc().nullslast(), Poem.created_at.desc())
+        elif sort_by == 'author':
+            query = query.order_by(Poem.author.asc().nullslast(), Poem.created_at.desc())
+        elif sort_by == 'type':
+            query = query.order_by(Poem.poem_type.asc().nullslast(), Poem.created_at.desc())
+        else:
+            query = query.order_by(Poem.created_at.desc())
         
         # Paginazione
         poesie = query.paginate(
@@ -45,25 +70,39 @@ def bacheca():
         
         # Ottieni i tipi di poesia unici per il filtro
         tipi_disponibili = db.session.query(Poem.poem_type).distinct().filter(
-            Poem.poem_type.isnot(None)
+            Poem.poem_type.isnot(None),
+            Poem.poem_type != ''
         ).all()
         tipi_disponibili = [tipo[0] for tipo in tipi_disponibili if tipo[0]]
         
         # Ottieni gli autori unici per il filtro
-        autori_disponibili = db.session.query(Poem.author).distinct().all()
+        autori_disponibili = db.session.query(Poem.author).distinct().filter(
+            Poem.author.isnot(None),
+            Poem.author != ''
+        ).all()
         autori_disponibili = [autore[0] for autore in autori_disponibili if autore[0]]
         
         return render_template('bacheca.html', 
                              poesie=poesie,
                              tipo_filtro=tipo_filtro,
                              autore_filtro=autore_filtro,
+                             search_query=search_query,
                              solo_valide=solo_valide,
+                             sort_by=sort_by,
                              tipi_disponibili=sorted(tipi_disponibili),
                              autori_disponibili=sorted(autori_disponibili))
         
     except Exception as e:
         flash(f'Errore nel caricamento della bacheca: {str(e)}', 'error')
-        return render_template('bacheca.html', poesie=None)
+        return render_template('bacheca.html', 
+                             poesie=None,
+                             tipo_filtro='',
+                             autore_filtro='',
+                             search_query='',
+                             solo_valide=False,
+                             sort_by='recent',
+                             tipi_disponibili=[],
+                             autori_disponibili=[])
 
 @web_bp.route('/wiki')
 def wiki():
