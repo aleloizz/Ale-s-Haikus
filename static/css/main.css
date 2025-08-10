@@ -787,12 +787,21 @@ textarea:focus {
   #patternDisplay {
     gap: 0.35rem;
     padding-bottom: 0.5rem;
-    min-height: 40px !important; /* Altezza ridotta per mobile */
-    height: auto !important; /* Altezza flessibile per mobile */
+    min-height: 50px !important; /* Altezza minima aumentata per mobile */
+    height: 50px !important; /* Altezza fissa per mantenere l'allineamento */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important; /* Centramento verticale dei badge */
+    flex-wrap: wrap !important;
+    contain: layout !important;
   }
   #patternDisplay .badge {
     font-size: 0.95em;
     padding: 0.5em 0.7em;
+    min-height: 32px !important; /* Altezza coerente dei badge */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   .p-4 {
@@ -920,6 +929,28 @@ textarea:focus {
 
   .toast.show {
       max-width: 400px; /* Toast più larghi per contenere i dettagli */
+  }
+}
+
+/* Adattamenti per dispositivi extra-piccoli */
+@media (max-width: 480px) {
+  #patternDisplay {
+    min-height: 45px !important;
+    height: 45px !important;
+    gap: 0.25rem !important;
+    margin-bottom: 1.2rem !important;
+  }
+
+  #patternDisplay .badge {
+    font-size: 0.85rem !important;
+    min-width: 35px !important;
+    height: 28px !important;
+    line-height: 26px !important;
+    padding: 0.4em 0.6em !important;
+  }
+
+  .card {
+    padding: 1.2rem 0.6rem !important;
   }
 }
 
