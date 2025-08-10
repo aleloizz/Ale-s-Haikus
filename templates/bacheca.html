@@ -613,7 +613,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                 console.error('Errore nel caricamento modulo bacheca:', error);
             });
     </script>
-        // Carica il modulo bacheca
+    <!-- Carica il modulo bacheca -->
+    <script type="module">
         import('{{ url_for("static", filename="js/bacheca.js") }}?v=1.0')
             .then(module => {
                 console.log('Modulo bacheca caricato');
