@@ -30,8 +30,8 @@
 /* Above-the-fold Critical CSS */
 :root{--primary:#D4B8FF;--secondary:#FFE5D9;--accent:#A2D7D8;--text:#5E5E5E;--bg:#FAF7FF;--error:#ff6b6b;--success:#3bb156}
 *{box-sizing:border-box}
-body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:flex;flex-direction:column;background-color:#fbbda3;background-image:url('../images/background.jpg');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed}
-@supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {body{background-image:url('../images/background.webp')}}
+body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:flex;flex-direction:column;background-color:#fbbda3;background-image:url('{{ url_for("static", filename="images/background.jpg") }}');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed}
+@supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {body{background-image:url('{{ url_for("static", filename="images/background.webp") }}')}}
 .main-wrapper{flex:1;display:flex;flex-direction:column}
 .container{width:100%;max-width:1140px;margin:0 auto;padding:0 0.75rem}
 .bg-haiku-primary{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:none!important;box-shadow:none!important}
