@@ -9,7 +9,7 @@ def index():
     """Pagina principale dell'applicazione"""
     return render_template('index.html')
 
-@web_bp.route('/bacheca')
+'''@web_bp.route('/bacheca')
 def bacheca():
     """Pagina della bacheca comunitaria con filtri avanzati"""
     try:
@@ -103,6 +103,15 @@ def bacheca():
                              sort_by='recent',
                              tipi_disponibili=[],
                              autori_disponibili=[])
+ '''
+
+@web_bp.route('/bacheca')
+def bacheca():
+    # Temporaneamente reindirizza alla pagina coming soon
+    return render_template('comingsoon.html')
+    
+    # Il codice originale della bacheca rimane commentato per sviluppi futuri
+    # ...resto del codice bacheca...
 
 @web_bp.route('/wiki')
 def wiki():
