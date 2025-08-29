@@ -25,47 +25,84 @@
     <meta name="msapplication-TileImage" content="{{ url_for('static', filename='ms-icon-144x144.png') }}?v=1.2">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.2">
 
-    <!-- Critical Above-the-fold CSS - Inline per zero blocking -->
+    <!-- OTTIMIZZAZIONE SEZIONE HEAD in bacheca.html -->
+
+    <!-- CSS critico in cima per blocking immediato -->
     <style>
-/* Above-the-fold Critical CSS */
-:root{--primary:#D4B8FF;--secondary:#FFE5D9;--accent:#A2D7D8;--text:#5E5E5E;--bg:#FAF7FF;--error:#ff6b6b;--success:#3bb156}
+/* Above-the-fold Critical CSS - OTTIMIZZATO */
+:root{
+    --primary:#D4B8FF;
+    --secondary:#FFE5D9;
+    --accent:#A2D7D8;
+    --text:#5E5E5E;
+    --bg:#FAF7FF;
+    --error:#ff6b6b;
+    --success:#3bb156
+}
+
 *{box-sizing:border-box}
-body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:flex;flex-direction:column;background-color:#fbbda3;background-image:url('{{ url_for("static", filename="images/background.jpg") }}');background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed}
-@supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {body{background-image:url('{{ url_for("static", filename="images/background.webp") }}')}}
+
+body{
+    font-family:'Inter',sans-serif;
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background-color:#fbbda3;
+    background-image:url('{{ url_for("static", filename="images/background.jpg") }}');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+}
+
+@supports (background-image: url('data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA')) {
+    body{background-image:url('{{ url_for("static", filename="images/background.webp") }}')}
+}
+
 .main-wrapper{flex:1;display:flex;flex-direction:column}
 .container{width:100%;max-width:1140px;margin:0 auto;padding:0 0.75rem}
 .bg-haiku-primary{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:none!important;box-shadow:none!important}
-.text-white{color:#fff!important}.text-center{text-align:center!important}
-.py-5{padding:3rem 0!important}.py-4{padding:1.5rem 0!important}
-.display-4{font-size:calc(1.475rem + 2.7vw);font-weight:300;line-height:1.2;margin:0}
+
+/* Essential utilities solo quelli critical */
+.text-white{color:#fff!important}
+.text-center{text-align:center!important}
+.py-5{padding:3rem 0!important}
+.py-4{padding:1.5rem 0!important}
 .display-5{font-size:calc(1.375rem + 1.5vw);font-weight:300;line-height:1.2;margin:0}
 .lead{font-size:1.25rem;font-weight:300;margin-bottom:1rem}
-.card{background:rgba(255,255,233,0.200);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;border:1px solid rgba(255,255,255,0.3);box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 2px 30px rgba(149,117,205,0.1),0 0 60px rgba(149,117,205,0.05);transition:transform 0.3s ease,box-shadow 0.3s ease}
-.glass-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2)}
-.h4,h4{font-size:calc(1.275rem + 0.3vw);margin-bottom:1rem}
-.btn-haiku{transition:all 0.3s ease;border-radius:2rem!important;padding:10px 16px!important;font-size:1rem!important;line-height:1.5!important;min-height:44px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;font-weight:500!important}
-.btn-haiku i{margin-right:.5rem;display:inline-block;line-height:0}
-.btn-haiku.btn-primary{background:var(--primary);border:none;color:#fff}
-.btn-haiku.btn-secondary{background:var(--secondary);color:var(--text);border:none}
-.btn-haiku.btn-accent{background:var(--accent);color:#fff;border:none}
-.form-control,.form-select{display:block;width:100%;padding:0.75rem;font-size:1rem;border:1px solid rgba(255,255,255,0.3);border-radius:1rem;background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);color:var(--text);transition:all 0.3s ease}
-.form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 0.2rem rgba(212,184,255,0.25);outline:0;background:rgba(255,255,255,0.2)}
-.mb-3{margin-bottom:1rem!important}.mb-4{margin-bottom:1.5rem!important}
-.d-flex{display:flex!important}.justify-content-between{justify-content:space-between!important}
-.align-items-center{align-items:center!important}.gap-2{gap:0.5rem!important}
-.row{display:flex;flex-wrap:wrap;margin:0 -0.75rem}.col-md-6{flex:0 0 auto;width:50%}.col-md-4{flex:0 0 auto;width:33.333333%}.col-lg-4{flex:0 0 auto;width:33.333333%}
-@media (max-width: 767.98px) {.col-md-6,.col-md-4,.col-lg-4{width:100%}}
-.filter-card{background:rgba(255,255,255,0.95);backdrop-filter:blur(15px);border-radius:1.5rem;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.4);box-shadow:0 8px 32px rgba(149,117,205,0.12)}
+
+/* Minimal card per above-the-fold */
+.card{background:rgba(255,255,255,0.95);border-radius:1rem;box-shadow:0 1rem 3rem rgba(0,0,0,0.175);border:none;transition:transform 0.3s ease,box-shadow 0.3s ease}
+.glass-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2)}
+
+/* Essential buttons */
+.btn-haiku{transition:all 0.3s ease;border-radius:2rem!important;padding:10px 16px!important;font-size:1rem!important;line-height:1.5!important;min-height:44px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;font-weight:500!important;border:none}
+.btn-haiku.btn-primary{background:var(--primary);color:#fff}
+.btn-haiku.btn-secondary{background:var(--secondary);color:var(--text)}
+.btn-haiku.btn-accent{background:var(--accent);color:#fff}
+
+/* Essential form controls per filter card */
+.form-control,.form-select{display:block;width:100%;padding:0.75rem;font-size:1rem;border:1px solid #ced4da;border-radius:0.375rem;background:#fff;transition:all 0.3s ease}
+.form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 0.2rem rgba(212,184,255,0.25);outline:0}
+
+/* Essential layout */
+.d-flex{display:flex!important}
+.justify-content-between{justify-content:space-between!important}
+.align-items-center{align-items:center!important}
+.mb-3{margin-bottom:1rem!important}
+
+/* Filter card critical */
+.filter-card{background:rgba(255,255,255,0.95);border-radius:1rem;padding:1.5rem;margin-bottom:2rem;box-shadow:0 1rem 3rem rgba(0,0,0,0.175)}
+
+/* Nav active state */
+.nav-link.active{background:rgba(255,255,255,0.15)!important;border-radius:1rem!important;color:#fff!important}
+
+/* Loading state */
 body.loading{background:#fbbda3!important}
 
-/* Navigation active state */
-.nav-link.active {
-    background: rgba(255,255,255,0.15) !important;
-    border-radius: 1rem !important;
-    color: #fff !important;
-}
-
-/* Font display optimizations */
+/* Font display */
 @font-face{font-family:'Inter';font-display:swap;src:local('Inter')}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 </style>
@@ -181,7 +218,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <label for="searchText" class="form-label fw-medium text-muted">
                                 <i class="bi bi-search me-1"></i>Cerca poesia
                             </label>
-                            <input type="text" id="searchText" class="form-control" placeholder="Titolo, contenuto, autore..." value="{{ search_query or '' }}">
+                            <input type="text" id="searchText" class="form-control" 
+                                   placeholder="Titolo, contenuto, autore..." 
+                                   value="{{ search_query if search_query else '' }}">
                         </div>
                         
                         <!-- Filtro per tipologia -->
@@ -191,7 +230,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             </label>
                             <select id="typeFilter" class="form-select">
                                 <option value="">Tutte le tipologie</option>
-                                <option value="haiku" {% if tipo_filtro == 'haiku' %}selected{% endif %}>Haiku</option>
+                                <option value="haiku" {% if tipo_filtro and tipo_filtro == 'haiku' %}selected{% endif %}>Haiku</option>
                                 <option value="tanka" {% if tipo_filtro == 'tanka' %}selected{% endif %}>Tanka</option>
                                 <option value="katauta" {% if tipo_filtro == 'katauta' %}selected{% endif %}>Katauta</option>
                                 <option value="choka" {% if tipo_filtro == 'choka' %}selected{% endif %}>Choka</option>
@@ -208,9 +247,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             </label>
                             <select id="authorFilter" class="form-select">
                                 <option value="">Tutti gli autori</option>
-                                {% if autori %}
+                                {% if autori and autori|length > 0 %}
                                 {% for author in autori %}
-                                <option value="{{ author }}" {% if author == autore_filtro %}selected{% endif %}>
+                                <option value="{{ author }}" {% if autore_filtro and author == autore_filtro %}selected{% endif %}>
                                     {{ author }}
                                 </option>
                                 {% endfor %}
@@ -221,7 +260,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <!-- Controlli aggiuntivi -->
                         <div class="col-md-2 mb-3 d-flex flex-column gap-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="onlyValidFilter" {% if solo_valide %}checked{% endif %}>
+                                <input class="form-check-input" type="checkbox" id="onlyValidFilter" 
+                                       {% if solo_valide %}checked{% endif %}>
                                 <label class="form-check-label text-muted" for="onlyValidFilter">
                                     <i class="bi bi-check-circle text-success"></i> Solo valide
                                 </label>
@@ -266,7 +306,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             </div>
                             
                             <span class="text-muted small">
-                                <span id="poemCount">{{ poesie.total if poesie else 0 }}</span> poesie trovate
+                                <span id="poemCount">{{ poesie.total if poesie and poesie.total else 0 }}</span> poesie trovate
                             </span>
                         </div>
                         
@@ -329,7 +369,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                             <li><a class="dropdown-item" href="#" data-action="share" data-poem-id="{{ poem.id }}">
                                                 <i class="bi bi-share me-2"></i>Condividi
                                             </a></li>
-                                            {% if poem.titolo %}
+                                            {% if poem.title %}
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="#" data-action="detail" data-poem-id="{{ poem.id }}">
                                                 <i class="bi bi-eye me-2"></i>Vedi dettagli
@@ -383,14 +423,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <i class="bi bi-journal-text display-1 text-white-50 mb-3"></i>
                                 <h4 class="text-white">Nessuna poesia trovata</h4>
                                 <p class="text-white-75 mb-4">
-                                    {% if tipo_filtro or autore_filtro or solo_valide %}
+                                    {% if (tipo_filtro and tipo_filtro != '') or (autore_filtro and autore_filtro != '') or solo_valide %}
                                     Prova a modificare i filtri di ricerca oppure
                                     {% else %}
                                     Non ci sono ancora poesie nella bacheca.
                                     {% endif %}
                                 </p>
                                 <div class="d-flex gap-3 justify-content-center">
-                                    {% if tipo_filtro or autore_filtro or solo_valide %}
+                                    {% if (tipo_filtro and tipo_filtro != '') or (autore_filtro and autore_filtro != '') or solo_valide %}
                                     <button type="button" class="btn btn-haiku btn-secondary" id="clearAllFilters">
                                         <i class="bi bi-funnel-x"></i> Rimuovi filtri
                                     </button>
@@ -561,87 +601,106 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         </div>
     </div>
 
-    <!-- Lazy-load Bootstrap JS -->
-    <script>
-        (function(){
-            function loadBootstrap(){
-                if (window.bootstrap) return;
-                var s=document.createElement('script');
-                s.src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
-                s.defer=true; s.crossOrigin='anonymous';
-                document.head.appendChild(s);
-            }
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(loadBootstrap, {timeout: 2000});
-            } else {
-                window.addEventListener('load', function(){ setTimeout(loadBootstrap, 1500); });
-            }
-        })();
-    </script>
+    <!-- JavaScript Module loading ottimizzato -->
+<script>
+// Configurazione SICURA e IMMEDIATA
+window.BACHECA_CONFIG = {
+    currentPage: {{ poesie.page if poesie and poesie.page else 1 }},
+    totalPages: {{ poesie.pages if poesie and poesie.pages else 1 }},
+    itemsPerPage: {{ poesie.per_page if poesie and poesie.per_page else 12 }},
+    filters: {
+        tipo: {{ (tipo_filtro or '')|tojson|safe }},
+        autore: {{ (autore_filtro or '')|tojson|safe }},
+        search: {{ (search_query or '')|tojson|safe }},
+        solo_valide: {{ solo_valide|tojson|safe if solo_valide is not none else false }}
+    },
+    sortBy: {{ (sort_by or 'recent')|tojson|safe }},
+    baseUrl: {{ url_for('web.bacheca')|tojson|safe }}
+};
 
-    <!-- Preload bacheca module -->
-    <link rel="modulepreload" href="{{ url_for('static', filename='js/bacheca.js') }}?v=1.0">
-    
-    <!-- Configura dati per il modulo bacheca tramite data attributes -->
-    <div id="bachecaConfig" 
-         data-current-page="{{ poesie.page if poesie else 1 }}"
-         data-total-pages="{{ poesie.pages if poesie else 1 }}"
-         data-items-per-page="{{ poesie.per_page if poesie else 12 }}"
-         data-tipo-filtro="{{ tipo_filtro or '' }}"
-         data-autore-filtro="{{ autore_filtro or '' }}"
-         data-search-query="{{ search_query or '' }}"
-         data-solo-valide="{{ 'true' if solo_valide else 'false' }}"
-         data-sort-by="{{ sort_by or 'recent' }}"
-         data-base-url="{{ url_for('web.bacheca') }}"
-         style="display: none;">
-    </div>
-    
-    <!-- Load Bacheca JavaScript Module -->
-    <script type="module">
-        // Configura variabili globali leggendo dai data attributes
-        const config = document.getElementById('bachecaConfig');
-        window.BACHECA_DATA = {
-            currentPage: parseInt(config.dataset.currentPage) || 1,
-            totalPages: parseInt(config.dataset.totalPages) || 1,
-            itemsPerPage: parseInt(config.dataset.itemsPerPage) || 12,
-            currentFilters: {
-                tipo: config.dataset.tipoFiltro || '',
-                autore: config.dataset.autoreFiltro || '',
-                search: config.dataset.searchQuery || '',
-                solo_valide: config.dataset.soloValide === 'true'
-            },
-            sortBy: config.dataset.sortBy || 'recent',
-            baseUrl: config.dataset.baseUrl || '/bacheca'
-        };
-        
-        // Carica il modulo bacheca
-        import('{{ url_for("static", filename="js/bacheca.js") }}?v=1.0')
-            .then(module => {
-                console.log('✅ Modulo bacheca caricato con successo');
-            })
-            .catch(error => {
-                console.error('❌ Errore nel caricamento modulo bacheca:', error);
-            });
-    </script>
+// Definisci SUBITO le funzioni globali per evitare errori
+window.goToSpecificPage = function() {
+    const pageNum = document.getElementById('goToPage')?.value;
+    if (pageNum && pageNum >= 1 && pageNum <= window.BACHECA_CONFIG.totalPages) {
+        const params = new URLSearchParams(window.location.search);
+        params.set('page', pageNum);
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
+    } else {
+        alert('Numero pagina non valido');
+    }
+};
 
-    <!-- Fallback per funzioni globali necessarie -->
-    <script>
-        // Funzioni globali per compatibilità con template
-        function goToSpecificPage() {
-            if (window.bachecaManager) {
-                window.bachecaManager.goToSpecificPage();
+window.expandPoem = function(poemId) {
+    console.log('Expand poem:', poemId);
+    // Funzionalità base di fallback
+    const modal = document.getElementById('expandedPoemModal');
+    if (modal && window.bootstrap) {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+};
+
+// Caricamento differito del modulo completo
+function loadBachecaModule() {
+    // Verifica se il file esistere prima di caricarlo
+    fetch('{{ url_for("static", filename="js/bacheca.js") }}', { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                return import('{{ url_for("static", filename="js/bacheca.js") }}?v={{ range(1000, 9999)|random }}');
             } else {
-                console.warn('BachecaManager non ancora caricato');
+                throw new Error('bacheca.js non trovato');
             }
-        }
-        
-        function expandPoem(poemId) {
+        })
+        .then(module => {
+            console.log('✅ Modulo bacheca caricato');
+            // Sostituisci le funzioni globali con quelle del modulo
             if (window.bachecaManager) {
-                window.bachecaManager.expandPoem(poemId);
-            } else {
-                console.warn('BachecaManager non ancora caricato');
+                window.goToSpecificPage = () => window.bachecaManager.goToSpecificPage();
+                window.expandPoem = (id) => window.bachecaManager.expandPoem(id);
             }
-        }
-    </script>
+        })
+        .catch(error => {
+            console.warn('⚠️ Modulo bacheca non disponibile, uso fallback:', error);
+            // Le funzioni di fallback sono già definite sopra
+        });
+}
+
+// Caricamento Bootstrap con gestione errori
+function loadBootstrap() {
+    if (window.bootstrap) {
+        loadBachecaModule();
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
+    script.defer = true;
+    script.crossOrigin = 'anonymous';
+    script.onload = function() {
+        console.log('✅ Bootstrap caricato');
+        loadBachecaModule();
+    };
+    script.onerror = function() {
+        console.error('❌ Errore caricamento Bootstrap');
+        // L'app funziona comunque con funzionalità base
+    };
+    document.head.appendChild(script);
+}
+
+// Strategia di caricamento intelligente
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadBootstrap);
+} else {
+    // DOM già pronto
+    loadBootstrap();
+}
+
+// Gestione errori globali
+window.addEventListener('error', function(e) {
+    if (e.filename && e.filename.includes('bacheca.js')) {
+        console.warn('Errore in bacheca.js, uso funzionalità base');
+    }
+});
+</script>
 </body>
 </html>
