@@ -293,20 +293,24 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                 <div id="poemsContainer" class="poems-grid">
                     {% if poesie and poesie.items %}
                     {% for poem in poesie.items %}
-                    <div class="poem-card-wrapper" data-poem-type="{{ poem.tipo|lower if poem.tipo else 'libero' }}" data-author="{{ poem.autore|lower if poem.autore else 'anonimo' }}" data-valid="{{ poem.metricamente_valida|lower if poem.metricamente_valida else 'false' }}">
+                    <div class="poem-card-wrapper" 
+                         data-poem-type="{{ poem.poem_type|lower if poem.poem_type else 'libero' }}" 
+                         data-author="{{ poem.author|lower if poem.author else 'anonimo' }}" 
+                         data-valid="{{ poem.is_valid|lower if poem.is_valid else 'false' }}">
+    
                         <div class="card glass-card h-100 poem-card" data-poem-id="{{ poem.id }}">
                             <div class="card-body d-flex flex-column">
                                 <!-- Header della card -->
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
-                                        {% if poem.titolo %}
-                                        <h5 class="card-title text-white fw-semibold mb-1">{{ poem.titolo }}</h5>
+                                        {% if poem.title %}
+                                        <h5 class="card-title text-white fw-semibold mb-1">{{ poem.title }}</h5>
                                         {% endif %}
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
                                             <span class="badge bg-primary badge-poem-type">
-                                                {{ poem.tipo.replace('_', ' ').title() if poem.tipo else 'Libero' }}
+                                                {{ poem.poem_type.replace('_', ' ').title() if poem.poem_type else 'Libero' }}
                                             </span>
-                                            {% if poem.metricamente_valida %}
+                                            {% if poem.is_valid %}
                                             <span class="badge bg-success">
                                                 <i class="bi bi-check-circle"></i> Valida
                                             </span>
@@ -338,7 +342,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <!-- Contenuto poesia -->
                                 <div class="poem-content flex-grow-1 mb-3">
                                     <div class="poem-text text-white-75" style="font-family: 'Playfair Display', serif; font-style: italic; line-height: 1.6;">
-                                        {{ poem.contenuto|replace('\n', '<br>')|safe }}
+                                        {{ poem.content|replace('\n', '<br>')|safe }}
                                     </div>
                                 </div>
                                 
@@ -346,7 +350,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top border-light border-opacity-25">
                                     <div class="text-white-50 small">
                                         <i class="bi bi-person-circle me-1"></i>
-                                        <span class="fw-medium">{{ poem.autore or 'Poeta Anonimo' }}</span>
+                                        <span class="fw-medium">{{ poem.author or 'Poeta Anonimo' }}</span>
                                         <div class="mt-1">
                                             <i class="bi bi-clock me-1"></i>
                                             <span>{{ poem.created_at.strftime('%d/%m/%Y') if poem.created_at else 'Data sconosciuta' }}</span>

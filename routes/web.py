@@ -20,49 +20,52 @@ def bacheca():
     try:
         # Parametri di paginazione e filtri
         page = request.args.get('page', 1, type=int)
-        per_page = 12  # Aumentato per la griglia
+        per_page = 12
         
-        tipo_filtro = request.args.get('tipo', '')
-        autore_filtro = request.args.get('autore', '')
-        search_query = request.args.get('search', '')
-        solo_valide = request.args.get('solo_valide', 'false') == 'true'
-        sort_by = request.args.get('sort', 'recent')  # recent, oldest, title, author, type
+        # Parametri filtro
+        tipo_filtro = request.args.get('tipo', '').strip()
+        autore_filtro = request.args.get('autore', '').strip()
+        search_query = request.args.get('search', '').strip()
+        solo_valide = request.args.get('solo_valide', 'false').lower() == 'true'
+        sort_by = request.args.get('sort', 'recent')
         
-        # Costruisci la query base
+        # Query base - MANTIENI I NOMI ORIGINALI DELLE COLONNE
         query = Poem.query
         
-        # Applica filtri
-        if tipo_filtro and tipo_filtro != 'all':
-            query = query.filter(Poem.poem_type.ilike(f'%{tipo_filtro}%'))
-        
-        if autore_filtro and autore_filtro != 'all':
-            query = query.filter(Poem.author.ilike(f'%{autore_filtro}%'))
-        
+        # Applica filtri di ricerca
         if search_query:
-            # Ricerca nel titolo, contenuto e autore
-            search_filter = f'%{search_query}%'
+            search_pattern = f'%{search_query}%'
             query = query.filter(
                 db.or_(
-                    Poem.title.ilike(search_filter),
-                    Poem.content.ilike(search_filter),
-                    Poem.author.ilike(search_filter)
+                    Poem.title.ilike(search_pattern),      
+                    Poem.content.ilike(search_pattern),   
+                    Poem.author.ilike(search_pattern)      
                 )
             )
         
-        if solo_valide:
-            query = query.filter(Poem.is_valid == True)
+        # Filtro per tipologia
+        if tipo_filtro:
+            query = query.filter(Poem.poem_type == tipo_filtro)  
         
-        # Applica ordinamento
+        # Filtro per autore
+        if autore_filtro:
+            query = query.filter(Poem.author == autore_filtro)   
+        
+        # Filtro solo poesie valide
+        if solo_valide:
+            query = query.filter(Poem.is_valid == True)          
+        
+        # Ordinamento
         if sort_by == 'recent':
             query = query.order_by(Poem.created_at.desc())
         elif sort_by == 'oldest':
             query = query.order_by(Poem.created_at.asc())
         elif sort_by == 'title':
-            query = query.order_by(Poem.title.asc().nullslast(), Poem.created_at.desc())
+            query = query.order_by(Poem.title.asc())             
         elif sort_by == 'author':
-            query = query.order_by(Poem.author.asc().nullslast(), Poem.created_at.desc())
+            query = query.order_by(Poem.author.asc())            
         elif sort_by == 'type':
-            query = query.order_by(Poem.poem_type.asc().nullslast(), Poem.created_at.desc())
+            query = query.order_by(Poem.poem_type.asc())         
         else:
             query = query.order_by(Poem.created_at.desc())
         
@@ -73,51 +76,26 @@ def bacheca():
             error_out=False
         )
         
-        # Ottieni i tipi di poesia unici per il filtro
-        tipi_disponibili = db.session.query(Poem.poem_type).distinct().filter(
-            Poem.poem_type.isnot(None),
-            Poem.poem_type != ''
-        ).all()
-        tipi_disponibili = [tipo[0] for tipo in tipi_disponibili if tipo[0]]
-        
-        # Ottieni gli autori unici per il filtro
-        autori_disponibili = db.session.query(Poem.author).distinct().filter(
+        # Lista autori per filtro dropdown - MANTIENI NOMI ORIGINALI
+        autori = db.session.query(Poem.author).distinct().filter(
             Poem.author.isnot(None),
             Poem.author != ''
-        ).all()
-        autori_disponibili = [autore[0] for autore in autori_disponibili if autore[0]]
+        ).order_by(Poem.author.asc()).all()
+        autori = [a[0] for a in autori if a[0]]
         
-        return render_template('bacheca.html', 
+        return render_template('bacheca.html',
                              poesie=poesie,
+                             search_query=search_query,
                              tipo_filtro=tipo_filtro,
                              autore_filtro=autore_filtro,
-                             search_query=search_query,
                              solo_valide=solo_valide,
                              sort_by=sort_by,
-                             tipi_disponibili=sorted(tipi_disponibili),
-                             autori_disponibili=sorted(autori_disponibili))
-        
+                             autori=autori)
+                             
     except Exception as e:
         flash(f'Errore nel caricamento della bacheca: {str(e)}', 'error')
-        return render_template('bacheca.html', 
-                             poesie=None,
-                             tipo_filtro='',
-                             autore_filtro='',
-                             search_query='',
-                             solo_valide=False,
-                             sort_by='recent',
-                             tipi_disponibili=[],
-                             autori_disponibili=[])
+        return render_template('500.html'), 500
 
-
-'''@web_bp.route('/bacheca')
-def bacheca():
-    # Temporaneamente reindirizza alla pagina coming soon
-    return render_template('comingsoon.html')
-    
-    # Il codice originale della bacheca rimane commentato per sviluppi futuri
-    # ...resto del codice bacheca...
-'''
 
 @web_bp.route('/wiki')
 def wiki():
