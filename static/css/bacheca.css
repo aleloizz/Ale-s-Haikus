@@ -1,13 +1,25 @@
-/* Bacheca Poetica - CSS Avanzato */
-/* Stili specifici per la bacheca delle poesie */
+/* Bacheca Poetica - CSS Ottimizzato e Pulito */
+/* Versione 2.0 - Rimosse duplicazioni e ottimizzata performance */
+
+/* ===== VARIABILI CSS ESTESE ===== */
+:root {
+    /* Estensioni delle variabili esistenti */
+    --text-white-75: rgba(255,255,255,0.75);
+    --text-white-50: rgba(255,255,255,0.5);
+    --border-light: rgba(255,255,255,0.2);
+    --glass-bg: rgba(255,255,255,0.15);
+    --glass-border: rgba(255,255,255,0.2);
+    --filter-card-bg: rgba(255,255,255,0.95);
+    --shadow-glow: 0 8px 32px rgba(149,117,205,0.15);
+}
 
 /* ===== LAYOUT GRIGLIA E LISTA ===== */
 .poems-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
-    transition: all 0.3s ease;
     margin-top: 1rem;
+    transition: opacity 0.3s ease;
 }
 
 .poems-list {
@@ -21,10 +33,6 @@
     max-width: none;
 }
 
-.poems-list .card {
-    max-width: none;
-}
-
 .poems-list .card-body {
     display: flex;
     flex-direction: row;
@@ -35,22 +43,19 @@
 
 .poems-list .poem-content {
     flex: 1;
-    min-width: 0; /* Prevents flex item from overflowing */
-}
-
-.poems-list .card .card-title {
-    margin-bottom: 0.5rem;
+    min-width: 0;
 }
 
 /* ===== CARD POESIA AVANZATA ===== */
 .poem-card {
     position: relative;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    background: rgba(255, 255, 255, 0.12);
 }
 
 .poem-card::before {
@@ -60,11 +65,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.1), 
-        transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transition: left 0.6s ease;
     pointer-events: none;
     z-index: 1;
@@ -100,8 +101,8 @@
     font-style: italic;
     line-height: 1.7;
     font-size: 1.05rem;
-    color: rgba(255, 255, 255, 0.85);
-    transition: all 0.3s ease;
+    color: var(--text-white-75);
+    transition: color 0.3s ease;
     margin-bottom: 0;
     text-align: left;
     hyphens: auto;
@@ -123,12 +124,12 @@
     border-radius: 1rem;
     text-transform: capitalize;
     letter-spacing: 0.3px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-light);
 }
 
 .badge.bg-success {
     background: linear-gradient(135deg, var(--success), #2ea44f) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-light);
 }
 
 /* ===== PULSANTI LIKE E AZIONI ===== */
@@ -137,7 +138,7 @@
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     background: rgba(255, 255, 255, 0.1) !important;
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: var(--text-white-50) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -224,113 +225,118 @@
     opacity: 1;
 }
 
-/* ===== FILTRI AVANZATI ===== */
+/* ===== FILTRI AVANZATI - OTTIMIZZATI ===== */
 .filter-card {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--filter-card-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 1.5rem;
-    padding: 2rem;
+    border: none;
+    border-radius: 1rem;
+    padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: 
-        0 8px 32px rgba(149, 117, 205, 0.15),
-        0 2px 8px rgba(149, 117, 205, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.175);
+    transition: box-shadow 0.3s ease;
 }
 
 .filter-card:hover {
     box-shadow: 
-        0 12px 48px rgba(149, 117, 205, 0.2),
-        0 4px 16px rgba(149, 117, 205, 0.15);
+        0 1.5rem 4rem rgba(0,0,0,0.2),
+        0 0.5rem 1rem rgba(149, 117, 205, 0.1);
 }
 
+/* Form controls nella filter card - ALLINEATI CON INDEX.HTML */
 .filter-card .form-control,
 .filter-card .form-select {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(149, 117, 205, 0.2);
-    border-radius: 0.8rem;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    backdrop-filter: none;
     transition: all 0.3s ease;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 .filter-card .form-control:focus,
 .filter-card .form-select:focus {
-    background: rgba(255, 255, 255, 0.95);
+    background: #fff;
     border-color: var(--primary);
-    box-shadow: 
-        0 0 0 0.2rem rgba(212, 184, 255, 0.25),
-        0 4px 12px rgba(212, 184, 255, 0.2);
-    transform: translateY(-2px);
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25);
+    outline: 0;
 }
 
-.filter-card .form-label {
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+.filter-card .form-select {
+    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
 }
 
-.filter-card .form-check-input:checked {
-    background: var(--primary);
-    border-color: var(--primary);
-}
+/* ===== ALLINEAMENTO CON INDEX.HTML ===== */
 
-/* ===== PAGINAZIONE AVANZATA ===== */
-.pagination {
-    margin: 0;
-    padding: 1rem 0;
-}
-
-.page-link {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-radius: 0.5rem !important;
-    margin: 0 0.2rem;
-    padding: 0.5rem 1rem;
+/* Button perfetto allineamento */
+.btn-haiku {
+    padding: 10px 16px !important;
+    border-radius: 2rem !important;
     transition: all 0.3s ease;
-    font-weight: 500;
+    border: none;
 }
 
-.page-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: var(--primary);
-    color: white;
+.btn-haiku:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(212, 184, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(149,117,205,0.25);
 }
 
-.page-item.active .page-link {
-    background: linear-gradient(135deg, var(--primary), #a084e8);
-    border-color: var(--primary);
-    color: white;
-    box-shadow: 0 4px 16px rgba(212, 184, 255, 0.4);
+/* Navigation consistency */
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
 }
 
-.page-item.disabled .page-link {
-    opacity: 0.5;
-    background: rgba(255, 255, 255, 0.05);
-    cursor: not-allowed;
+.nav-link:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.1);
 }
 
-#goToPage {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    border-radius: 0.5rem;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+.nav-link.active {
+    background: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
 }
 
-#goToPage:focus {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0.2rem rgba(212, 184, 255, 0.25);
-    color: white;
+/* Typography utilities */
+.text-white-75 {
+    color: var(--text-white-75) !important;
+}
+
+.text-white-50 {
+    color: var(--text-white-50) !important;
+}
+
+.fw-medium {
+    font-weight: 500 !important;
+}
+
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+/* Badge system */
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary) !important;
 }
 
 /* ===== MODAL ESPANSO ===== */
@@ -350,7 +356,7 @@
         rgba(212, 184, 255, 0.3),
         rgba(255, 229, 217, 0.3)
     );
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--border-light);
     border-radius: 1.5rem 1.5rem 0 0;
     padding: 1.5rem 2rem;
 }
@@ -374,7 +380,7 @@
 .loading-indicator {
     text-align: center;
     padding: 3rem 1rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-white-50);
 }
 
 .spinner-border.text-primary {
@@ -396,68 +402,8 @@
 
 .toast-header {
     background: rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--border-light);
     border-radius: 1rem 1rem 0 0;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .poems-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 0 0.5rem;
-    }
-    
-    .filter-card {
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 1rem;
-    }
-    
-    .filter-card .row > div {
-        margin-bottom: 1rem;
-    }
-    
-    .poems-list .card-body {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-    }
-    
-    .poem-card:hover {
-        transform: translateY(-4px);
-    }
-    
-    #expandedPoemModal .modal-body {
-        padding: 1rem;
-    }
-    
-    #expandedPoemContent {
-        font-size: 1.1rem;
-        line-height: 1.6;
-    }
-}
-
-@media (max-width: 576px) {
-    .filter-card .d-flex.gap-2 {
-        flex-direction: column;
-        gap: 0.5rem !important;
-    }
-    
-    .btn-haiku.btn-sm {
-        padding: 0.4rem 0.8rem !important;
-        font-size: 0.875rem !important;
-    }
-    
-    .pagination {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .page-link {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.875rem;
-    }
 }
 
 /* ===== ANIMAZIONI AVANZATE ===== */
@@ -499,6 +445,76 @@
     animation: slideInFromLeft 0.8s ease-out;
 }
 
+/* ===== RESPONSIVE OTTIMIZZATO ===== */
+@media (max-width: 768px) {
+    .poems-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .filter-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 1rem;
+    }
+    
+    .filter-card .row > div {
+        margin-bottom: 1rem;
+    }
+    
+    .poems-list .card-body {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .poem-card:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+    
+    #expandedPoemModal .modal-body {
+        padding: 1rem;
+    }
+    
+    #expandedPoemContent {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .card,
+    .filter-card {
+        margin: 1rem auto;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .filter-card .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .btn-haiku.btn-sm {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+}
+
 /* ===== ACCESSIBILITÀ ===== */
 @media (prefers-reduced-motion: reduce) {
     .poem-card,
@@ -521,7 +537,6 @@
     }
 }
 
-/* Focus per accessibilità */
 .poem-card:focus-within {
     outline: 2px solid var(--primary);
     outline-offset: 4px;
@@ -550,6 +565,24 @@
 
 .hover-lift:hover {
     transform: translateY(-4px);
+}
+
+/* ===== GRID SYSTEM CONSISTENCY ===== */
+.col-md-2 {
+    flex: 0 0 auto;
+    width: 16.666667%;
+}
+
+.col-md-3 {
+    flex: 0 0 auto;
+    width: 25%;
+}
+
+@media (max-width: 767.98px) {
+    .col-md-2,
+    .col-md-3 {
+        width: 100%;
+    }
 }
 
 /* ===== DARK MODE SUPPORT ===== */
