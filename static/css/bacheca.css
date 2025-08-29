@@ -3,6 +3,15 @@
 
 /* ===== VARIABILI CSS ESTESE ===== */
 :root {
+    /* Variabili base MANCANTI */
+    --primary: #D4B8FF;
+    --secondary: #FFE5D9;
+    --accent: #A2D7D8;
+    --text: #5E5E5E;
+    --bg: #FAF7FF;
+    --error: #ff6b6b;
+    --success: #3bb156;
+    
     /* Estensioni delle variabili esistenti */
     --text-white-75: rgba(255,255,255,0.75);
     --text-white-50: rgba(255,255,255,0.5);
@@ -50,12 +59,12 @@
 .poem-card {
     position: relative;
     overflow: hidden;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 233, 0.200) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     border-radius: 1rem;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
 }
 
 .poem-card::before {
@@ -117,7 +126,7 @@
 /* ===== BADGES E INDICATORI ===== */
 .badge-poem-type {
     background: linear-gradient(135deg, var(--primary), #a084e8) !important;
-    color: white;
+    color: white !important;
     font-weight: 500;
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem;
@@ -127,9 +136,14 @@
     border: 1px solid var(--border-light);
 }
 
+.badge.bg-primary {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
 .badge.bg-success {
-    background: linear-gradient(135deg, var(--success), #2ea44f) !important;
-    border: 1px solid var(--border-light);
+    background: var(--success) !important;
+    color: white !important;
 }
 
 /* ===== PULSANTI LIKE E AZIONI ===== */
@@ -191,16 +205,15 @@
 }
 
 /* ===== DROPDOWN AZIONI ===== */
+.dropdown-toggle::after {
+    color: var(--primary);
+}
+
 .dropdown-menu {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 1rem;
-    box-shadow: 
-        0 10px 40px rgba(0, 0, 0, 0.2),
-        0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 0.5rem 0;
 }
 
 .dropdown-item {
@@ -213,7 +226,6 @@
 .dropdown-item:hover {
     background: rgba(212, 184, 255, 0.2);
     color: var(--text);
-    transform: translateX(4px);
 }
 
 .dropdown-item i {
@@ -244,30 +256,19 @@
         0 0.5rem 1rem rgba(149, 117, 205, 0.1);
 }
 
-/* Form controls nella filter card - ALLINEATI CON INDEX.HTML */
-.filter-card .form-control,
-.filter-card .form-select {
-    background: #fff;
+/* Form controls allineati con index.html */
+.form-control,
+.form-select {
     border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    backdrop-filter: none;
+    background: #fff;
     transition: all 0.3s ease;
 }
 
-.filter-card .form-control:focus,
-.filter-card .form-select:focus {
-    background: #fff;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25);
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
     outline: 0;
-}
-
-.filter-card .form-select {
-    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
 }
 
 /* ===== ALLINEAMENTO CON INDEX.HTML ===== */
@@ -336,7 +337,13 @@
 }
 
 .badge.bg-primary {
-    background-color: var(--primary) !important;
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+.badge.bg-success {
+    background: var(--success) !important;
+    color: white !important;
 }
 
 /* ===== MODAL ESPANSO ===== */
@@ -461,6 +468,11 @@
     
     .filter-card .row > div {
         margin-bottom: 1rem;
+    }
+    
+    .filter-card .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
     }
     
     .poems-list .card-body {
@@ -601,4 +613,98 @@
         background: rgba(0, 0, 0, 0.9);
         border-color: rgba(255, 255, 255, 0.1);
     }
+}
+
+/* ===== CORREZIONI BOTTONI CRITICHE ===== */
+
+/* Like button specifico */
+.like-btn.btn-haiku {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-white-50) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.like-btn.btn-haiku:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Small buttons uniformati */
+.btn-haiku.btn-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.875rem !important;
+    min-height: 32px !important;
+}
+
+/* Expand button specifico */
+.btn-haiku.btn-secondary[data-action="expand"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--text-white-75) !important;
+}
+
+.btn-haiku.btn-secondary[data-action="expand"]:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+    border-color: var(--secondary) !important;
+}
+
+/* Pagination button fix */
+.btn-haiku[onclick="goToSpecificPage()"] {
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Modal buttons specifici */
+#expandedCopyBtn.btn-haiku {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--text-white-75) !important;
+}
+
+#expandedCopyBtn.btn-haiku:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+}
+
+#expandedLikeBtn.btn-haiku {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--text-white-50) !important;
+}
+
+#expandedLikeBtn.btn-haiku:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+}
+
+/* Fix per tutti i bottoni con icons */
+.btn-haiku i {
+    margin-right: 0.3rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.btn-haiku.btn-sm i {
+    font-size: 0.875rem;
+}
+
+/* Override eventuali conflitti Bootstrap */
+.btn-haiku:not(:disabled):not(.disabled):active,
+.btn-haiku:not(:disabled):not(.disabled).active {
+    transform: translateY(0) scale(0.98);
+}
+
+.btn-haiku:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
 }

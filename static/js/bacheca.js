@@ -268,7 +268,7 @@ class BachecaManager {
         }
 
         // Pulsante vai alla pagina
-        const goToPageBtn = document.querySelector('[onclick="goToSpecificPage()"]');
+        const goToPageBtn = document.getElementById('goToPageBtn');
         if (goToPageBtn) {
             goToPageBtn.addEventListener('click', () => {
                 this.goToSpecificPage();
