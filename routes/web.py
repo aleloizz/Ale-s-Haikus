@@ -14,6 +14,11 @@ def comingsoon():
     """Pagina coming soon per la bacheca"""
     return render_template('comingsoon.html')
 
+@web_bp.route('/wiki')
+def wiki():
+    """Wiki delle forme poetiche"""
+    return render_template('wiki.html')
+
 @web_bp.route('/bacheca')
 def bacheca():
     """Pagina della bacheca comunitaria con filtri avanzati"""
