@@ -10,7 +10,7 @@
     <meta property="og:description" content="Condividi le tue poesie con la community">
     <meta property="og:image" content="https://www.aleshaikus.me/static/og-image.jpg">
     
-    <title>Bacheca Poetica | Ale's Haikus</title>
+    <title>Haiku's Hub | la bacheca dei poeti</title>
     
     <!-- Favicons complete set -->
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=1.2">
@@ -57,6 +57,13 @@ body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:
 @media (max-width: 767.98px) {.col-md-6,.col-md-4,.col-lg-4{width:100%}}
 .filter-card{background:rgba(255,255,255,0.95);backdrop-filter:blur(15px);border-radius:1.5rem;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.4);box-shadow:0 8px 32px rgba(149,117,205,0.12)}
 body.loading{background:#fbbda3!important}
+
+/* Navigation active state */
+.nav-link.active {
+    background: rgba(255,255,255,0.15) !important;
+    border-radius: 1rem !important;
+    color: #fff !important;
+}
 
 /* Font display optimizations */
 @font-face{font-family:'Inter';font-display:swap;src:local('Inter')}
@@ -129,7 +136,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         </script>
         
         <header>
-            <!-- Barra navigazione discreta -->
+            <!-- Barra navigazione corretta -->
             <nav class="navbar navbar-expand-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div class="container">
                     <div class="d-flex w-100 justify-content-center">
@@ -140,8 +147,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white-50 fw-medium" href="{{ url_for('web.bacheca') }}" title="Bacheca delle poesie" style="pointer-events: none;">
-                                    <i class="bi bi-collection me-1"></i>Bacheca
+                                <a class="nav-link text-white fw-medium active" href="{{ url_for('web.bacheca') }}" title="Haiku's Hub">
+                                    <i class="bi bi-collection me-1"></i>Haiku's Hub
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -154,12 +161,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                 </div>
             </nav>
             
+            <!-- Header principale riattivato -->
             <div class="bg-haiku-primary text-white text-center py-4 header-content">
                 <div class="container">
-                    <!--h1 class="display-5">Bacheca Poetica</h1>
-                    <p class="lead">Condividi, scopri e lasciati ispirare dalle creazioni dei poeti della community</p!--> 
-                    <h1>Questa pagina è ancora in fase di sviluppo</h1>
-                    <p>Stiamo lavorando duramente per portare nuove funzionalità e miglioramenti. Torna presto a trovarci!</p>
+                    <h1 class="display-5">Haiku's Hub</h1>
+                    <p class="lead">Condividi, scopri e lasciati ispirare dalle creazioni dei poeti della community</p>
                 </div>
             </div>
         </header>
@@ -175,7 +181,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <label for="searchText" class="form-label fw-medium text-muted">
                                 <i class="bi bi-search me-1"></i>Cerca poesia
                             </label>
-                            <input type="text" id="searchText" class="form-control" placeholder="Titolo, contenuto, autore...">
+                            <input type="text" id="searchText" class="form-control" placeholder="Titolo, contenuto, autore..." value="{{ search_query or '' }}">
                         </div>
                         
                         <!-- Filtro per tipologia -->
@@ -184,14 +190,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <i class="bi bi-bookmark me-1"></i>Tipologia
                             </label>
                             <select id="typeFilter" class="form-select">
-                                <option value="all">Tutte le tipologie</option>
-                                {% if tipi_disponibili %}
-                                {% for poem_type in tipi_disponibili %}
-                                <option value="{{ poem_type }}" {% if poem_type == tipo_filtro %}selected{% endif %}>
-                                    {{ poem_type.replace('_', ' ').title() }}
-                                </option>
-                                {% endfor %}
-                                {% endif %}
+                                <option value="">Tutte le tipologie</option>
+                                <option value="haiku" {% if tipo_filtro == 'haiku' %}selected{% endif %}>Haiku</option>
+                                <option value="tanka" {% if tipo_filtro == 'tanka' %}selected{% endif %}>Tanka</option>
+                                <option value="katauta" {% if tipo_filtro == 'katauta' %}selected{% endif %}>Katauta</option>
+                                <option value="choka" {% if tipo_filtro == 'choka' %}selected{% endif %}>Choka</option>
+                                <option value="sedoka" {% if tipo_filtro == 'sedoka' %}selected{% endif %}>Sedoka</option>
+                                <option value="sonetto" {% if tipo_filtro == 'sonetto' %}selected{% endif %}>Sonetto</option>
+                                <option value="libero" {% if tipo_filtro == 'libero' %}selected{% endif %}>Verso libero</option>
                             </select>
                         </div>
                         
@@ -201,9 +207,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <i class="bi bi-person me-1"></i>Autore
                             </label>
                             <select id="authorFilter" class="form-select">
-                                <option value="all">Tutti gli autori</option>
-                                {% if autori_disponibili %}
-                                {% for author in autori_disponibili %}
+                                <option value="">Tutti gli autori</option>
+                                {% if autori %}
+                                {% for author in autori %}
                                 <option value="{{ author }}" {% if author == autore_filtro %}selected{% endif %}>
                                     {{ author }}
                                 </option>
@@ -239,11 +245,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                     <i class="bi bi-sort-down me-1"></i>Ordina per
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" data-sort="recent">Più recenti</a></li>
-                                    <li><a class="dropdown-item" href="#" data-sort="oldest">Più vecchie</a></li>
-                                    <li><a class="dropdown-item" href="#" data-sort="title">Titolo (A-Z)</a></li>
-                                    <li><a class="dropdown-item" href="#" data-sort="author">Autore (A-Z)</a></li>
-                                    <li><a class="dropdown-item" href="#" data-sort="type">Tipologia</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="recent" {% if sort_by == 'recent' %}style="font-weight: 600;"{% endif %}>Più recenti</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="oldest" {% if sort_by == 'oldest' %}style="font-weight: 600;"{% endif %}>Più vecchie</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="title" {% if sort_by == 'title' %}style="font-weight: 600;"{% endif %}>Titolo (A-Z)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="author" {% if sort_by == 'author' %}style="font-weight: 600;"{% endif %}>Autore (A-Z)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-sort="type" {% if sort_by == 'type' %}style="font-weight: 600;"{% endif %}>Tipologia</a></li>
                                 </ul>
                             </div>
                             
@@ -287,20 +293,20 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                 <div id="poemsContainer" class="poems-grid">
                     {% if poesie and poesie.items %}
                     {% for poem in poesie.items %}
-                    <div class="poem-card-wrapper" data-poem-type="{{ poem.poem_type|lower }}" data-author="{{ poem.author|lower }}" data-valid="{{ poem.is_valid|lower }}">
+                    <div class="poem-card-wrapper" data-poem-type="{{ poem.tipo|lower if poem.tipo else 'libero' }}" data-author="{{ poem.autore|lower if poem.autore else 'anonimo' }}" data-valid="{{ poem.metricamente_valida|lower if poem.metricamente_valida else 'false' }}">
                         <div class="card glass-card h-100 poem-card" data-poem-id="{{ poem.id }}">
                             <div class="card-body d-flex flex-column">
                                 <!-- Header della card -->
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
-                                        {% if poem.title %}
-                                        <h5 class="card-title text-white fw-semibold mb-1">{{ poem.title }}</h5>
+                                        {% if poem.titolo %}
+                                        <h5 class="card-title text-white fw-semibold mb-1">{{ poem.titolo }}</h5>
                                         {% endif %}
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
                                             <span class="badge bg-primary badge-poem-type">
-                                                {{ poem.poem_type.replace('_', ' ').title() if poem.poem_type else 'Libero' }}
+                                                {{ poem.tipo.replace('_', ' ').title() if poem.tipo else 'Libero' }}
                                             </span>
-                                            {% if poem.is_valid %}
+                                            {% if poem.metricamente_valida %}
                                             <span class="badge bg-success">
                                                 <i class="bi bi-check-circle"></i> Valida
                                             </span>
@@ -319,7 +325,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                             <li><a class="dropdown-item" href="#" data-action="share" data-poem-id="{{ poem.id }}">
                                                 <i class="bi bi-share me-2"></i>Condividi
                                             </a></li>
-                                            {% if poem.title %}
+                                            {% if poem.titolo %}
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="#" data-action="detail" data-poem-id="{{ poem.id }}">
                                                 <i class="bi bi-eye me-2"></i>Vedi dettagli
@@ -332,7 +338,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <!-- Contenuto poesia -->
                                 <div class="poem-content flex-grow-1 mb-3">
                                     <div class="poem-text text-white-75" style="font-family: 'Playfair Display', serif; font-style: italic; line-height: 1.6;">
-                                        {{ poem.content|replace('\n', '<br>')|safe }}
+                                        {{ poem.contenuto|replace('\n', '<br>')|safe }}
                                     </div>
                                 </div>
                                 
@@ -340,7 +346,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top border-light border-opacity-25">
                                     <div class="text-white-50 small">
                                         <i class="bi bi-person-circle me-1"></i>
-                                        <span class="fw-medium">{{ poem.author or 'Poeta Anonimo' }}</span>
+                                        <span class="fw-medium">{{ poem.autore or 'Poeta Anonimo' }}</span>
                                         <div class="mt-1">
                                             <i class="bi bi-clock me-1"></i>
                                             <span>{{ poem.created_at.strftime('%d/%m/%Y') if poem.created_at else 'Data sconosciuta' }}</span>
@@ -393,8 +399,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         </div>
                     </div>
                     {% endif %}
-                </div>
-
                 </div>
 
                 <!-- Paginazione avanzata -->
@@ -609,20 +613,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         // Carica il modulo bacheca
         import('{{ url_for("static", filename="js/bacheca.js") }}?v=1.0')
             .then(module => {
-                console.log('Modulo bacheca caricato');
+                console.log('✅ Modulo bacheca caricato con successo');
             })
             .catch(error => {
-                console.error('Errore nel caricamento modulo bacheca:', error);
-            });
-    </script>
-    <!-- Carica il modulo bacheca -->
-    <script type="module">
-        import('{{ url_for("static", filename="js/bacheca.js") }}?v=1.0')
-            .then(module => {
-                console.log('Modulo bacheca caricato');
-            })
-            .catch(error => {
-                console.error('Errore nel caricamento modulo bacheca:', error);
+                console.error('❌ Errore nel caricamento modulo bacheca:', error);
             });
     </script>
 
@@ -632,12 +626,16 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         function goToSpecificPage() {
             if (window.bachecaManager) {
                 window.bachecaManager.goToSpecificPage();
+            } else {
+                console.warn('BachecaManager non ancora caricato');
             }
         }
         
         function expandPoem(poemId) {
             if (window.bachecaManager) {
                 window.bachecaManager.expandPoem(poemId);
+            } else {
+                console.warn('BachecaManager non ancora caricato');
             }
         }
     </script>
