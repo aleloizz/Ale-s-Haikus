@@ -295,12 +295,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             
                             <div class="btn-group btn-group-sm" role="group">
                                 <input type="radio" class="btn-check" name="viewMode" id="viewGrid" checked>
-                                <label class="btn btn-outline-primary" for="viewGrid">
+                                <label class="btn btn-haiku btn-primary" for="viewGrid">
                                     <i class="bi bi-grid-3x2"></i>
                                 </label>
                                 
                                 <input type="radio" class="btn-check" name="viewMode" id="viewList">
-                                <label class="btn btn-outline-primary" for="viewList">
+                                <label class="btn btn-haiku btn-primary" for="viewList">
                                     <i class="bi bi-list"></i>
                                 </label>
                             </div>
@@ -398,13 +398,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                     </div>
                                     
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-light like-btn" 
+                                        <button class="btn btn-haiku btn-accent btn-sm like-btn" 
                                                 data-poem-id="{{ poem.id }}" 
                                                 title="Apprezza questa poesia">
                                             <i class="bi bi-heart"></i>
                                             <span class="like-count">0</span>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-light" 
+                                        <button class="btn btn-haiku btn-secondary btn-sm" 
                                                 data-action="expand"
                                                 data-poem-id="{{ poem.id }}"
                                                 title="Espandi poesia">
@@ -457,7 +457,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <input type="number" id="goToPage" class="form-control form-control-sm" 
                                    style="width: 80px;" min="1" max="{{ poesie.pages }}" 
                                    value="{{ poesie.page }}" placeholder="Pagina">
-                            <button class="btn btn-outline-light btn-sm" onclick="goToSpecificPage()">
+                            <button class="btn btn-haiku btn-primary btn-sm" id="goToPageBtn">
                                 <i class="bi bi-arrow-right"></i>
                             </button>
                         </div>
@@ -586,10 +586,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                     <div class="small" id="expandedPoemInfo"></div>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-outline-light btn-sm" id="expandedCopyBtn">
+                                    <button class="btn btn-haiku btn-secondary btn-sm" id="expandedCopyBtn">
                                         <i class="bi bi-clipboard"></i> Copia
                                     </button>
-                                    <button class="btn btn-outline-light btn-sm" id="expandedLikeBtn">
+                                    <button class="btn btn-haiku btn-accent btn-sm" id="expandedLikeBtn">
                                         <i class="bi bi-heart"></i> <span id="expandedLikeCount">0</span>
                                     </button>
                                 </div>
@@ -700,6 +700,12 @@ window.addEventListener('error', function(e) {
     if (e.filename && e.filename.includes('bacheca.js')) {
         console.warn('Errore in bacheca.js, uso funzionalità base');
     }
+});
+
+document.querySelectorAll('[data-action="copy"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        copyPoemText(this.dataset.poemId);
+    });
 });
 </script>
 </body>
