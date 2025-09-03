@@ -162,7 +162,7 @@
     background: rgba(220, 53, 69, 0.2) !important;
     border-color: rgba(220, 53, 69, 0.4) !important;
     color: #dc3545 !important;
-    transform: scale(1.05);
+    transform: scale(1.05) translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
@@ -275,9 +275,17 @@
 
 /* Button perfetto allineamento */
 .btn-haiku {
-    padding: 10px 16px !important;
-    border-radius: 2rem !important;
     transition: all 0.3s ease;
+    border-radius: 2rem !important;
+    padding: 10px 16px !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    font-weight: 500 !important;
     border: none;
 }
 
@@ -286,170 +294,172 @@
     box-shadow: 0 8px 25px rgba(149,117,205,0.25);
 }
 
-/* Navigation consistency */
-.nav-link {
-    color: rgba(255,255,255,0.8) !important;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #fff !important;
-    background: rgba(255,255,255,0.1);
-}
-
-.nav-link.active {
-    background: rgba(255,255,255,0.15) !important;
-    color: #fff !important;
-}
-
-/* Typography utilities */
-.text-white-75 {
-    color: var(--text-white-75) !important;
-}
-
-.text-white-50 {
-    color: var(--text-white-50) !important;
-}
-
-.fw-medium {
-    font-weight: 500 !important;
-}
-
-.fw-semibold {
-    font-weight: 600 !important;
-}
-
-/* Badge system */
-.badge {
-    display: inline-block;
-    padding: 0.35em 0.65em;
-    font-size: 0.75em;
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.375rem;
-}
-
-.badge.bg-primary {
+/* Colori primari allineati con index.html */
+.btn-haiku.btn-primary {
     background: var(--primary) !important;
     color: white !important;
+    border: none !important;
 }
 
-.badge.bg-success {
-    background: var(--success) !important;
+.btn-haiku.btn-secondary {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+    border: none !important;
+}
+
+.btn-haiku.btn-accent {
+    background: var(--accent) !important;
     color: white !important;
+    border: none !important;
 }
 
-/* ===== MODAL ESPANSO ===== */
-#expandedPoemModal .modal-content {
-    background: rgba(255, 255, 233, 0.2);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 1.5rem;
-    box-shadow: 
-        0 20px 80px rgba(149, 117, 205, 0.3),
-        0 8px 32px rgba(149, 117, 205, 0.2);
+/* Hover effects uniformati */
+.btn-haiku:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(149,117,205,0.25);
 }
 
-#expandedPoemModal .modal-header {
-    background: linear-gradient(135deg, 
-        rgba(212, 184, 255, 0.3),
-        rgba(255, 229, 217, 0.3)
-    );
-    border-bottom: 1px solid var(--border-light);
-    border-radius: 1.5rem 1.5rem 0 0;
-    padding: 1.5rem 2rem;
+.btn-haiku.btn-primary:hover {
+    background: #c7a6ff !important;
+    box-shadow: 0 8px 25px rgba(149,117,205,0.3);
 }
 
-#expandedPoemModal .modal-body {
-    padding: 2rem;
+.btn-haiku.btn-secondary:hover {
+    background: #ffd6c7 !important;
+    box-shadow: 0 8px 25px rgba(255,229,217,0.3);
 }
 
-#expandedPoemContent {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    line-height: 1.8;
-    font-size: 1.3rem;
-    color: rgba(255, 255, 255, 0.95);
-    text-align: center;
-    margin-bottom: 2rem;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+.btn-haiku.btn-accent:hover {
+    background: #8bc7c8 !important;
+    box-shadow: 0 8px 25px rgba(162,215,216,0.3);
 }
 
-/* ===== LOADING E STATI ===== */
-.loading-indicator {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-white-50);
+/* Small buttons specifici */
+.btn-haiku.btn-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.875rem !important;
+    min-height: 32px !important;
 }
 
-.spinner-border.text-primary {
-    border-color: rgba(212, 184, 255, 0.3);
-    border-top-color: var(--primary);
-    width: 3rem;
-    height: 3rem;
+/* Like button specifico - OVERRIDE COMPLETO */
+.like-btn.btn-haiku.btn-accent {
+    background: rgba(162,215,216,0.2) !important;
+    border: 1px solid rgba(162,215,216,0.4) !important;
+    color: var(--accent) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
-/* ===== TOAST NOTIFICHE ===== */
-.toast {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+.like-btn.btn-haiku.btn-accent:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
-.toast-header {
-    background: rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid var(--border-light);
-    border-radius: 1rem 1rem 0 0;
+.like-btn.btn-haiku.btn-accent:active {
+    transform: scale(0.95);
 }
 
-/* ===== ANIMAZIONI AVANZATE ===== */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
+/* Expand button specifico */
+.btn-haiku.btn-secondary[data-action="expand"] {
+    background: rgba(255,229,217,0.2) !important;
+    border: 1px solid rgba(255,229,217,0.4) !important;
+    color: var(--secondary) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-haiku.btn-secondary[data-action="expand"]:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+    border-color: var(--secondary) !important;
+}
+
+/* Go to page button */
+#goToPageBtn.btn-haiku.btn-primary {
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+#goToPageBtn.btn-haiku.btn-primary:hover {
+    background: #c7a6ff !important;
+    transform: translateY(-2px);
+}
+
+/* Modal buttons specifici */
+#expandedCopyBtn.btn-haiku.btn-secondary {
+    background: rgba(255,229,217,0.2) !important;
+    border: 1px solid rgba(255,229,217,0.4) !important;
+    color: var(--secondary) !important;
+}
+
+#expandedCopyBtn.btn-haiku.btn-secondary:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+}
+
+#expandedLikeBtn.btn-haiku.btn-accent {
+    background: rgba(162,215,216,0.2) !important;
+    border: 1px solid rgba(162,215,216,0.4) !important;
+    color: var(--accent) !important;
+}
+
+#expandedLikeBtn.btn-haiku.btn-accent:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+}
+
+/* Icons alignment */
+.btn-haiku i {
+    margin-right: 0.3rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.btn-haiku.btn-sm i {
+    font-size: 0.875rem;
+    margin-right: 0.25rem;
+}
+
+/* Focus states */
+.btn-haiku:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
+    outline: 0;
+}
+
+.btn-haiku:not(:disabled):not(.disabled):active,
+.btn-haiku:not(:disabled):not(.disabled).active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Animazioni like */
+.like-btn.animate-like {
+    animation: likeAnimation 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { 
+        transform: scale(1.3) rotate(5deg); 
+        background: rgba(220, 53, 69, 0.3) !important;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    100% { transform: scale(1); }
 }
 
-@keyframes slideInFromLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+/* Heart beat animation */
+.like-btn:hover .bi-heart {
+    animation: heartBeat 0.8s ease-in-out;
 }
 
-.poem-card-wrapper {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.poem-card-wrapper:nth-child(odd) {
-    animation-delay: 0.1s;
-}
-
-.poem-card-wrapper:nth-child(even) {
-    animation-delay: 0.2s;
-}
-
-.filter-card {
-    animation: slideInFromLeft 0.8s ease-out;
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.15); }
 }
 
 /* ===== RESPONSIVE OTTIMIZZATO ===== */
@@ -707,4 +717,30 @@
 
 .btn-haiku:focus {
     box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
+}
+
+/* Navigation enhancement per uniformità totale */
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    font-weight: 400;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+    font-weight: 500;
+}
+
+.nav-link i {
+    margin-right: 0.5rem;
 }
