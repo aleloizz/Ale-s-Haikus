@@ -259,6 +259,7 @@ class BachecaManager {
      * Setup listeners per la paginazione
      */
     setupPaginationListeners() {
+        // Input field
         if (this.elements.goToPage) {
             this.elements.goToPage.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
