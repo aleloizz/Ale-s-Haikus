@@ -101,7 +101,6 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
     /* ALTEZZA DINAMICA - RIMUOVIAMO I LIMITI FISSI */
     height: auto !important;
     min-height: var(--card-base-height) !important;
-    /* RIMOSSO: max-height per permettere espansione */
     
     margin: 0 !important;
     padding: 0 !important;
@@ -127,38 +126,38 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
 /* ===== CARD SIZING BASATO SUL TIPO DI POESIA ===== */
 .poem-card[data-poem-type="haiku"] {
     /* Haiku: 3 versi corti */
-    min-height: 180px !important;
+    min-height: 300px !important;
 }
 
 .poem-card[data-poem-type="tanka"] {
     /* Tanka: 5 versi */
-    min-height: 220px !important;
+    min-height: 300px !important;
 }
 
 .poem-card[data-poem-type="quartina"] {
     /* Quartina: 4 versi endecasillabi */
-    min-height: 240px !important;
+    min-height: 300px !important;
 }
 
 .poem-card[data-poem-type="sonetto"] {
     /* Sonetto: 14 versi - card più alta */
-    min-height: 400px !important;
+    min-height: 500px !important;
 }
 
 .poem-card[data-poem-type="limerick"] {
     /* Limerick: 5 versi corti */
-    min-height: 200px !important;
+    min-height: 400px !important;
 }
 
 .poem-card[data-poem-type="versi_liberi"] {
     /* Versi liberi: altezza variabile */
-    min-height: 180px !important;
+    min-height: 500px !important;
     /* Senza max-height per adattamento completo */
 }
 
 .poem-card[data-poem-type="ottava_rima"] {
     /* Ottava rima: 8 versi endecasillabi */
-    min-height: 320px !important;
+    min-height: 500px !important;
 }
 
 .poem-card[data-poem-type="terzina_dantesca"] {
