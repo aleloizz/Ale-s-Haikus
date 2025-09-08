@@ -1,7 +1,7 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.0 - CONTENT ADAPTIVE
-Ottimizzazione per dimensioni dinamiche basate sul contenuto
+Versione: 3.1 - CONTENT ADAPTIVE OTTIMIZZATA
+Risoluzione scrollbar e bilanciamento altezze card
 */
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
@@ -98,9 +98,10 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
     position: relative;
     width: 100% !important;
     
-    /* ALTEZZA DINAMICA - RIMUOVIAMO I LIMITI FISSI */
+    /* ALTEZZA FISSA CON CONTROLLO OVERFLOW */
     height: auto !important;
     min-height: var(--card-base-height) !important;
+    max-height: 600px !important; /* Limite massimo per evitare card troppo lunghe */
     
     margin: 0 !important;
     padding: 0 !important;
@@ -119,14 +120,14 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
                 box-shadow 0.3s ease !important;
     
-    /* OVERFLOW CONTROL DINAMICO */
+    /* OVERFLOW CONTROL ASSOLUTO */
     overflow: hidden !important;
 }
 
 /* ===== CARD SIZING BASATO SUL TIPO DI POESIA ===== */
 .poem-card[data-poem-type="haiku"] {
     /* Haiku: 3 versi corti */
-    min-height: 300px !important;
+    min-height: 280px !important;
 }
 
 .poem-card[data-poem-type="tanka"] {
@@ -136,33 +137,33 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
 
 .poem-card[data-poem-type="quartina"] {
     /* Quartina: 4 versi endecasillabi */
-    min-height: 300px !important;
+    min-height: 320px !important;
 }
 
 .poem-card[data-poem-type="sonetto"] {
     /* Sonetto: 14 versi - card più alta */
-    min-height: 500px !important;
+    min-height: 420px !important;
 }
 
 .poem-card[data-poem-type="limerick"] {
     /* Limerick: 5 versi corti */
-    min-height: 400px !important;
+    min-height: 340px !important;
 }
 
 .poem-card[data-poem-type="versi_liberi"] {
     /* Versi liberi: altezza variabile */
-    min-height: 500px !important;
+    min-height: 360px !important;
     /* Senza max-height per adattamento completo */
 }
 
 .poem-card[data-poem-type="ottava_rima"] {
     /* Ottava rima: 8 versi endecasillabi */
-    min-height: 500px !important;
+    min-height: 400px !important;
 }
 
 .poem-card[data-poem-type="terzina_dantesca"] {
     /* Terzina: 3 versi endecasillabi */
-    min-height: 200px !important;
+    min-height: 280px !important;
 }
 
 /* HOVER EFFECT OTTIMIZZATO */
@@ -184,9 +185,12 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
     flex-direction: column !important;
     justify-content: space-between !important;
     
-    /* ALTEZZA AUTOMATICA */
-    height: auto !important;
+    /* ALTEZZA AUTOMATICA CON CONTROLLO OVERFLOW */
+    height: 100% !important;
     min-height: calc(var(--card-base-height) - (var(--card-padding) * 2)) !important;
+    
+    /* CONTROLLO OVERFLOW RIGOROSO */
+    overflow: hidden !important;
     
     position: relative;
     z-index: 2;
@@ -196,13 +200,13 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
 /* ===== CONTENUTO POESIA DINAMICO ===== */
 .poem-content {
     flex-grow: 1;
-    flex-shrink: 0; /* Non comprimere il contenuto */
+    flex-shrink: 1; /* Permetti compressione se necessario */
     
-    /* OVERFLOW INTELLIGENTE */
+    /* OVERFLOW RIGOROSO - NESSUNA SCROLLBAR */
     overflow: hidden !important;
     
-    /* ALTEZZA DINAMICA - RIMUOVIAMO IL LIMITE */
-    /* RIMOSSO: max-height per espansione libera */
+    /* CONTROLLO ALTEZZA MASSIMA */
+    max-height: 65%; /* Lascia spazio per header e footer */
     
     margin-bottom: 1rem !important;
     margin-left: 0 !important;
@@ -240,38 +244,38 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
 }
 
 .poem-card[data-poem-type="tanka"] .poem-text {
-    line-clamp: 6 !important;
-    -webkit-line-clamp: 6 !important;
+    line-clamp: 5 !important;
+    -webkit-line-clamp: 5 !important;
 }
 
 .poem-card[data-poem-type="quartina"] .poem-text {
-    line-clamp: 6 !important;
-    -webkit-line-clamp: 6 !important;
+    line-clamp: 5 !important;
+    -webkit-line-clamp: 5 !important;
 }
 
 .poem-card[data-poem-type="sonetto"] .poem-text {
-    line-clamp: 16 !important; /* 14 versi + margine */
-    -webkit-line-clamp: 16 !important;
-}
-
-.poem-card[data-poem-type="limerick"] .poem-text {
-    line-clamp: 6 !important;
-    -webkit-line-clamp: 6 !important;
-}
-
-.poem-card[data-poem-type="versi_liberi"] .poem-text {
-    line-clamp: 12 !important; /* Più flessibile */
+    line-clamp: 12 !important; /* Ridotto da 16 */
     -webkit-line-clamp: 12 !important;
 }
 
+.poem-card[data-poem-type="limerick"] .poem-text {
+    line-clamp: 5 !important;
+    -webkit-line-clamp: 5 !important;
+}
+
+.poem-card[data-poem-type="versi_liberi"] .poem-text {
+    line-clamp: 8 !important; /* Ridotto da 12 */
+    -webkit-line-clamp: 8 !important;
+}
+
 .poem-card[data-poem-type="ottava_rima"] .poem-text {
-    line-clamp: 10 !important;
-    -webkit-line-clamp: 10 !important;
+    line-clamp: 8 !important; /* Ridotto da 10 */
+    -webkit-line-clamp: 8 !important;
 }
 
 .poem-card[data-poem-type="terzina_dantesca"] .poem-text {
-    line-clamp: 5 !important;
-    -webkit-line-clamp: 5 !important;
+    line-clamp: 4 !important;
+    -webkit-line-clamp: 4 !important;
 }
 
 .poem-card:hover .poem-text {
