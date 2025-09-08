@@ -401,67 +401,51 @@ display:none default + .show Bootstrap class + debug JS
 }
 
 /* ===== NUOVO HEART CONTAINER COMPONENT ===== */
+/* From Uiverse.io by catraco */ 
 .heart-container {
-    --heart-color: rgb(255, 91, 137);
-    position: relative;
-    width: 36px; /* Ridotto da 50px per adattarsi alla card */
-    height: 36px; /* Ridotto da 50px */
-    transition: .3s;
-    display: inline-block;
-    border: 1px solid rgba(255, 91, 137, 0.3); /* DEBUG: bordo visibile */
-    border-radius: 50%;
+  --heart-color: rgb(255, 91, 137);
+  position: relative;
+  width: 40px;  /* Ridotto leggermente da 50px per le card */
+  height: 40px; /* Mantenendo le proporzioni originali */
+  transition: .3s;
 }
 
 .heart-container .checkbox {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    z-index: 20;
-    cursor: pointer;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 20;
+  cursor: pointer;
 }
 
 .heart-container .svg-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .heart-container .svg-outline,
 .heart-container .svg-filled {
-    fill: var(--heart-color);
-    position: absolute;
-    width: 20px; /* Dimensione dell'SVG adattata */
-    height: 20px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.heart-container .svg-outline {
-    display: block; /* Assicuriamoci che sia sempre visibile */
-    fill: none;
-    stroke: var(--heart-color);
-    stroke-width: 2px;
+  fill: var(--heart-color);
+  position: absolute;
 }
 
 .heart-container .svg-filled {
-    animation: keyframes-svg-filled 1s;
-    display: none;
+  animation: keyframes-svg-filled 1s;
+  display: none;
 }
 
 .heart-container .svg-celebrate {
-    position: absolute;
-    animation: keyframes-svg-celebrate .5s;
-    animation-fill-mode: forwards;
-    display: none;
-    stroke: var(--heart-color);
-    fill: var(--heart-color);
-    stroke-width: 2px;
-    width: 30px; /* Celebrazione leggermente più grande */
-    height: 30px;
+  position: absolute;
+  animation: keyframes-svg-celebrate .5s;
+  animation-fill-mode: forwards;
+  display: none;
+  stroke: var(--heart-color);
+  fill: var(--heart-color);
+  stroke-width: 2px;
 }
 
 .heart-container .checkbox:checked~.svg-container .svg-outline {
@@ -469,11 +453,11 @@ display:none default + .show Bootstrap class + debug JS
 }
 
 .heart-container .checkbox:checked~.svg-container .svg-filled {
-    display: block;
+  display: block;
 }
 
 .heart-container .checkbox:checked~.svg-container .svg-celebrate {
-    display: block;
+  display: block;
 }
 
 @keyframes keyframes-svg-filled {
@@ -841,14 +825,8 @@ display:none default + .show Bootstrap class + debug JS
     
     /* MOBILE: Heart container ottimizzato */
     .heart-container {
-        width: 32px !important;
-        height: 32px !important;
-    }
-    
-    .heart-container .svg-outline,
-    .heart-container .svg-filled {
-        width: 18px !important;
-        height: 18px !important;
+        width: 36px !important;  /* Proporzioni mantenute */
+        height: 36px !important;
     }
     
     .like-container {

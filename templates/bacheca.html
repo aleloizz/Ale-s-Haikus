@@ -393,7 +393,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                     <div class="d-flex gap-2">
                                         <!-- Nuovo componente heart animato -->
                                         <div class="like-container" title="Apprezza questa poesia">
-                                            <div class="heart-container" data-poem-id="{{ poem.id }}">
+                                            <!-- From Uiverse.io by catraco --> 
+                                            <div class="heart-container" title="Like" data-poem-id="{{ poem.id }}">
                                                 <input type="checkbox" class="checkbox" id="heart-{{ poem.id }}">
                                                 <div class="svg-container">
                                                     <svg viewBox="0 0 24 24" class="svg-outline" xmlns="http://www.w3.org/2000/svg">
@@ -404,12 +405,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                                         <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Z">
                                                         </path>
                                                     </svg>
-                                                    <svg class="svg-celebrate" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
-                                                        <polygon points="15,3 16,8 21,8 17,12 18,17 15,14 12,17 13,12 9,8 14,8"></polygon>
-                                                        <polygon points="5,5 6,6 8,6 7,7 8,8 6,7 4,8 5,7 3,6 5,6"></polygon>
-                                                        <polygon points="25,5 26,6 28,6 27,7 28,8 26,7 24,8 25,7 23,6 25,6"></polygon>
-                                                        <polygon points="5,25 6,26 8,26 7,27 8,28 6,27 4,28 5,27 3,26 5,26"></polygon>
-                                                        <polygon points="25,25 26,26 28,26 27,27 28,28 26,27 24,28 25,27 23,26 25,26"></polygon>
+                                                    <svg class="svg-celebrate" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                                                        <polygon points="10,10 20,20"></polygon>
+                                                        <polygon points="10,50 20,50"></polygon>
+                                                        <polygon points="20,80 30,70"></polygon>
+                                                        <polygon points="90,10 80,20"></polygon>
+                                                        <polygon points="90,50 80,50"></polygon>
+                                                        <polygon points="80,80 70,70"></polygon>
                                                     </svg>
                                                 </div>
                                             </div>
@@ -787,7 +789,7 @@ function initHeartLikes() {
     console.log('💖 Inizializzazione heart likes');
     
     // Gestione click sui checkbox heart
-    document.querySelectorAll('.heart-container input[type="checkbox"]').forEach(checkbox => {
+    document.querySelectorAll('.heart-container .checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const poemId = this.closest('.heart-container').dataset.poemId;
             const likeCountElement = this.closest('.like-container').querySelector('.like-count');
