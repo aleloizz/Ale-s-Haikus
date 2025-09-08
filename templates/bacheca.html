@@ -105,8 +105,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.3"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.4" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.4"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -117,8 +117,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.2"></noscript>
     
     <!-- Icons - load async -->
-    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=1.2"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=1.3"></noscript>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -695,62 +695,49 @@ window.addEventListener('error', function(e) {
     }
 });
 
-// ===== GESTIONE DROPDOWN MIGLIORATA ===== 
+// ===== GESTIONE DROPDOWN SEMPLIFICATA ===== 
 function initDropdowns() {
-    // Gestione click sui dropdown toggle
-    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const dropdownMenu = this.nextElementSibling;
-            const isOpen = dropdownMenu.classList.contains('show');
-            
-            // Chiudi tutti gli altri dropdown
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                menu.classList.remove('show');
-            });
-            
-            // Toggle del dropdown corrente
-            if (!isOpen) {
-                dropdownMenu.classList.add('show');
-                this.setAttribute('aria-expanded', 'true');
-            } else {
-                dropdownMenu.classList.remove('show');
-                this.setAttribute('aria-expanded', 'false');
-            }
-        });
-    });
+    console.log('🎯 Inizializzazione dropdown semplificati');
     
-    // Chiudi dropdown quando si clicca fuori
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.dropdown')) {
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                menu.classList.remove('show');
-            });
-            document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(btn => {
-                btn.setAttribute('aria-expanded', 'false');
-            });
-        }
-    });
+    // Usa Bootstrap nativo senza interferenze
+    // Bootstrap gestirà automaticamente i dropdown con data-bs-toggle="dropdown"
     
-    // Gestione ESC per chiudere dropdown
+    // Aggiungi solo gestione ESC personalizzata
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
+            // Trova tutti i dropdown aperti e chiudili
             document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                menu.classList.remove('show');
-            });
-            document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(btn => {
-                btn.setAttribute('aria-expanded', 'false');
+                const dropdownInstance = bootstrap.Dropdown.getInstance(menu.previousElementSibling);
+                if (dropdownInstance) {
+                    dropdownInstance.hide();
+                }
             });
         }
     });
+    
+    console.log('✅ Dropdown inizializzati con Bootstrap nativo');
 }
 
 // Inizializza dropdown quando Bootstrap è carico
 function loadBachecaModule() {
-    console.log('🎯 Inizializzazione dropdown avanzati');
+    console.log('🎯 Inizializzazione modulo bacheca');
     initDropdowns();
+    
+    // Carica il modulo completo se disponibile
+    fetch('{{ url_for("static", filename="js/bacheca.js") }}', { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                return import('{{ url_for("static", filename="js/bacheca.js") }}?v={{ range(1000, 9999)|random }}');
+            } else {
+                throw new Error('bacheca.js non trovato');
+            }
+        })
+        .then(module => {
+            console.log('✅ Modulo bacheca avanzato caricato');
+        })
+        .catch(error => {
+            console.log('ℹ️ Modulo avanzato non disponibile, uso funzioni base');
+        });
 }
 
 document.querySelectorAll('[data-action="copy"]').forEach(btn => {

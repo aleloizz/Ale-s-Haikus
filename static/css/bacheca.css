@@ -1,7 +1,7 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.3 - REWORK DROPDOWN GLASSMORPHISM
-Fix dropdown rotti + design system unificato
+Versione: 3.4 - FIX DROPDOWN DEFINITIVO
+Icona three-dots + Bootstrap nativo + fallback robusto
 */
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
@@ -448,9 +448,8 @@ Fix dropdown rotti + design system unificato
 
 /* ===== DROPDOWN REWORK GLASSMORPHISM ===== */
 
-/* DROPDOWN BUTTON - Bottone per aprire il menu */
-.dropdown-toggle,
-.dropdown .btn {
+/* ===== DROPDOWN BUTTON POEM-CARD SPECIFICO ===== */
+.poem-card .dropdown .btn {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     color: var(--text-white-75) !important;
@@ -466,10 +465,10 @@ Fix dropdown rotti + design system unificato
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    position: relative !important;
 }
 
-.dropdown-toggle:hover,
-.dropdown .btn:hover {
+.poem-card .dropdown .btn:hover {
     background: rgba(255, 255, 255, 0.2) !important;
     border-color: rgba(255, 255, 255, 0.4) !important;
     color: white !important;
@@ -477,8 +476,7 @@ Fix dropdown rotti + design system unificato
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-.dropdown-toggle:focus,
-.dropdown .btn:focus {
+.poem-card .dropdown .btn:focus {
     background: rgba(255, 255, 255, 0.2) !important;
     border-color: var(--primary) !important;
     color: white !important;
@@ -486,9 +484,8 @@ Fix dropdown rotti + design system unificato
     outline: 0 !important;
 }
 
-/* ICONA three-dots MIGLIORATA */
-.dropdown-toggle .bi-three-dots-vertical,
-.dropdown .btn .bi-three-dots-vertical {
+/* ICONA three-dots CON FALLBACK ROBUSTO */
+.poem-card .dropdown .btn .bi-three-dots-vertical {
     font-size: 1.2rem !important;
     opacity: 0.8 !important;
     transition: opacity 0.3s ease !important;
@@ -498,29 +495,41 @@ Fix dropdown rotti + design system unificato
     line-height: 1 !important;
 }
 
-.dropdown-toggle:hover .bi-three-dots-vertical,
-.dropdown .btn:hover .bi-three-dots-vertical {
+.poem-card .dropdown .btn:hover .bi-three-dots-vertical {
     opacity: 1 !important;
     color: white !important;
 }
 
-/* FALLBACK per icona - Se Bootstrap Icons non carica */
-.dropdown-toggle::before,
-.dropdown .btn::before {
+/* FALLBACK UNIVERSALE - Sempre visibile come backup */
+.poem-card .dropdown .btn::after {
     content: "⋮" !important;
-    font-size: 1.2rem !important;
+    font-size: 1.4rem !important;
     font-weight: bold !important;
     line-height: 1 !important;
-    display: none !important; /* Nascosto di default */
+    color: var(--text-white-75) !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1 !important;
 }
 
-/* Se l'icona non è presente, mostra il fallback */
-.dropdown-toggle:not(:has(.bi-three-dots-vertical))::before,
-.dropdown .btn:not(:has(.bi-three-dots-vertical))::before {
-    display: inline-block !important;
+.poem-card .dropdown .btn:hover::after {
+    color: white !important;
 }
 
-/* DROPDOWN MENU - Menu a tendina */
+/* Nascondi il fallback solo se l'icona è presente E visibile */
+.poem-card .dropdown .btn:has(.bi-three-dots-vertical)::after {
+    display: none !important;
+}
+
+/* Se Bootstrap Icons è caricata, dai priorità all'icona */
+.bi-three-dots-vertical::before {
+    z-index: 2 !important;
+    position: relative !important;
+}
+
+/* DROPDOWN MENU - Semplificato per compatibilità Bootstrap */
 .dropdown-menu {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(20px) !important;
@@ -532,25 +541,15 @@ Fix dropdown rotti + design system unificato
         0 4px 20px rgba(0, 0, 0, 0.08),
         0 2px 8px rgba(0, 0, 0, 0.05) !important;
     
-    /* CONTROLLO VISIBILITÀ - NASCOSTO DI DEFAULT */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(-10px) scale(0.95) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    
     padding: 0.5rem !important;
     margin-top: 0.5rem !important;
     z-index: 1050 !important;
+    
+    /* Lascia che Bootstrap gestisca visibilità */
+    /* RIMUOVIAMO: opacity, visibility, transform per evitare conflitti */
 }
 
-/* DROPDOWN MENU QUANDO È APERTO */
-.dropdown-menu.show {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) scale(1) !important;
-}
-
-/* DROPDOWN ITEM - Singole voci del menu */
+/* DROPDOWN ITEM - Stile semplificato */
 .dropdown-item {
     color: var(--text-dark) !important;
     padding: 0.6rem 1rem !important;
@@ -579,11 +578,6 @@ Fix dropdown rotti + design system unificato
     outline: 0 !important;
 }
 
-.dropdown-item:active {
-    background: rgba(212, 184, 255, 0.4) !important;
-    color: var(--text-dark) !important;
-}
-
 /* ICONE NEI DROPDOWN ITEM */
 .dropdown-item i {
     margin-right: 0.5rem !important;
@@ -595,12 +589,6 @@ Fix dropdown rotti + design system unificato
 
 .dropdown-item:hover i {
     opacity: 1 !important;
-}
-
-/* DROPDOWN DIVIDER */
-.dropdown-divider {
-    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
-    margin: 0.5rem 0 !important;
 }
 
 /* DROPDOWN MENU END (allineato a destra) */
