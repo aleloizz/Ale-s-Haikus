@@ -405,8 +405,8 @@ display:none default + .show Bootstrap class + debug JS
 .heart-container {
   --heart-color: rgb(255, 91, 137);
   position: relative;
-  width: 40px;  /* Ridotto leggermente da 50px per le card */
-  height: 40px; /* Mantenendo le proporzioni originali */
+  width: 50px;
+  height: 50px;
   transition: .3s;
 }
 
@@ -428,7 +428,7 @@ display:none default + .show Bootstrap class + debug JS
 }
 
 .heart-container .svg-outline,
-.heart-container .svg-filled {
+        .heart-container .svg-filled {
   fill: var(--heart-color);
   position: absolute;
 }
@@ -448,44 +448,44 @@ display:none default + .show Bootstrap class + debug JS
   stroke-width: 2px;
 }
 
-.heart-container .checkbox:checked~.svg-container .svg-outline {
-    display: none;
-}
-
 .heart-container .checkbox:checked~.svg-container .svg-filled {
-  display: block;
+  display: block
 }
 
 .heart-container .checkbox:checked~.svg-container .svg-celebrate {
-  display: block;
+  display: block
 }
 
 @keyframes keyframes-svg-filled {
-    0% {
-        transform: scale(0);
-    }
-    25% {
-        transform: scale(1.2);
-    }
-    50% {
-        transform: scale(1);
-        filter: brightness(1.5);
-    }
+  0% {
+    transform: scale(0);
+  }
+
+  25% {
+    transform: scale(1.2);
+  }
+
+  50% {
+    transform: scale(1);
+    filter: brightness(1.5);
+  }
 }
 
 @keyframes keyframes-svg-celebrate {
-    0% {
-        transform: scale(0);
-    }
-    50% {
-        opacity: 1;
-        filter: brightness(1.5);
-    }
-    100% {
-        transform: scale(1.4);
-        opacity: 0;
-        display: none;
-    }
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.5);
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+    display: none;
+  }
 }
 
 /* CONTENITORE LIKE CON COUNTER */
