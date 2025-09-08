@@ -405,12 +405,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                                         </path>
                                                     </svg>
                                                     <svg class="svg-celebrate" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
-                                                        <polygon points="5,5 10,10"></polygon>
-                                                        <polygon points="5,25 10,25"></polygon>
-                                                        <polygon points="10,40 15,35"></polygon>
-                                                        <polygon points="45,5 40,10"></polygon>
-                                                        <polygon points="45,25 40,25"></polygon>
-                                                        <polygon points="40,40 35,35"></polygon>
+                                                        <polygon points="15,3 16,8 21,8 17,12 18,17 15,14 12,17 13,12 9,8 14,8"></polygon>
+                                                        <polygon points="5,5 6,6 8,6 7,7 8,8 6,7 4,8 5,7 3,6 5,6"></polygon>
+                                                        <polygon points="25,5 26,6 28,6 27,7 28,8 26,7 24,8 25,7 23,6 25,6"></polygon>
+                                                        <polygon points="5,25 6,26 8,26 7,27 8,28 6,27 4,28 5,27 3,26 5,26"></polygon>
+                                                        <polygon points="25,25 26,26 28,26 27,27 28,28 26,27 24,28 25,27 23,26 25,26"></polygon>
                                                     </svg>
                                                 </div>
                                             </div>
@@ -788,7 +787,7 @@ function initHeartLikes() {
     console.log('💖 Inizializzazione heart likes');
     
     // Gestione click sui checkbox heart
-    document.querySelectorAll('.heart-container .checkbox').forEach(checkbox => {
+    document.querySelectorAll('.heart-container input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const poemId = this.closest('.heart-container').dataset.poemId;
             const likeCountElement = this.closest('.like-container').querySelector('.like-count');
