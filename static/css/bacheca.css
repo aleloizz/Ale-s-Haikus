@@ -35,7 +35,7 @@ Ottimizzazione per dimensioni dinamiche basate sul contenuto
     /* CONTENT-BASED HEIGHT VARIABLES */
     --line-height-text: 1.6;
     --base-line-height: 1.5rem; /* Altezza di una riga di testo */
-    --card-base-height: 200px; /* Altezza minima per header/footer */
+    --card-base-height: 300px; /* Altezza minima per header/footer */
 }
 
 /* ===== BASE LAYOUT ===== */
