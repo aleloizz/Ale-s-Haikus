@@ -105,8 +105,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.2"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.3"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -694,6 +694,64 @@ window.addEventListener('error', function(e) {
         console.warn('Errore in bacheca.js, uso funzionalità base');
     }
 });
+
+// ===== GESTIONE DROPDOWN MIGLIORATA ===== 
+function initDropdowns() {
+    // Gestione click sui dropdown toggle
+    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dropdownMenu = this.nextElementSibling;
+            const isOpen = dropdownMenu.classList.contains('show');
+            
+            // Chiudi tutti gli altri dropdown
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            
+            // Toggle del dropdown corrente
+            if (!isOpen) {
+                dropdownMenu.classList.add('show');
+                this.setAttribute('aria-expanded', 'true');
+            } else {
+                dropdownMenu.classList.remove('show');
+                this.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+    
+    // Chiudi dropdown quando si clicca fuori
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(btn => {
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+    
+    // Gestione ESC per chiudere dropdown
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(btn => {
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+}
+
+// Inizializza dropdown quando Bootstrap è carico
+function loadBachecaModule() {
+    console.log('🎯 Inizializzazione dropdown avanzati');
+    initDropdowns();
+}
 
 document.querySelectorAll('[data-action="copy"]').forEach(btn => {
     btn.addEventListener('click', function() {
