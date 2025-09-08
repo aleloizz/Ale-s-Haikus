@@ -408,6 +408,8 @@ display:none default + .show Bootstrap class + debug JS
     height: 36px; /* Ridotto da 50px */
     transition: .3s;
     display: inline-block;
+    border: 1px solid rgba(255, 91, 137, 0.3); /* DEBUG: bordo visibile */
+    border-radius: 50%;
 }
 
 .heart-container .checkbox {
@@ -433,6 +435,16 @@ display:none default + .show Bootstrap class + debug JS
     position: absolute;
     width: 20px; /* Dimensione dell'SVG adattata */
     height: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.heart-container .svg-outline {
+    display: block; /* Assicuriamoci che sia sempre visibile */
+    fill: none;
+    stroke: var(--heart-color);
+    stroke-width: 2px;
 }
 
 .heart-container .svg-filled {
@@ -450,6 +462,10 @@ display:none default + .show Bootstrap class + debug JS
     stroke-width: 2px;
     width: 30px; /* Celebrazione leggermente più grande */
     height: 30px;
+}
+
+.heart-container .checkbox:checked~.svg-container .svg-outline {
+    display: none;
 }
 
 .heart-container .checkbox:checked~.svg-container .svg-filled {
