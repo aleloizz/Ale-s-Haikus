@@ -127,7 +127,7 @@ Risoluzione scrollbar e bilanciamento altezze card
 /* ===== CARD SIZING BASATO SUL TIPO DI POESIA ===== */
 .poem-card[data-poem-type="haiku"] {
     /* Haiku: 3 versi corti */
-    min-height: 280px !important;
+    min-height: 300px !important;
 }
 
 .poem-card[data-poem-type="tanka"] {
