@@ -22,13 +22,43 @@
     --shadow-glow: 0 8px 32px rgba(149,117,205,0.15);
 }
 
-/* ===== LAYOUT GRIGLIA E LISTA ===== */
+/* ===== LAYOUT GRIGLIA E LISTA - CORRETTO ===== */
 .poems-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /*  RIDOTTO da 320px */
+    gap: 1.25rem; /*  RIDOTTO da 1.5rem */
     margin-top: 1rem;
     transition: opacity 0.3s ease;
+    align-items: start; /*  AGGIUNTO: evita stretching verticale */
+}
+
+/* Responsive migliorato */
+@media (min-width: 576px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.75rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2rem;
+    }
 }
 
 .poems-list {
@@ -55,7 +85,7 @@
     min-width: 0;
 }
 
-/* ===== CARD POESIA AVANZATA ===== */
+/* ===== CARD POESIA AVANZATA - DIMENSIONI CORRETTE ===== */
 .poem-card {
     position: relative;
     overflow: hidden;
@@ -65,6 +95,12 @@
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
+    
+    /*  CORREZIONI DIMENSIONI CRITICHE */
+    min-height: 250px; /*  ALTEZZA MINIMA FISSA */
+    max-height: 400px; /*  ALTEZZA MASSIMA per evitare gigantismo */
+    height: auto; /*  ALTEZZA AUTOMATICA invece di h-100 */
+    width: 100%; /*  LARGHEZZA CONTROLLATA */
 }
 
 .poem-card::before {
@@ -96,26 +132,41 @@
 .poem-card .card-body {
     position: relative;
     z-index: 2;
-    padding: 1.5rem;
+    padding: 1.25rem; /*  RIDOTTO da 1.5rem */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px; /*  CONTENUTO MINIMO */
 }
 
 /* ===== CONTENUTO POESIA ===== */
 .poem-content {
     position: relative;
     margin-bottom: 1rem;
+    flex-grow: 1; /*  OCCUPA SPAZIO DISPONIBILE */
+    overflow: hidden; /*  PREVIENE OVERFLOW */
+    max-height: 180px; /*  LIMITE ALTEZZA CONTENUTO */
 }
 
 .poem-text {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    line-height: 1.7;
-    font-size: 1.05rem;
+    line-height: 1.6; /*  RIDOTTO da 1.7 */
+    font-size: 1rem; /*  RIDOTTO da 1.05rem */
     color: var(--text-white-75);
     transition: color 0.3s ease;
     margin-bottom: 0;
     text-align: left;
     hyphens: auto;
     word-wrap: break-word;
+    
+    /* CONTROLLO OVERFLOW TESTO */
+    display: -webkit-box;
+    -webkit-line-clamp: 8; /* MASSIMO 8 RIGHE */
+    line-clamp: 8; /*  STANDARD PROPERTY for compatibility */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .poem-card:hover .poem-text {
@@ -470,70 +521,49 @@
         padding: 0 0.5rem;
     }
     
+    .poem-card {
+        min-height: 220px; /*  RIDOTTO per mobile */
+        max-height: 350px;
+    }
+    
+    .poem-card .card-body {
+        padding: 1rem; /*  RIDOTTO per mobile */
+    }
+    
+    .poem-text {
+        font-size: 0.95rem; /*  RIDOTTO per mobile */
+        line-clamp: 6; /*  STANDARD PROPERTY per compatibility */
+        -webkit-line-clamp: 6; /*  MENO RIGHE su mobile */
+    }
+}
+
+@media (max-width: 768px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
     .filter-card {
         padding: 1rem;
         margin-bottom: 1rem;
         border-radius: 1rem;
     }
     
-    .filter-card .row > div {
-        margin-bottom: 1rem;
-    }
-    
-    .filter-card .d-flex.gap-2 {
-        flex-direction: column;
-        gap: 0.5rem !important;
-    }
-    
-    .poems-list .card-body {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-    }
-    
     .poem-card:hover {
-        transform: translateY(-4px) scale(1.01);
-    }
-    
-    #expandedPoemModal .modal-body {
-        padding: 1rem;
-    }
-    
-    #expandedPoemContent {
-        font-size: 1.1rem;
-        line-height: 1.6;
-    }
-    
-    .container {
-        padding: 0 1rem;
-    }
-    
-    .card,
-    .filter-card {
-        margin: 1rem auto;
-        padding: 1.5rem;
+        transform: translateY(-4px) scale(1.01); /*  HOVER RIDOTTO */
     }
 }
 
-@media (max-width: 576px) {
-    .filter-card .d-flex.gap-2 {
-        flex-direction: column;
-        gap: 0.5rem !important;
+/* Desktop ottimizzato */
+@media (min-width: 1400px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 2.5rem;
     }
     
-    .btn-haiku.btn-sm {
-        padding: 0.4rem 0.8rem !important;
-        font-size: 0.875rem !important;
-    }
-    
-    .pagination {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .page-link {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.875rem;
+    .poem-card {
+        max-height: 450px; /*  MAGGIORE su schermi grandi */
     }
 }
 
@@ -743,4 +773,20 @@
 
 .nav-link i {
     margin-right: 0.5rem;
+}
+
+/*  WRAPPER CONTROLLO DIMENSIONI */
+.poem-card-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 250px;
+    max-height: 400px;
+    margin-bottom: 0; /*  Rimuove spazi extra */
+}
+
+.poem-card-wrapper .poem-card {
+    height: 100%;
+    width: 100%;
+    margin: 0; /*  Rimuove margini che causano sovrapposizioni */
 }
