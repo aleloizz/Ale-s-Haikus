@@ -1,7 +1,7 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.4 - FIX DROPDOWN DEFINITIVO
-Icona three-dots + Bootstrap nativo + fallback robusto
+Versione: 3.5 - FIX VISIBILITÀ DROPDOWN
+display:none default + .show Bootstrap class + debug JS
 */
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
@@ -529,7 +529,7 @@ Icona three-dots + Bootstrap nativo + fallback robusto
     position: relative !important;
 }
 
-/* DROPDOWN MENU - Semplificato per compatibilità Bootstrap */
+/* DROPDOWN MENU - Bootstrap compatibile */
 .dropdown-menu {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(20px) !important;
@@ -545,8 +545,13 @@ Icona three-dots + Bootstrap nativo + fallback robusto
     margin-top: 0.5rem !important;
     z-index: 1050 !important;
     
-    /* Lascia che Bootstrap gestisca visibilità */
-    /* RIMUOVIAMO: opacity, visibility, transform per evitare conflitti */
+    /* GESTIONE VISIBILITÀ BOOTSTRAP - NASCOSTO DI DEFAULT */
+    display: none !important;
+}
+
+/* DROPDOWN MENU QUANDO APERTO - Bootstrap .show class */
+.dropdown-menu.show {
+    display: block !important;
 }
 
 /* DROPDOWN ITEM - Stile semplificato */
@@ -675,6 +680,13 @@ Icona three-dots + Bootstrap nativo + fallback robusto
         box-shadow: 
             0 8px 32px rgba(0, 0, 0, 0.15),
             0 4px 16px rgba(0, 0, 0, 0.1) !important;
+        
+        /* MANTIENI visibilità Bootstrap */
+        display: none !important;
+    }
+    
+    .dropdown-menu.show {
+        display: block !important;
     }
     
     .dropdown-item {
@@ -801,6 +813,13 @@ Icona three-dots + Bootstrap nativo + fallback robusto
     .dropdown-menu {
         background: rgba(0, 0, 0, 0.8);
         border-color: rgba(255, 255, 255, 0.1);
+        
+        /* MANTIENI visibilità Bootstrap */
+        display: none !important;
+    }
+    
+    .dropdown-menu.show {
+        display: block !important;
     }
 }
 
