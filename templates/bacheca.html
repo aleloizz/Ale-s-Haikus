@@ -105,8 +105,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.4" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.4"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.5" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.5"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -699,28 +699,45 @@ window.addEventListener('error', function(e) {
 function initDropdowns() {
     console.log('🎯 Inizializzazione dropdown semplificati');
     
-    // Usa Bootstrap nativo senza interferenze
-    // Bootstrap gestirà automaticamente i dropdown con data-bs-toggle="dropdown"
-    
-    // Aggiungi solo gestione ESC personalizzata
+    // NON interferire con Bootstrap - lascia che gestisca tutto
+    // Aggiungi solo gestione ESC personalizzata se necessaria
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            // Trova tutti i dropdown aperti e chiudili
-            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                const dropdownInstance = bootstrap.Dropdown.getInstance(menu.previousElementSibling);
-                if (dropdownInstance) {
-                    dropdownInstance.hide();
-                }
-            });
+            // Chiudi tutti i dropdown aperti usando Bootstrap API
+            if (window.bootstrap && bootstrap.Dropdown) {
+                document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(toggle => {
+                    const dropdown = bootstrap.Dropdown.getInstance(toggle);
+                    if (dropdown) {
+                        dropdown.hide();
+                    }
+                });
+            }
         }
     });
     
-    console.log('✅ Dropdown inizializzati con Bootstrap nativo');
+    console.log('✅ Gestione ESC per dropdown configurata');
 }
 
 // Inizializza dropdown quando Bootstrap è carico
 function loadBachecaModule() {
     console.log('🎯 Inizializzazione modulo bacheca');
+    
+    // Debug Bootstrap Dropdown
+    if (window.bootstrap && bootstrap.Dropdown) {
+        console.log('✅ Bootstrap Dropdown disponibile');
+        
+        // Test: trova tutti i dropdown e verifica che siano inizializzati
+        document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach((toggle, index) => {
+            console.log(`Dropdown ${index + 1}:`, toggle);
+            
+            // Assicurati che Bootstrap gestisca il dropdown
+            const dropdown = new bootstrap.Dropdown(toggle);
+            console.log(`Bootstrap instance creata per dropdown ${index + 1}`);
+        });
+    } else {
+        console.error('❌ Bootstrap Dropdown NON disponibile');
+    }
+    
     initDropdowns();
     
     // Carica il modulo completo se disponibile
