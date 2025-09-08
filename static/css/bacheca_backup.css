@@ -1,0 +1,958 @@
+/* Bacheca Poetica - CSS Ottimizzato e Pulito */
+/* Versione 2.0 - Rimosse duplicazioni e ottimizzata performance */
+
+/* ===== VARIABILI CSS ESTESE ===== */
+:root {
+    /* Variabili base MANCANTI */
+    --primary: #D4B8FF;
+    --secondary: #FFE5D9;
+    --accent: #A2D7D8;
+    --text: #5E5E5E;
+    --bg: #FAF7FF;
+    --error: #ff6b6b;
+    --success: #3bb156;
+    
+    /* Estensioni delle variabili esistenti */
+    --text-white-75: rgba(255,255,255,0.75);
+    --text-white-50: rgba(255,255,255,0.5);
+    --border-light: rgba(255,255,255,0.2);
+    --glass-bg: rgba(255,255,255,0.15);
+    --glass-border: rgba(255,255,255,0.2);
+    --filter-card-bg: rgba(255,255,255,0.45);
+    --shadow-glow: 0 8px 32px rgba(149,117,205,0.15);
+}
+
+/* ===== LAYOUT GRIGLIA E LISTA - CORRETTO ===== */
+.poems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /*  RIDOTTO da 320px */
+    gap: 1.25rem; /*  RIDOTTO da 1.5rem */
+    margin-top: 1rem;
+    transition: opacity 0.3s ease;
+    align-items: start; /*  AGGIUNTO: evita stretching verticale */
+}
+
+/* Responsive migliorato */
+@media (min-width: 576px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.75rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2rem;
+    }
+}
+
+.poems-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.poems-list .poem-card-wrapper {
+    max-width: none;
+}
+
+.poems-list .card-body {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.poems-list .poem-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ===== CARD POESIA AVANZATA - DIMENSIONI CORRETTE ===== */
+.poem-card {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 233, 0.200) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 1rem;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    
+    /*  CORREZIONI DIMENSIONI CRITICHE */
+    min-height: 250px; /*  ALTEZZA MINIMA FISSA */
+    max-height: 400px; /*  ALTEZZA MASSIMA per evitare gigantismo */
+    height: auto; /*  ALTEZZA AUTOMATICA invece di h-100 */
+    width: 100%; /*  LARGHEZZA CONTROLLATA */
+}
+
+.poem-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.poem-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 20px 60px rgba(149, 117, 205, 0.25),
+        0 8px 24px rgba(149, 117, 205, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.3);
+    border-color: rgba(212, 184, 255, 0.4);
+}
+
+.poem-card:hover::before {
+    left: 100%;
+}
+
+.poem-card .card-body {
+    position: relative;
+    z-index: 2;
+    padding: 1.25rem; /*  RIDOTTO da 1.5rem */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px; /*  CONTENUTO MINIMO */
+}
+
+/* ===== CONTENUTO POESIA ===== */
+.poem-content {
+    position: relative;
+    margin-bottom: 1rem;
+    flex-grow: 1; /*  OCCUPA SPAZIO DISPONIBILE */
+    overflow: hidden; /*  PREVIENE OVERFLOW */
+    max-height: 180px; /*  LIMITE ALTEZZA CONTENUTO */
+}
+
+.poem-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    line-height: 1.6; /*  RIDOTTO da 1.7 */
+    font-size: 1rem; /*  RIDOTTO da 1.05rem */
+    color: var(--text-white-75);
+    transition: color 0.3s ease;
+    margin-bottom: 0;
+    text-align: left;
+    hyphens: auto;
+    word-wrap: break-word;
+    
+    /* CONTROLLO OVERFLOW TESTO */
+    display: -webkit-box;
+    -webkit-line-clamp: 8; /* MASSIMO 8 RIGHE */
+    line-clamp: 8; /*  STANDARD PROPERTY for compatibility */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.poem-card:hover .poem-text {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== BADGES E INDICATORI ===== */
+.badge-poem-type {
+    background: linear-gradient(135deg, var(--primary), #a084e8) !important;
+    color: white !important;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 1rem;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    border: 1px solid var(--border-light);
+}
+
+.badge.bg-primary {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+.badge.bg-success {
+    background: var(--success) !important;
+    color: white !important;
+}
+
+/* ===== PULSANTI LIKE E AZIONI ===== */
+.like-btn {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-white-50) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.like-btn:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.like-btn:active {
+    transform: scale(0.95);
+}
+
+.like-btn .bi-heart {
+    transition: all 0.3s ease;
+}
+
+.like-btn:hover .bi-heart {
+    animation: heartBeat 0.8s ease-in-out;
+}
+
+.animate-like {
+    animation: likeAnimation 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.15); }
+}
+
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { 
+        transform: scale(1.3) rotate(5deg); 
+        background: rgba(220, 53, 69, 0.3) !important;
+    }
+    100% { transform: scale(1); }
+}
+
+.like-count {
+    font-weight: 600;
+    margin-left: 0.3rem;
+    font-size: 0.9rem;
+}
+
+/* ===== DROPDOWN AZIONI ===== */
+.dropdown-toggle::after {
+    color: var(--primary);
+}
+
+.dropdown-menu {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1rem;
+}
+
+.dropdown-item {
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    margin: 0.1rem 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(212, 184, 255, 0.2);
+    color: var(--text);
+}
+
+.dropdown-item i {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.dropdown-item:hover i {
+    opacity: 1;
+}
+
+/* ===== FILTRI AVANZATI - OTTIMIZZATI ===== */
+.filter-card {
+    background: var(--filter-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: none;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.175);
+    transition: box-shadow 0.3s ease;
+}
+
+.filter-card:hover {
+    box-shadow: 
+        0 1.5rem 4rem rgba(0,0,0,0.2),
+        0 0.5rem 1rem rgba(149, 117, 205, 0.1);
+}
+
+/* Form controls allineati con index.html */
+.form-control,
+.form-select {
+    border: 1px solid #ced4da;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
+    outline: 0;
+}
+
+/* ===== ALLINEAMENTO CON INDEX.HTML ===== */
+
+/* Button perfetto allineamento */
+.btn-haiku {
+    transition: all 0.3s ease;
+    border-radius: 2rem !important;
+    padding: 10px 16px !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    font-weight: 500 !important;
+    border: none;
+}
+
+.btn-haiku:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(149,117,205,0.25);
+}
+
+/* Colori primari allineati con index.html */
+.btn-haiku.btn-primary {
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-haiku.btn-secondary {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+    border: none !important;
+}
+
+.btn-haiku.btn-accent {
+    background: var(--accent) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Hover effects uniformati */
+.btn-haiku:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(149,117,205,0.25);
+}
+
+.btn-haiku.btn-primary:hover {
+    background: #c7a6ff !important;
+    box-shadow: 0 8px 25px rgba(149,117,205,0.3);
+}
+
+.btn-haiku.btn-secondary:hover {
+    background: #ffd6c7 !important;
+    box-shadow: 0 8px 25px rgba(255,229,217,0.3);
+}
+
+.btn-haiku.btn-accent:hover {
+    background: #8bc7c8 !important;
+    box-shadow: 0 8px 25px rgba(162,215,216,0.3);
+}
+
+/* Small buttons specifici */
+.btn-haiku.btn-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.875rem !important;
+    min-height: 32px !important;
+}
+
+/* Like button specifico - OVERRIDE COMPLETO */
+.like-btn.btn-haiku.btn-accent {
+    background: rgba(162,215,216,0.2) !important;
+    border: 1px solid rgba(162,215,216,0.4) !important;
+    color: var(--accent) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.like-btn.btn-haiku.btn-accent:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.like-btn.btn-haiku.btn-accent:active {
+    transform: scale(0.95);
+}
+
+/* Expand button specifico */
+.btn-haiku.btn-secondary[data-action="expand"] {
+    background: rgba(255,229,217,0.2) !important;
+    border: 1px solid rgba(255,229,217,0.4) !important;
+    color: var(--secondary) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-haiku.btn-secondary[data-action="expand"]:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+    border-color: var(--secondary) !important;
+}
+
+/* Go to page button */
+#goToPageBtn.btn-haiku.btn-primary {
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+#goToPageBtn.btn-haiku.btn-primary:hover {
+    background: #c7a6ff !important;
+    transform: translateY(-2px);
+}
+
+/* Modal buttons specifici */
+#expandedCopyBtn.btn-haiku.btn-secondary {
+    background: rgba(255,229,217,0.2) !important;
+    border: 1px solid rgba(255,229,217,0.4) !important;
+    color: var(--secondary) !important;
+}
+
+#expandedCopyBtn.btn-haiku.btn-secondary:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+}
+
+#expandedLikeBtn.btn-haiku.btn-accent {
+    background: rgba(162,215,216,0.2) !important;
+    border: 1px solid rgba(162,215,216,0.4) !important;
+    color: var(--accent) !important;
+}
+
+#expandedLikeBtn.btn-haiku.btn-accent:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+}
+
+/* Icons alignment */
+.btn-haiku i {
+    margin-right: 0.3rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.btn-haiku.btn-sm i {
+    font-size: 0.875rem;
+    margin-right: 0.25rem;
+}
+
+/* Focus states */
+.btn-haiku:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
+    outline: 0;
+}
+
+.btn-haiku:not(:disabled):not(.disabled):active,
+.btn-haiku:not(:disabled):not(.disabled).active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Animazioni like */
+.like-btn.animate-like {
+    animation: likeAnimation 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { 
+        transform: scale(1.3) rotate(5deg); 
+        background: rgba(220, 53, 69, 0.3) !important;
+    }
+    100% { transform: scale(1); }
+}
+
+/* Heart beat animation */
+.like-btn:hover .bi-heart {
+    animation: heartBeat 0.8s ease-in-out;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.15); }
+}
+
+/* ===== RESPONSIVE OTTIMIZZATO ===== */
+@media (max-width: 768px) {
+    .poems-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .poem-card {
+        min-height: 220px; /*  RIDOTTO per mobile */
+        max-height: 350px;
+    }
+    
+    .poem-card .card-body {
+        padding: 1rem; /*  RIDOTTO per mobile */
+    }
+    
+    .poem-text {
+        font-size: 0.95rem; /*  RIDOTTO per mobile */
+        line-clamp: 6; /*  STANDARD PROPERTY per compatibility */
+        -webkit-line-clamp: 6; /*  MENO RIGHE su mobile */
+    }
+}
+
+@media (max-width: 768px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .filter-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 1rem;
+    }
+    
+    .poem-card:hover {
+        transform: translateY(-4px) scale(1.01); /*  HOVER RIDOTTO */
+    }
+}
+
+/* Desktop ottimizzato */
+@media (min-width: 1400px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .poem-card {
+        max-height: 450px; /*  MAGGIORE su schermi grandi */
+    }
+}
+
+/* ===== ACCESSIBILITÀ ===== */
+@media (prefers-reduced-motion: reduce) {
+    .poem-card,
+    .like-btn,
+    .filter-card,
+    .page-link {
+        transition: none;
+    }
+    
+    .poem-card:hover {
+        transform: none;
+    }
+    
+    .animate-like {
+        animation: none;
+    }
+    
+    .poem-card-wrapper {
+        animation: none;
+    }
+}
+
+.poem-card:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+}
+
+.like-btn:focus {
+    outline: 2px solid rgba(220, 53, 69, 0.5);
+    outline-offset: 2px;
+}
+
+/* ===== UTILITIES ===== */
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary), #a084e8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-glow {
+    box-shadow: 0 0 20px rgba(212, 184, 255, 0.3);
+}
+
+.hover-lift {
+    transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+}
+
+/* ===== GRID SYSTEM CONSISTENCY ===== */
+.col-md-2 {
+    flex: 0 0 auto;
+    width: 16.666667%;
+}
+
+.col-md-3 {
+    flex: 0 0 auto;
+    width: 25%;
+}
+
+@media (max-width: 767.98px) {
+    .col-md-2,
+    .col-md-3 {
+        width: 100%;
+    }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+    .filter-card {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dropdown-menu {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .toast {
+        background: rgba(0, 0, 0, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* ===== CORREZIONI BOTTONI CRITICHE ===== */
+
+/* Like button specifico */
+.like-btn.btn-haiku {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-white-50) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.like-btn.btn-haiku:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Small buttons uniformati */
+.btn-haiku.btn-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.875rem !important;
+    min-height: 32px !important;
+}
+
+/* Expand button specifico */
+.btn-haiku.btn-secondary[data-action="expand"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--text-white-75) !important;
+}
+
+.btn-haiku.btn-secondary[data-action="expand"]:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+    border-color: var(--secondary) !important;
+}
+
+/* Pagination button fix */
+.btn-haiku[onclick="goToSpecificPage()"] {
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Modal buttons specifici */
+#expandedCopyBtn.btn-haiku {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--text-white-75) !important;
+}
+
+#expandedCopyBtn.btn-haiku:hover {
+    background: var(--secondary) !important;
+    color: var(--text) !important;
+}
+
+#expandedLikeBtn.btn-haiku {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--text-white-50) !important;
+}
+
+#expandedLikeBtn.btn-haiku:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #dc3545 !important;
+}
+
+/* Fix per tutti i bottoni con icons */
+.btn-haiku i {
+    margin-right: 0.3rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.btn-haiku.btn-sm i {
+    font-size: 0.875rem;
+}
+
+/* Override eventuali conflitti Bootstrap */
+.btn-haiku:not(:disabled):not(.disabled):active,
+.btn-haiku:not(:disabled):not(.disabled).active {
+    transform: translateY(0) scale(0.98);
+}
+
+.btn-haiku:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
+}
+
+/* Navigation enhancement per uniformità totale */
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    font-weight: 400;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+    font-weight: 500;
+}
+
+.nav-link i {
+    margin-right: 0.5rem;
+}
+
+/*  WRAPPER CONTROLLO DIMENSIONI */
+.poem-card-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 250px;
+    max-height: 400px;
+    margin-bottom: 0; /*  Rimuove spazi extra */
+}
+
+.poem-card-wrapper .poem-card {
+    height: 100%;
+    width: 100%;
+    margin: 0; /*  Rimuove margini che causano sovrapposizioni */
+}
+
+/* ===== OVERRIDE CRITICI PER RISOLVERE CONFLITTI ===== */
+
+/* Override completo delle card Bootstrap */
+.poem-card.card {
+    /* FORZA tutti gli stili ignorando Bootstrap */
+    background: rgba(255, 255, 233, 0.200) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 1rem !important;
+    box-shadow: none !important;
+    
+    /* DIMENSIONI FORZATE */
+    min-height: 250px !important;
+    max-height: 400px !important;
+    height: auto !important;
+    width: 100% !important;
+    
+    /* RESET margin/padding problematici */
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* GLASSMORPHISM FORZATO */
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    
+    /* TRANSITION CORRETTO */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important, 
+                box-shadow 0.3s ease !important;
+}
+
+/* Override grid container problematico */
+.poems-grid {
+    /* RESET margini Bootstrap */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    
+    /* GRID FORZATO */
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 1.25rem !important;
+    
+    /* PADDING container corretto */
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Override body della card */
+.poem-card .card-body {
+    /* RESET Bootstrap */
+    padding: 1.25rem !important;
+    margin: 0 !important;
+    
+    /* LAYOUT FORZATO */
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 200px !important;
+    height: 100% !important;
+    
+    /* Z-INDEX per stacking */
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* Override contenuto poesia */
+.poem-content {
+    /* CONTROLLO OVERFLOW FORZATO */
+    overflow: hidden !important;
+    max-height: 180px !important;
+    flex-grow: 1 !important;
+    margin-bottom: 1rem !important;
+    
+    /* RESET problematici */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;
+}
+
+/* Override testo poesia */
+.poem-text {
+    /* CONTROLLO TESTO FORZATO */
+    display: -webkit-box !important;
+    line-clamp: 8 !important;
+    -webkit-line-clamp: 8 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    
+    /* STYLING CORRETTO */
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    color: var(--text-white-75) !important;
+    
+    /* RESET margin problematici */
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* SPECIFICITÀ MASSIMA per container */
+.container .poems-grid {
+    /* IGNORA tutti i margini Bootstrap */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* OVERRIDE gutter Bootstrap */
+.container {
+    /* RESET gutter variables per questa pagina */
+    --bs-gutter-x: 0 !important;
+}
+
+/* OVERRIDE row se presente */
+.row.poems-grid,
+.poems-grid.row {
+    /* FORZA grid invece di flexbox */
+    display: grid !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===== MEDIA QUERIES OVERRIDE ===== */
+
+@media (max-width: 576px) {
+    .poems-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .poem-card.card {
+        min-height: 220px !important;
+        max-height: 350px !important;
+        margin: 0 !important;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 1rem !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+        gap: 1.5rem !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)) !important;
+        gap: 1.75rem !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)) !important;
+        gap: 2rem !important;
+    }
+}
