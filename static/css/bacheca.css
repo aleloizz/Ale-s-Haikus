@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.56 - tweaking like button
+Versione: 3.57 - tweaking poem-text
 */
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
@@ -167,7 +167,7 @@ Versione: 3.56 - tweaking like button
 
 /* HOVER EFFECT OTTIMIZZATO */
 .poem-card:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-5px);
     box-shadow: 
         0 20px 60px rgba(149, 117, 205, 0.25),
         0 8px 24px rgba(149, 117, 205, 0.15),
@@ -221,12 +221,12 @@ Versione: 3.56 - tweaking like button
     text-overflow: ellipsis !important;
     
     /* TYPOGRAPHY OTTIMIZZATA */
-    font-family: 'Playfair Display', serif;
+    font-family: 'Inter', sans-serif;
     font-style: italic;
     font-size: 0.95rem !important; /* Leggermente ridotto da 1rem */
     line-height: 1.5 !important; /* Ridotto da 1.6 per più spazio */
-    color: var(--text-white-75) !important;
-    margin: 0 !important;
+    color: var(--text) !important;
+    margin-left: 15px !important;
     padding: 0 !important;
     text-align: left;
     word-wrap: break-word;
@@ -276,11 +276,6 @@ Versione: 3.56 - tweaking like button
 .poem-card[data-poem-type="terzina_dantesca"] .poem-text {
     line-clamp: 4 !important;
     -webkit-line-clamp: 4 !important;
-}
-
-.poem-card:hover .poem-text {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* ===== OTTIMIZZAZIONE HEADER E FOOTER CARD ===== */
@@ -824,8 +819,8 @@ Versione: 3.56 - tweaking like button
     
     /* MOBILE: Heart container ottimizzato */
     .heart-container {
-        width: 36px !important;  /* Proporzioni mantenute */
-        height: 36px !important;
+        width: 22px !important;  /* Proporzioni mantenute */
+        height: 22px !important;
     }
     
     .like-container {
