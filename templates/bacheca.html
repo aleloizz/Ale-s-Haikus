@@ -105,8 +105,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.59" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.59"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.60" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.60"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -862,6 +862,18 @@ if (document.readyState === 'loading') {
 } else {
     initHeartLikes();
 }
+
+// ===== RENDI TUTTO IL LIKE-CONTAINER CLICCABILE =====
+document.querySelectorAll('.like-container').forEach(container => {
+    container.addEventListener('click', function(e) {
+        // Trova il checkbox del cuore
+        const checkbox = this.querySelector('.heart-container .checkbox');
+        if (checkbox && e.target !== checkbox) {
+            // Simula click sul checkbox
+            checkbox.click();
+        }
+    });
+});
 </script>
 </body>
 </html>
