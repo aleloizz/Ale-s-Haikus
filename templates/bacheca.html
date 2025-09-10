@@ -105,8 +105,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.58" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.58"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.59" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.59"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -361,11 +361,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                         <button class="btn btn-link text-white-50 p-1" type="button" data-bs-toggle="dropdown">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#" data-action="copy" data-poem-id="{{ poem.id }}">
+                                        <ul class="dropdown-menu dropdown-menu-end" style="list-style: none;">
+                                            <li style="list-style: none;"><a class="dropdown-item" href="#" data-action="copy" data-poem-id="{{ poem.id }}">
                                                 <i class="bi bi-clipboard me-2"></i>Copia testo
                                             </a></li>
-                                            <li><a class="dropdown-item" href="#" data-action="share" data-poem-id="{{ poem.id }}">
+                                            <li style="list-style: none;"><a class="dropdown-item" href="#" data-action="share" data-poem-id="{{ poem.id }}"></a>
                                                 <i class="bi bi-share me-2"></i>Condividi
                                             </a></li>
                                         </ul>
