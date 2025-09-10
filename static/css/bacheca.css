@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.57 - tweaking poem-text
+Versione: 3.58 - introduzione .card-title
 */
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
@@ -175,6 +175,13 @@ Versione: 3.57 - tweaking poem-text
     border-color: rgba(212, 184, 255, 0.4);
 }
 
+/* CARD TITLE DINAMICO */
+.card-title{
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 1.25rem !important;
+}
+
 /* CARD BODY DINAMICO */
 .poem-card .card-body {
     padding: var(--card-padding) !important;
@@ -187,7 +194,8 @@ Versione: 3.57 - tweaking poem-text
     /* ALTEZZA AUTOMATICA CON CONTROLLO OVERFLOW */
     height: 100% !important;
     min-height: calc(var(--card-base-height) - (var(--card-padding) * 2)) !important;
-    
+    width: inherit !important;
+
     /* CONTROLLO OVERFLOW RIGOROSO */
     overflow: hidden !important;
     
