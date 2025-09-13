@@ -1,7 +1,7 @@
 /**
  * Bacheca delle Poesie - JavaScript Module
  * Gestisce l'interfaccia interattiva della bacheca poetica
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 class BachecaManager {
@@ -98,7 +98,7 @@ class BachecaManager {
         this.setupViewListeners();
         
         // Azioni delle card
-        this.setupCardListeners();
+        this.setupActionButtons();
         
         // Ordinamento
         this.setupSortListeners();
@@ -196,12 +196,39 @@ class BachecaManager {
     /**
      * Setup listeners per le azioni delle card
      */
-    setupCardListeners() {
-        // Like buttons
-        this.setupLikeButtons();
-        
-        // Action buttons
-        this.setupActionButtons();
+    setupActionButtons() {
+        // Rimuovi eventuali listener diretti precedenti (non necessario ora)
+        if (!this._delegatedActionsBound) {
+            document.addEventListener('click', async (e) => {
+                const trigger = e.target.closest('[data-action]');
+                if (!trigger) return;
+
+                // Evita di interferire con link esterni reali
+                if (trigger.tagName === 'A' && trigger.getAttribute('href') && trigger.getAttribute('href').startsWith('http')) {
+                    return;
+                }
+
+                const action = trigger.getAttribute('data-action');
+                const poemId = trigger.getAttribute('data-poem-id');
+                if (!action || !poemId) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                await this.handleCardAction(action, poemId, trigger);
+
+                // Chiudi dropdown se l'azione proviene da un menu
+                const dropdownMenu = trigger.closest('.dropdown-menu');
+                if (dropdownMenu && window.bootstrap && bootstrap.Dropdown) {
+                    const toggle = dropdownMenu.previousElementSibling;
+                    if (toggle) {
+                        const instance = bootstrap.Dropdown.getInstance(toggle) || new bootstrap.Dropdown(toggle);
+                        instance.hide();
+                    }
+                }
+            });
+            this._delegatedActionsBound = true;
+        }
     }
 
     /**
@@ -216,25 +243,6 @@ class BachecaManager {
                 const poemId = btn.dataset.poemId;
                 if (poemId) {
                     await this.toggleLike(poemId, btn);
-                }
-            });
-        });
-    }
-
-    /**
-     * Setup dei pulsanti azione
-     */
-    setupActionButtons() {
-        document.querySelectorAll('[data-action]').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const action = btn.dataset.action;
-                const poemId = btn.dataset.poemId;
-                
-                if (action && poemId) {
-                    await this.handleCardAction(action, poemId, btn);
                 }
             });
         });
@@ -978,14 +986,25 @@ class BachecaManager {
     }
 }
 
-// Auto-inizializzazione quando DOM è pronto
-let bachecaManager = null;
+// Auto-inizializzazione quando DOM è pronto (FIX per import dinamico)
+function initBachecaManager() {
+    if (!window.bachecaManager) {
+        window.bachecaManager = new BachecaManager();
+        window.bachecaManager.init();
+    }
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    bachecaManager = new BachecaManager();
-    bachecaManager.init();
-});
-
-// Esporta per uso globale se necessario
 window.BachecaManager = BachecaManager;
-window.bachecaManager = bachecaManager;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBachecaManager);
+} else {
+    initBachecaManager();
+}
+
+// (Opzionale) esposizione funzione copia globale
+window.copyPoem = (id) => {
+    if (window.bachecaManager) {
+        window.bachecaManager.copyPoemText(id);
+    }
+};
