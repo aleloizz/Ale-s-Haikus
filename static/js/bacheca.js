@@ -577,18 +577,48 @@ class BachecaManager {
             const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
             if (!poemCard) throw new Error('Poesia non trovata');
 
+            // Titolo (se presente)
+            const title = poemCard.querySelector('.card-title')?.textContent?.trim() || '';
+
+            // Testo (converti <br> in \n)
             const poemTextElement = poemCard.querySelector('.poem-text');
             if (!poemTextElement) throw new Error('Testo poesia non trovato');
 
-            const poemText = poemTextElement.textContent || poemTextElement.innerText;
-            
-            // Prova con Clipboard API moderna
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(poemText);
-                this.showToast('copy', 'Testo copiato negli appunti!');
+            // Recupero HTML, sostituzione <br>
+            let rawHtml = poemTextElement.innerHTML;
+            // Normalizza <br> multipli
+            rawHtml = rawHtml.replace(/<br\s*\/?>/gi, '\n');
+            // Strip residui tag HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = rawHtml;
+            let cleanText = tempDiv.textContent || tempDiv.innerText || '';
+
+            cleanText = cleanText.trim();
+
+            // Autore (priorità: data attribute -> span .fw-medium)
+            let author = poemCard.getAttribute('data-poem-author')
+                || poemCard.querySelector('.fw-medium')?.textContent?.trim()
+                || 'Poeta Anonimo';
+
+            // Tipo poesia
+            const type = poemCard.querySelector('.badge-poem-type')?.textContent?.trim() || '';
+
+            // Costruisci blocco testo finale
+            const parts = [];
+            if (title) parts.push(title);
+            if (type) parts.push(`[${type}]`);
+            if (cleanText) parts.push(cleanText);
+            parts.push(`— ${author}`);
+            parts.push('(copiato da www.aleshaikus.me)');
+
+            const finalCopy = parts.join('\n\n');
+
+            // Clipboard API moderna
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(finalCopy);
+                this.showToast('copy', 'Testo (con autore) copiato!');
             } else {
-                // Fallback
-                this.fallbackCopyText(poemText);
+                this.fallbackCopyText(finalCopy);
             }
         } catch (error) {
             console.error('Errore nella copia:', error);
