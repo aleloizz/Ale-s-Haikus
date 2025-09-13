@@ -170,7 +170,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         </script>
         
         <header>
-            <!-- Barra navigazione corretta -->
+            <!-- Barra navigazione -->
             <nav class="navbar navbar-expand-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div class="container">
                     <div class="d-flex w-100 justify-content-center">
@@ -195,7 +195,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                 </div>
             </nav>
             
-            <!-- Header principale riattivato -->
+            <!-- Header principale -->
             <div class="bg-haiku-primary text-white text-center py-4 header-content">
                 <div class="container">
                     <h1 class="display-5">Haiku's Hub</h1>
@@ -364,14 +364,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <a class="dropdown-item" href="#" data-action="copy" data-poem-id="{{ poem.id }}">
+                                                <button type="button" class="dropdown-item" data-action="copy" data-poem-id="{{ poem.id }}">
                                                     <i class="bi bi-clipboard me-2"></i>Copia testo
-                                                </a>
+                                                </button>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item" href="#" data-action="share" data-poem-id="{{ poem.id }}">
+                                                <button type="button" class="dropdown-item" data-action="share" data-poem-id="{{ poem.id }}">
                                                     <i class="bi bi-share me-2"></i>Condividi
-                                                </a>
+                                                </button>
                                             </li>
                                         </ul>
                                     </div>
