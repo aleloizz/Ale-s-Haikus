@@ -614,9 +614,9 @@ class BachecaManager {
             // Costruisci blocco testo finale
             const parts = [];
             if (title) parts.push(title);
-            if (type) parts.push(`[${type}]`);
+            //if (type) parts.push(`[${type}]`);
             if (cleanText) parts.push(cleanText);
-            parts.push(`— ${author}`);
+            parts.push(`- ${author}`);
             parts.push('(copiato da www.aleshaikus.me)');
 
             const finalCopy = parts.join('\n\n');
@@ -624,7 +624,7 @@ class BachecaManager {
             // Clipboard API moderna
             if (navigator.clipboard?.writeText) {
                 await navigator.clipboard.writeText(finalCopy);
-                this.showToast('copy', 'Testo (con autore) copiato!');
+                this.showToast('copy', 'Poesia copiata!');
             } else {
                 this.fallbackCopyText(finalCopy);
             }
