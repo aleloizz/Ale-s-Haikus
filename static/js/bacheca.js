@@ -777,9 +777,11 @@ class BachecaManager {
         this.shareState.popup.classList.add('active');
         this.shareState.popup.setAttribute('aria-hidden', 'false');
         this.shareState.overlay.setAttribute('aria-hidden', 'false');
-        // Focus first icon per accessibilità
-        const firstIcon = this.shareState.popup.querySelector('.icon');
-        if (firstIcon) setTimeout(() => firstIcon.focus(), 50);
+        // Non mettere focus su un'icona di piattaforma per evitare selezione visiva iniziale
+        // Sposta invece il focus sul contenitore (gestibile da screen reader) se possibile
+        if (this.shareState.popup.hasAttribute('tabindex')) {
+            setTimeout(() => this.shareState.popup.focus({ preventScroll: true }), 50);
+        }
 
         if (this.shareState.extra) {
             this.shareState.extra.style.display = 'none';
