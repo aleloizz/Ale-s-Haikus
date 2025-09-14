@@ -1052,26 +1052,35 @@ Versione: 3.61 - rimozione marker listelements del dropdown
 
 /* Container */
 .share-box {
-    display: none; /* gestita via .active */
     position: fixed;
     top:50%;
     left:50%;
-    transform:translate(-50%,-50%);
-    z-index: 1060;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    background: #ffffff;
-    padding: 14px;
-    border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(8, 18, 36, 0.12);
-    max-width: 420px;
-    width: 100%;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+    transform:translate(-50%,-46%) scale(.9);
+    z-index:1060;
+    display:inline-flex; /* mantenuto per conservare spazio calcolabile ma nascosto via visibility */
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    background:#ffffff;
+    padding:14px;
+    border-radius:12px;
+    box-shadow:0 12px 30px rgba(8,18,36,0.12);
+    max-width:420px;
+    width:100%;
+    box-sizing:border-box;
+    font-family:"Poppins", sans-serif;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .35s cubic-bezier(.68,-0.55,.27,1.55), transform .45s cubic-bezier(.68,-0.55,.27,1.55), visibility 0s linear .4s; /* visibility si nasconde dopo animazione */
 }
-.share-box.active { display:inline-flex; }
+.share-box.active {
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+    pointer-events:auto;
+    visibility:visible;
+    transition:opacity .35s cubic-bezier(.68,-0.55,.27,1.55), transform .45s cubic-bezier(.68,-0.55,.27,1.55), visibility 0s; /* rimuovi delay */
+}
 
 .share-box .share-header {
     width: 100%;
@@ -1171,6 +1180,15 @@ Versione: 3.61 - rimozione marker listelements del dropdown
 
 /* Extra message */
 .share-box #shareExtra { font-size:11px; letter-spacing:.4px; }
+
+/* Mobile refinements */
+@media (max-width: 480px) {
+    .share-box { max-width: 360px; padding: 12px 12px 13px; gap:10px; }
+    .share-box .wrapper { height: 100px; flex-wrap: wrap; }
+    .share-box .wrapper .icon { margin:8px; width:46px; height:46px; font-size:17px; }
+    .share-box .share-header { font-size:13px; padding:2px 4px; }
+    .share-box #shareExtra { font-size:10px; }
+}
 
 @media (prefers-color-scheme: dark){
     .share-box { background:#1e1e22; box-shadow:0 12px 30px rgba(0,0,0,.5); }
