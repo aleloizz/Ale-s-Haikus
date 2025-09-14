@@ -1157,3 +1157,26 @@ textarea:focus {
     contain: layout !important;
   }
 }
+
+/* ============================
+   Custom Animated Checkbox
+   (publishPoem, useTolerance)
+   Namespace: .haiku-cbx-
+   ============================ */
+.haiku-cbx-wrapper{display:flex;align-items:center;gap:.5rem;position:relative}
+.haiku-cbx-input{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.haiku-cbx-box{--cbx-active:var(--primary);--cbx-bg:rgba(208,200,230,.9);display:inline-flex;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:transform .28s cubic-bezier(.4,0,.2,1);border-radius:4px;position:relative}
+.haiku-cbx-box:active{transform:scale(.9)}
+.haiku-cbx-box svg{overflow:visible;display:block}
+.haiku-cbx-box path{fill:none;stroke:var(--cbx-bg);stroke-width:1.5;transition:stroke .3s ease}
+.haiku-cbx-box polyline{fill:none;stroke:var(--cbx-active);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:18;stroke-dashoffset:18;transition:stroke-dashoffset .32s ease .08s}
+.haiku-cbx-input:focus + .haiku-cbx-box{outline:none} /* focus outline removed per richiesta */
+.haiku-cbx-input:checked + .haiku-cbx-box path{stroke:var(--cbx-active)}
+.haiku-cbx-input:checked + .haiku-cbx-box polyline{stroke-dashoffset:0}
+.haiku-cbx-box::before{content:"";position:absolute;inset:-8px}
+.haiku-cbx-label{cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;line-height:1.2;color:#6c6c6c;transition:color .3s ease}
+.haiku-cbx-label:hover{text-decoration:underline;color:var(--primary)}
+@media (prefers-reduced-motion:reduce){.haiku-cbx-box,.haiku-cbx-box polyline{transition:none!important}}
+
+/* Layout adjustments inside form actions */
+.d-grid.gap-2.d-md-flex.justify-content-md-between .haiku-cbx-wrapper{flex-shrink:0}
