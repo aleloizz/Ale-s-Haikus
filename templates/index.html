@@ -308,6 +308,50 @@ body {
         })();
         </script>
 
+        <!-- Custom animated checkbox styles (scoped) -->
+        <style>
+            .visually-hidden { position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+            .custom-check-wrapper { position: relative; }
+            .custom-cbx-input:focus + .custom-cbx { outline: 2px solid #4f29f0; outline-offset: 2px; }
+            .custom-cbx {
+                --cbx-active: #4f29f0;
+                --cbx-bg: #d0c8e6;
+                position: relative;
+                display: inline-flex;
+                cursor: pointer;
+                user-select: none;
+                -webkit-tap-highlight-color: transparent;
+                transition: transform .3s ease;
+                border-radius:4px;
+            }
+            .custom-cbx:active { transform: scale(.92); }
+            .custom-cbx svg { overflow: visible; display:block; }
+            .custom-cbx path {
+                fill: none;
+                stroke: var(--cbx-bg);
+                stroke-width: 1.5;
+                transition: stroke .3s ease;
+            }
+            .custom-cbx polyline {
+                fill: none;
+                stroke: var(--cbx-active);
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                stroke-dasharray: 18;
+                stroke-dashoffset: 18;
+                transition: stroke-dashoffset .32s ease .08s;
+            }
+            .custom-cbx-input:checked + .custom-cbx path { stroke: var(--cbx-active); }
+            .custom-cbx-input:checked + .custom-cbx polyline { stroke-dashoffset: 0; }
+            .custom-cbx::before { content: ""; position: absolute; inset: -8px; }
+            .selectable-label { cursor: pointer; }
+            .selectable-label:hover { text-decoration: underline; }
+            @media (prefers-reduced-motion: reduce) {
+                .custom-cbx, .custom-cbx polyline { transition: none !important; }
+            }
+        </style>
+
     </head>
     
     <body class="loading">
@@ -441,15 +485,28 @@ body {
                                         <!-- Aggiorna i pulsanti -->
                                         <div class="d-grid gap-2 d-md-flex justify-content-md-between">
                                             <div class="d-flex flex-column gap-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="publishPoem">
-                                                    <label class="form-check-label text-muted" for="publishPoem">
+                                                <!-- Custom animated checkboxes -->
+                                                <div class="d-flex align-items-center gap-2 custom-check-wrapper">
+                                                    <input type="checkbox" id="publishPoem" class="visually-hidden custom-cbx-input" aria-labelledby="label-publishPoem">
+                                                    <label for="publishPoem" class="check custom-cbx" aria-hidden="true">
+                                                        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+                                                            <path d="M1,9 L1,3.5 C1,2 2,1 3.5,1 L14.5,1 C16,1 17,2 17,3.5 L17,14.5 C17,16 16,17 14.5,17 L3.5,17 C2,17 1,16 1,14.5 L1,9 Z"></path>
+                                                            <polyline points="1 9 7 14 15 4"></polyline>
+                                                        </svg>
+                                                    </label>
+                                                    <label id="label-publishPoem" for="publishPoem" class="text-muted small mb-0 selectable-label">
                                                         <i class="bi bi-share"></i> Pubblica nella bacheca
                                                     </label>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="useTolerance">
-                                                    <label class="form-check-label text-muted" for="useTolerance">
+                                                <div class="d-flex align-items-center gap-2 custom-check-wrapper">
+                                                    <input type="checkbox" id="useTolerance" class="visually-hidden custom-cbx-input" aria-labelledby="label-useTolerance">
+                                                    <label for="useTolerance" class="check custom-cbx" aria-hidden="true">
+                                                        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+                                                            <path d="M1,9 L1,3.5 C1,2 2,1 3.5,1 L14.5,1 C16,1 17,2 17,3.5 L17,14.5 C17,16 16,17 14.5,17 L3.5,17 C2,17 1,16 1,14.5 L1,9 Z"></path>
+                                                            <polyline points="1 9 7 14 15 4"></polyline>
+                                                        </svg>
+                                                    </label>
+                                                    <label id="label-useTolerance" for="useTolerance" class="text-muted small mb-0 selectable-label">
                                                         <i class="bi bi-gear"></i> Usa tolleranza sillabe (±1-2)
                                                     </label>
                                                 </div>
