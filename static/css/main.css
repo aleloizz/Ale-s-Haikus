@@ -1,6 +1,6 @@
 /* 
 ===== MAIN.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 1.31 - correzione colori checkbox
+Versione: 1.32 - correzione colori checkbox
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root { 
@@ -1164,7 +1164,7 @@ textarea:focus {
 }
 
 /* ============================
-  Custom Animated Checkbox (Original Uiverse style adaptation)
+  Custom Animated Checkbox
   Applied to #publishPoem + #useTolerance using .check class
   ============================ */
 .check{cursor:pointer;position:relative;margin:auto;width:18px;height:18px;-webkit-tap-highlight-color:transparent;transform:translate3d(0,0,0)}
@@ -1173,8 +1173,8 @@ textarea:focus {
 .check svg path{stroke-dasharray:60;stroke-dashoffset:0}
 .check svg polyline{stroke-dasharray:22;stroke-dashoffset:66}
 .check:hover:before{opacity:1}
-.check:hover svg{stroke:#4285f4}
-#publishPoem:checked + .check svg,#useTolerance:checked + .check svg{stroke:#4285f4}
+.check:hover svg{stroke:#A971FF}
+#publishPoem:checked + .check svg,#useTolerance:checked + .check svg{stroke:#A971FF}
 #publishPoem:checked + .check svg path,#useTolerance:checked + .check svg path{stroke-dashoffset:60;transition:all .3s linear}
 #publishPoem:checked + .check svg polyline,#useTolerance:checked + .check svg polyline{stroke-dashoffset:42;transition:all .2s linear;transition-delay:.15s}
 /* Label styling next to checkbox */
