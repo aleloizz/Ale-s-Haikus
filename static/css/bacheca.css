@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.61 - rimozione marker listelements del dropdown
+Versione: 3.65 - correzione colori share popup
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -1061,7 +1061,7 @@ Versione: 3.61 - rimozione marker listelements del dropdown
     flex-direction:column;
     align-items:center;
     gap:12px;
-    background:#ffffff;
+    background:#ffffffc4;
     padding:14px;
     border-radius:12px;
     box-shadow:0 12px 30px rgba(8,18,36,0.12);
@@ -1087,9 +1087,9 @@ Versione: 3.61 - rimozione marker listelements del dropdown
     text-align: left;
     font-family: "Poppins", sans-serif;
     font-weight: 600;
-    font-size: 14px;
-    color: #222;
-    padding: 2px 8px;
+    font-size: 15px;
+    color: var(--text);
+    padding: 2px 2px;
 }
 
 /* Icon wrapper (scoped) */
@@ -1191,8 +1191,9 @@ Versione: 3.61 - rimozione marker listelements del dropdown
 }
 
 @media (prefers-color-scheme: dark){
-    .share-box { background:#1e1e22; box-shadow:0 12px 30px rgba(0,0,0,.5); }
-    .share-box .wrapper .icon { background:#27272c; box-shadow:0 10px 14px rgba(0,0,0,0.35); color:#ddd; }
+    .share-box { background:#1e1e22d8; box-shadow:0 12px 30px rgba(0,0,0,.5); }
+    .share-box .share-header { color: #c7c7c7; }
+    .share-box .wrapper .icon { background:#27272c; box-shadow:0 10px 14px rgba(0,0,0,0.35); color:#c7c7c7; }
     .share-box .wrapper .tooltip { background:#2e2e33; box-shadow:0 10px 14px rgba(0,0,0,0.45); }
     .share-box .wrapper .tooltip::before { background:#2e2e33; }
 }
