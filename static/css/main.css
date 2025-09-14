@@ -1,6 +1,6 @@
 /* 
 ===== MAIN.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 1.32 - correzione colori checkbox
+Versione: 1.33 - supporto tastiera per checkbox
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root { 
@@ -1167,9 +1167,9 @@ textarea:focus {
   Custom Animated Checkbox
   Applied to #publishPoem + #useTolerance using .check class
   ============================ */
-.check{cursor:pointer;position:relative;margin:auto;width:18px;height:18px;-webkit-tap-highlight-color:transparent;transform:translate3d(0,0,0)}
+.check{cursor:pointer;position:relative;margin:0;width:18px;height:18px;-webkit-tap-highlight-color:transparent;transform:translate3d(0,0,0)}
 .check:before{content:"";position:absolute;top:-15px;left:-15px;width:48px;height:48px;border-radius:50%;background:rgba(34,50,84,0.03);opacity:0;transition:opacity .2s ease}
-.check svg{position:relative;z-index:1;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:#c8ccd4;stroke-width:1.5;transform:translate3d(0,0,0);transition:all .2s ease}
+.check svg{position:relative;z-index:1;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:#ffffff69;stroke-width:1.5;transform:translate3d(0,0,0);transition:all .2s ease}
 .check svg path{stroke-dasharray:60;stroke-dashoffset:0}
 .check svg polyline{stroke-dasharray:22;stroke-dashoffset:66}
 .check:hover:before{opacity:1}
@@ -1179,3 +1179,5 @@ textarea:focus {
 #publishPoem:checked + .check svg polyline,#useTolerance:checked + .check svg polyline{stroke-dashoffset:42;transition:all .2s linear;transition-delay:.15s}
 /* Label styling next to checkbox */
 label[for=publishPoem].small,label[for=useTolerance].small{font-size:.8rem;line-height:1.2}
+/* Accessible visually hidden checkbox (focusable, SR-visible) */
+.visually-hidden-checkbox{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
