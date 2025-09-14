@@ -1,6 +1,6 @@
 /* 
 ===== MAIN.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 1.3 - correzione colori checkbox
+Versione: 1.31 - correzione colori checkbox
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root { 
@@ -1164,24 +1164,18 @@ textarea:focus {
 }
 
 /* ============================
-   Custom Animated Checkbox
-   (publishPoem, useTolerance)
-   Namespace: .haiku-cbx-
-   ============================ */
-.haiku-cbx-wrapper{display:flex;align-items:center;gap:.5rem;position:relative}
-.haiku-cbx-input{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.haiku-cbx-box{--cbx-active:var(--primary);--cbx-bg:rgba(208,200,230,.9);display:inline-flex;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:transform .28s cubic-bezier(.4,0,.2,1);border-radius:4px;position:relative}
-.haiku-cbx-box:active{transform:scale(.9)}
-.haiku-cbx-box svg{overflow:visible;display:block}
-.haiku-cbx-box path{fill:none;stroke:var(--cbx-bg);stroke-width:1.5;transition:stroke .3s ease}
-.haiku-cbx-box polyline{fill:none;stroke:var(--cbx-active);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:18;stroke-dashoffset:18;transition:stroke-dashoffset .32s ease .08s}
-.haiku-cbx-input:focus + .haiku-cbx-box{outline:none} /* focus outline removed per richiesta */
-.haiku-cbx-input:checked + .haiku-cbx-box path{stroke:var(--cbx-active)}
-.haiku-cbx-input:checked + .haiku-cbx-box polyline{stroke-dashoffset:0}
-.haiku-cbx-box::before{content:"";position:absolute;inset:-8px}
-.haiku-cbx-label{cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;line-height:1.2;color:#6c6c6c;transition:color .3s ease}
-.haiku-cbx-label:hover{text-decoration:underline;color:var(--primary)}
-@media (prefers-reduced-motion:reduce){.haiku-cbx-box,.haiku-cbx-box polyline{transition:none!important}}
-
-/* Layout adjustments inside form actions */
-.d-grid.gap-2.d-md-flex.justify-content-md-between .haiku-cbx-wrapper{flex-shrink:0}
+  Custom Animated Checkbox (Original Uiverse style adaptation)
+  Applied to #publishPoem + #useTolerance using .check class
+  ============================ */
+.check{cursor:pointer;position:relative;margin:auto;width:18px;height:18px;-webkit-tap-highlight-color:transparent;transform:translate3d(0,0,0)}
+.check:before{content:"";position:absolute;top:-15px;left:-15px;width:48px;height:48px;border-radius:50%;background:rgba(34,50,84,0.03);opacity:0;transition:opacity .2s ease}
+.check svg{position:relative;z-index:1;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:#c8ccd4;stroke-width:1.5;transform:translate3d(0,0,0);transition:all .2s ease}
+.check svg path{stroke-dasharray:60;stroke-dashoffset:0}
+.check svg polyline{stroke-dasharray:22;stroke-dashoffset:66}
+.check:hover:before{opacity:1}
+.check:hover svg{stroke:#4285f4}
+#publishPoem:checked + .check svg,#useTolerance:checked + .check svg{stroke:#4285f4}
+#publishPoem:checked + .check svg path,#useTolerance:checked + .check svg path{stroke-dashoffset:60;transition:all .3s linear}
+#publishPoem:checked + .check svg polyline,#useTolerance:checked + .check svg polyline{stroke-dashoffset:42;transition:all .2s linear;transition-delay:.15s}
+/* Label styling next to checkbox */
+label[for=publishPoem].small,label[for=useTolerance].small{font-size:.8rem;line-height:1.2}
