@@ -105,8 +105,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.62" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.62"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.63" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.63"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -620,7 +620,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Share Popup Markup (fuori dallo <script>, hidden di default) -->
     <div id="sharePopupOverlay" class="share-overlay" aria-hidden="true"></div>
-    <div id="sharePopup" class="share-box" role="dialog" aria-label="Condividi" aria-hidden="true">
+    <div id="sharePopup" class="share-box" role="dialog" aria-label="Condividi" aria-hidden="true" tabindex="-1">
         <div class="share-header d-flex w-100 justify-content-between align-items-center">
             <span class="fw-medium">Condividi su</span>
             <button type="button" id="closeSharePopup" class="btn btn-sm btn-light" aria-label="Chiudi" style="line-height:1;padding:2px 8px;">&times;</button>
