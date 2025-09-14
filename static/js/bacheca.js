@@ -1,7 +1,7 @@
 /**
  * Bacheca delle Poesie - JavaScript Module
  * Gestisce l'interfaccia interattiva della bacheca poetica
- * @version 1.0.1
+ * @version 1.10 - Aggiunto supporto condivisione social
  */
 
 class BachecaManager {
@@ -598,44 +598,7 @@ class BachecaManager {
      */
     async copyPoemText(poemId) {
         try {
-            const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
-            if (!poemCard) throw new Error('Poesia non trovata');
-
-            // Titolo (se presente)
-            const title = poemCard.querySelector('.card-title')?.textContent?.trim() || '';
-
-            // Testo (converti <br> in \n)
-            const poemTextElement = poemCard.querySelector('.poem-text');
-            if (!poemTextElement) throw new Error('Testo poesia non trovato');
-
-            // Recupero HTML, sostituzione <br>
-            let rawHtml = poemTextElement.innerHTML;
-            // Normalizza <br> multipli
-            rawHtml = rawHtml.replace(/<br\s*\/?>/gi, '\n');
-            // Strip residui tag HTML
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = rawHtml;
-            let cleanText = tempDiv.textContent || tempDiv.innerText || '';
-
-            cleanText = cleanText.trim();
-
-            // Autore (priorità: data attribute -> span .fw-medium)
-            let author = poemCard.getAttribute('data-poem-author')
-                || poemCard.querySelector('.fw-medium')?.textContent?.trim()
-                || 'Poeta Anonimo';
-
-            // Tipo poesia
-            const type = poemCard.querySelector('.badge-poem-type')?.textContent?.trim() || '';
-
-            // Costruisci blocco testo finale
-            const parts = [];
-            if (title) parts.push(title);
-            //if (type) parts.push(`[${type}]`);
-            if (cleanText) parts.push(cleanText);
-            parts.push(`- ${author}`);
-            parts.push('(copiato da www.aleshaikus.me)');
-
-            const finalCopy = parts.join('\n\n');
+            const finalCopy = this.buildShareText(poemId, { includeAttribution: true, includePermalink: false });
 
             // Clipboard API moderna
             if (navigator.clipboard?.writeText) {
@@ -648,6 +611,45 @@ class BachecaManager {
             console.error('Errore nella copia:', error);
             this.showToast('error', 'Errore nella copia del testo');
         }
+    }
+
+    /**
+     * Costruisce il testo completo per copia / condivisione.
+     * Opzioni:
+     *  - includeAttribution (bool)
+     *  - includePermalink (bool)
+     *  - maxLength (numero, per truncation soft - applicato solo al corpo poesia)
+     */
+    buildShareText(poemId, { includeAttribution = true, includePermalink = true, maxLength = null } = {}) {
+        const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
+        if (!poemCard) return '';
+
+        const title = poemCard.querySelector('.card-title')?.textContent?.trim() || '';
+        const poemTextElement = poemCard.querySelector('.poem-text');
+        if (!poemTextElement) return '';
+
+        let rawHtml = poemTextElement.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = rawHtml;
+        let cleanText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+
+        if (maxLength && cleanText.length > maxLength) {
+            cleanText = cleanText.slice(0, maxLength - 1).trimEnd() + '…';
+        }
+
+        const author = poemCard.getAttribute('data-poem-author')
+            || poemCard.querySelector('.fw-medium')?.textContent?.trim()
+            || 'Poeta Anonimo';
+        const type = poemCard.querySelector('.badge-poem-type')?.textContent?.trim() || '';
+
+        const parts = [];
+        if (title) parts.push(title);
+        if (cleanText) parts.push(cleanText);
+        parts.push(`- ${author}`);
+        if (includeAttribution) parts.push('(da Ale\'s Haikus)');
+        if (includePermalink) parts.push(this.getPoemPermalink(poemId));
+
+        return parts.join('\n\n');
     }
 
     /**
@@ -806,44 +808,69 @@ class BachecaManager {
 
     /** Gestisce share per network specifico */
     async handleNetworkShare(network, poemId) {
-        const url = encodeURIComponent(this.getPoemPermalink(poemId));
-        const text = encodeURIComponent(this.config.share.defaultShareText);
+        const permalink = this.getPoemPermalink(poemId);
+        // Testo completo (senza permalink incorporato) per canali che lo supportano
+        let baseText = this.buildShareText(poemId, { includeAttribution: true, includePermalink: false });
+        if (!baseText) baseText = this.config.share.defaultShareText;
+
         let shareUrl = '';
+        const encodedPermalink = encodeURIComponent(permalink);
 
         switch (network) {
-            case 'facebook':
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-                break;
-            case 'twitter':
-                shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-                break;
-            case 'whatsapp':
-                shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
-                break;
-            case 'instagram':
-                // Nessuna web share diretta: copia link + messaggio
+            case 'twitter': {
+                // Limite ~280 caratteri: riserviamo spazio per due newline + permalink
+                const reserve = permalink.length + 4; // margine
+                const maxTweet = 280 - reserve;
+                let tweetBody = baseText;
+                if (tweetBody.length > maxTweet) {
+                    tweetBody = tweetBody.slice(0, maxTweet - 1).trimEnd() + '…';
+                }
+                const tweet = encodeURIComponent(`${tweetBody}\n\n${permalink}`);
+                shareUrl = `https://twitter.com/intent/tweet?text=${tweet}`;
+                break; }
+            case 'whatsapp': {
+                const waText = encodeURIComponent(`${baseText}\n\n${permalink}`);
+                shareUrl = `https://api.whatsapp.com/send?text=${waText}`;
+                break; }
+            case 'facebook': {
+                // Facebook UI moderna ignora spesso quote nei param standard; proviamo og meta + u param
+                // Aggiungiamo anche testo copiato negli appunti come fallback esperienziale
+                const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedPermalink}`;
                 try {
-                    const finalText = `${this.config.share.defaultShareText}: ${decodeURIComponent(url)}`;
+                    const clipboardPayload = `${baseText}\n\n${permalink}`;
                     if (navigator.clipboard?.writeText) {
-                        await navigator.clipboard.writeText(finalText);
+                        await navigator.clipboard.writeText(clipboardPayload);
                         if (this.shareState.extra) {
                             this.shareState.extra.style.display = 'block';
-                            this.shareState.extra.textContent = 'Link copiato negli appunti! Incollalo nelle tue storie o nel profilo.';
+                            this.shareState.extra.textContent = 'Testo copiato: incollalo nel box di Facebook se non appare automaticamente.';
                         }
-                        this.showToast('copy', 'Link copiato!');
+                    }
+                } catch(_) {/*silent*/}
+                shareUrl = fbUrl;
+                break; }
+            case 'instagram': {
+                // Copia sempre testo completo + permalink
+                try {
+                    const instaText = `${baseText}\n\n${permalink}`;
+                    if (navigator.clipboard?.writeText) {
+                        await navigator.clipboard.writeText(instaText);
+                        if (this.shareState.extra) {
+                            this.shareState.extra.style.display = 'block';
+                            this.shareState.extra.textContent = 'Testo e link copiati! Incollali nelle storie o nel post.';
+                        }
+                        this.showToast('copy', 'Testo copiato!');
                     } else {
-                        this.fallbackCopyText(finalText);
+                        this.fallbackCopyText(instaText);
                     }
                 } catch (err) {
-                    console.error('Instagram fallback copy failed:', err);
-                    this.showToast('error', 'Impossibile copiare il link');
+                    console.error('Instagram copy failed:', err);
+                    this.showToast('error', 'Impossibile preparare il testo per Instagram');
                 }
-                return; // Non aprire popup finestra
+                return; }
             default:
                 console.warn('Network share non supportato:', network);
                 return;
         }
-
         const w = 640, h = 540;
         const left = (screen.width/2)-(w/2);
         const top = (screen.height/2)-(h/2);
@@ -852,7 +879,7 @@ class BachecaManager {
         // Feedback opzionale
         if (this.shareState.extra) {
             this.shareState.extra.style.display = 'block';
-            this.shareState.extra.textContent = 'Finestra di condivisione aperta. Se non vedi nulla controlla i popup bloccati.';
+            this.shareState.extra.textContent = 'Condivisione aperta. Se manca il testo, incollalo manualmente (già copiato dove possibile).';
         }
     }
 
