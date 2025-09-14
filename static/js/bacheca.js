@@ -29,7 +29,22 @@ class BachecaManager {
         this.config = {
             searchDelay: 500,
             animationDuration: 300,
-            loadingTimeout: 10000
+            loadingTimeout: 10000,
+            share: {
+                origin: typeof window !== 'undefined' ? window.location.origin : '',
+                // Future-proof: modify here if permalink pattern changes
+                permalinkPattern: (id) => `/poesia/${id}`,
+                defaultShareText: "Guarda questa poesia su Ale's Haikus"
+            }
+        };
+
+        // Share popup state
+        this.shareState = {
+            activePoemId: null,
+            overlay: null,
+            popup: null,
+            extra: null,
+            closeBtn: null
         };
     }
 
@@ -40,6 +55,7 @@ class BachecaManager {
         this.cacheElements();
         this.initializeEventListeners();
         this.initializeToasts();
+    this.initializeSharePopup();
         this.loadSavedPreferences();
         this.updateUI();
         
@@ -564,7 +580,7 @@ class BachecaManager {
                 await this.copyPoemText(poemId);
                 break;
             case 'share':
-                await this.sharePoem(poemId);
+                this.openSharePopup(poemId);
                 break;
             case 'expand':
                 this.expandPoem(poemId);
@@ -667,7 +683,7 @@ class BachecaManager {
      * Condivide una poesia
      */
     async sharePoem(poemId) {
-        const poemUrl = `${window.location.origin}/poesia/${poemId}`;
+        const poemUrl = this.getPoemPermalink(poemId);
         
         try {
             if (navigator.share) {
@@ -690,6 +706,151 @@ class BachecaManager {
                 console.error('Errore nella condivisione:', error);
                 this.showToast('error', 'Errore nella condivisione');
             }
+        }
+    }
+
+    /**
+     * Inizializza elementi del popup share e delega eventi
+     */
+    initializeSharePopup() {
+        this.shareState.overlay = document.getElementById('sharePopupOverlay');
+        this.shareState.popup = document.getElementById('sharePopup');
+        this.shareState.extra = document.getElementById('shareExtra');
+        this.shareState.closeBtn = document.getElementById('closeSharePopup');
+
+        if (!this.shareState.overlay || !this.shareState.popup) return; // Markup non presente
+
+        // Close events
+        this.shareState.overlay.addEventListener('click', () => this.closeSharePopup());
+        if (this.shareState.closeBtn) {
+            this.shareState.closeBtn.addEventListener('click', () => this.closeSharePopup());
+        }
+
+        // ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.shareState.popup?.classList.contains('active')) {
+                this.closeSharePopup();
+            }
+        });
+
+        // Delegation per icone social
+        this.shareState.popup.addEventListener('click', (e) => {
+            const icon = e.target.closest('.icon[data-network]');
+            if (!icon) return;
+            const network = icon.dataset.network;
+            if (!network || !this.shareState.activePoemId) return;
+            this.handleNetworkShare(network, this.shareState.activePoemId);
+        });
+
+        // Keyboard activation (Enter/Space)
+        this.shareState.popup.addEventListener('keydown', (e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('icon')) {
+                e.preventDefault();
+                const network = e.target.dataset.network;
+                if (network) this.handleNetworkShare(network, this.shareState.activePoemId);
+            }
+        });
+    }
+
+    /**
+     * Costruisce permalink (astrazione futura)
+     */
+    getPoemPermalink(poemId) {
+        if (!poemId) return window.location.href;
+        const patternFn = this.config.share.permalinkPattern;
+        const relative = patternFn ? patternFn(poemId) : `/poesia/${poemId}`;
+        return `${this.config.share.origin}${relative}`;
+    }
+
+    /**
+     * Apre popup share
+     */
+    openSharePopup(poemId) {
+        this.shareState.activePoemId = poemId;
+        if (!this.shareState.overlay || !this.shareState.popup) {
+            // Fallback: usa share API
+            this.sharePoem(poemId);
+            return;
+        }
+        this.shareState.overlay.classList.add('active');
+        this.shareState.overlay.style.display = 'block';
+        this.shareState.popup.classList.add('active');
+        this.shareState.popup.setAttribute('aria-hidden', 'false');
+        this.shareState.overlay.setAttribute('aria-hidden', 'false');
+        // Focus first icon per accessibilità
+        const firstIcon = this.shareState.popup.querySelector('.icon');
+        if (firstIcon) setTimeout(() => firstIcon.focus(), 50);
+
+        if (this.shareState.extra) {
+            this.shareState.extra.style.display = 'none';
+            this.shareState.extra.textContent = '';
+        }
+    }
+
+    /** Chiude popup share */
+    closeSharePopup() {
+        if (!this.shareState.overlay || !this.shareState.popup) return;
+        this.shareState.popup.classList.remove('active');
+        this.shareState.popup.setAttribute('aria-hidden', 'true');
+        this.shareState.overlay.classList.remove('active');
+        this.shareState.overlay.setAttribute('aria-hidden', 'true');
+        setTimeout(() => {
+            if (!this.shareState.overlay.classList.contains('active')) {
+                this.shareState.overlay.style.display = 'none';
+            }
+        }, 200);
+        this.shareState.activePoemId = null;
+    }
+
+    /** Gestisce share per network specifico */
+    async handleNetworkShare(network, poemId) {
+        const url = encodeURIComponent(this.getPoemPermalink(poemId));
+        const text = encodeURIComponent(this.config.share.defaultShareText);
+        let shareUrl = '';
+
+        switch (network) {
+            case 'facebook':
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                break;
+            case 'twitter':
+                shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+                break;
+            case 'whatsapp':
+                shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
+                break;
+            case 'instagram':
+                // Nessuna web share diretta: copia link + messaggio
+                try {
+                    const finalText = `${this.config.share.defaultShareText}: ${decodeURIComponent(url)}`;
+                    if (navigator.clipboard?.writeText) {
+                        await navigator.clipboard.writeText(finalText);
+                        if (this.shareState.extra) {
+                            this.shareState.extra.style.display = 'block';
+                            this.shareState.extra.textContent = 'Link copiato negli appunti! Incollalo nelle tue storie o nel profilo.';
+                        }
+                        this.showToast('copy', 'Link copiato!');
+                    } else {
+                        this.fallbackCopyText(finalText);
+                    }
+                } catch (err) {
+                    console.error('Instagram fallback copy failed:', err);
+                    this.showToast('error', 'Impossibile copiare il link');
+                }
+                return; // Non aprire popup finestra
+            default:
+                console.warn('Network share non supportato:', network);
+                return;
+        }
+
+        const w = 640, h = 540;
+        const left = (screen.width/2)-(w/2);
+        const top = (screen.height/2)-(h/2);
+        window.open(shareUrl, 'shareWindow', `menubar=no,toolbar=no,resizable=yes,scrollbars=yes,width=${w},height=${h},top=${top},left=${left}`);
+
+        // Feedback opzionale
+        if (this.shareState.extra) {
+            this.shareState.extra.style.display = 'block';
+            this.shareState.extra.textContent = 'Finestra di condivisione aperta. Se non vedi nulla controlla i popup bloccati.';
         }
     }
 
