@@ -1110,6 +1110,44 @@ class BachecaManager {
                 this.expandedState.isOpen = false;
                 this.expandedState.currentIndex = -1;
             });
+            // Swipe support (mobile)
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchMoved = false;
+            const threshold = 40; // pixel min per considerare uno swipe
+            const verticalTolerance = 80; // evita conflitti con scroll verticale
+            const content = this.elements.expandedContent;
+            const targetSwipeEl = content || modalEl;
+            targetSwipeEl.addEventListener('touchstart', (e) => {
+                if (!this.expandedState.isOpen) return;
+                if (e.touches.length !== 1) return;
+                touchMoved = false;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            targetSwipeEl.addEventListener('touchmove', (e) => {
+                if (!this.expandedState.isOpen || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - touchStartX;
+                const dy = e.touches[0].clientY - touchStartY;
+                if (Math.abs(dx) > 10) touchMoved = true;
+                // se lo swipe è quasi orizzontale e non stiamo scrollando verticalmente molto
+                if (Math.abs(dx) > Math.abs(dy) * 1.2 && Math.abs(dy) < verticalTolerance) {
+                    // prevenire scroll orizzontale bouncing
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            targetSwipeEl.addEventListener('touchend', (e) => {
+                if (!this.expandedState.isOpen || !touchMoved) return;
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                const dy = e.changedTouches[0].clientY - touchStartY;
+                if (Math.abs(dx) >= threshold && Math.abs(dx) > Math.abs(dy) * 1.1) {
+                    if (dx < 0) {
+                        this.navigateExpanded(1); // swipe left → next
+                    } else {
+                        this.navigateExpanded(-1); // swipe right → prev
+                    }
+                }
+            }, { passive: true });
             modalEl._expandedBound = true;
         }
     }
