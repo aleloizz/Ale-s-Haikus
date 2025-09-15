@@ -53,37 +53,32 @@ body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:
 .btn-haiku.btn-secondary{background:var(--secondary);color:var(--text);border:none}
 body.loading{background:#fbbda3!important}
 
-/* ===== CLS PREVENTION - DESKTOP FIRST ===== */
-/* Fixed card dimensions to prevent layout shift on desktop */
+/* ===== FLEXIBLE LAYOUT (replaces earlier rigid CLS prevention) ===== */
 @media (min-width: 992px) {
-  .card {
-    min-height: 700px;
-    width: 600px;
-    max-width: 600px;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    box-sizing: border-box;
-  }
-  .card-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
+    .card {
+        /* Allow natural height growth while keeping an initial reserved space */
+        min-height: clamp(520px, 60vh, 780px);
+        width: 100%;
+        max-width: 640px; /* a bit wider breathing room */
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 /* Reserve exact space for pattern display */
 #patternDisplay{
-  min-height: 60px;
-  height: 60px;
-  display: flex!important;
-  justify-content: center!important;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  contain: layout style;
+    /* Allow wrapping without forcing fixed height; reserve minimal space */
+    min-height: 50px;
+    display: flex!important;
+    justify-content: center!important;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
 }
 
 /* Fixed badge dimensions */
@@ -104,19 +99,19 @@ body.loading{background:#fbbda3!important}
 
 /* Fixed form select dimensions */
 .form-select-container {
-  height: 140px;
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    /* Let container adapt to content while keeping approximate baseline */
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: .75rem;
 }
 
 /* Textarea fixed height to prevent shift */
 #poemText {
-  min-height: 150px;
-  height: 150px;
-  resize: vertical;
-  contain: layout;
+    min-height: 150px; /* starting comfort */
+    height: auto; /* grow with content */
+    resize: vertical; /* user can still resize if desired */
 }
 
 /* Prevent form fields expansion */
@@ -136,19 +131,16 @@ body.loading{background:#fbbda3!important}
   min-height: 80px;
 }
 
-/* Main fixed dimensions on desktop */
+/* Main area adapts; rely on natural document flow */
 @media (min-width: 992px) {
-  main{
-    min-height: calc(100vh - 350px);
-    height: auto;
-    contain: layout;
-  }
+    main{
+        min-height: calc(100vh - 350px); /* keep approximate above-fold presence */
+    }
 }
 
-/* Result container with fixed positioning */
+/* Result container: allow expansion without inner scrollbars */
 #resultContainer {
-  min-height: 100px;
-  contain: layout style;
+    min-height: 80px;
 }
 
 /* Font display optimizations */
@@ -262,51 +254,7 @@ body {
             }
         </style>
 
-        <!-- CLS Prevention Script - Inline for immediate execution on desktop -->
-        <script>
-        (function(){
-            'use strict';
-            // Esegui solo su desktop
-            if (window.innerWidth < 992) return;
-            function initCLSPrevention() {
-                const card = document.querySelector('.card');
-                if (card) {
-                    card.style.minHeight = '700px';
-                    card.style.width = '600px';
-                    card.style.maxWidth = '600px';
-                    card.style.contain = 'layout style';
-                }
-                const patternDisplay = document.getElementById('patternDisplay');
-                if (patternDisplay) {
-                    patternDisplay.style.height = '60px';
-                    patternDisplay.style.minHeight = '60px';
-                    patternDisplay.style.contain = 'strict';
-                }
-                const formSelectContainer = document.querySelector('.form-select-container');
-                if (formSelectContainer) {
-                    formSelectContainer.style.height = '140px';
-                    formSelectContainer.style.minHeight = '140px';
-                    formSelectContainer.style.contain = 'layout';
-                }
-                const poemText = document.getElementById('poemText');
-                if (poemText) {
-                    poemText.style.height = '150px';
-                    poemText.style.minHeight = '150px';
-                    poemText.style.contain = 'layout';
-                }
-                const main = document.querySelector('main');
-                if (main) {
-                    main.style.minHeight = 'calc(100vh - 320px)';
-                    main.style.contain = 'layout';
-                }
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initCLSPrevention, { once: true });
-            } else {
-                initCLSPrevention();
-            }
-        })();
-        </script>
+        <!-- Removed rigid CLS prevention script; layout now fluid & content-driven -->
 
         
 
