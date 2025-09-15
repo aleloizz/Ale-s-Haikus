@@ -924,9 +924,9 @@ class BachecaManager {
 
     /** Costruisce / aggiorna lista ids visibili */
     buildExpandedIds() {
-        // Limita la raccolta alle card principali per evitare duplicazioni dovute a elementi interni con data-poem-id
-        const wrappers = document.querySelectorAll('.poem-card-wrapper[data-poem-id]');
-        this.expandedState.ids = Array.from(wrappers).map(c => c.getAttribute('data-poem-id'));
+        // Seleziona solo le card principali (non i pulsanti nel dropdown) per evitare duplicazioni
+        const cards = document.querySelectorAll('.poem-card[data-poem-id]');
+        this.expandedState.ids = Array.from(cards).map(c => c.getAttribute('data-poem-id'));
     }
 
     /** Aggiorna contenuto modal sulla base dell'indice */
