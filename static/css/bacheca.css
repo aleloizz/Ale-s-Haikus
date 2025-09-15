@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.67 - miglioramenti per la visualizzazione delle poesie lunghe
+Versione: 3.68 - ottimizzazione pulsanti mobile
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -1266,15 +1266,23 @@ Versione: 3.67 - miglioramenti per la visualizzazione delle poesie lunghe
 .expanded-nav-next { right: -78px; }
 
 @media (max-width: 992px) {
-    .expanded-nav-prev { left: 8px; }
-    .expanded-nav-next { right: 8px; }
-    .expanded-nav-btn { width: 50px; height: 50px; }
+    .expanded-nav-prev { left: 6px; }
+    .expanded-nav-next { right: 6px; }
+    .expanded-nav-btn { width: 48px; height: 48px; }
 }
 
 @media (max-width: 576px) {
-    .expanded-nav-btn { width: 46px; height: 46px; font-size: 1.25rem; }
-    #expandedPoemContent { max-height: 50vh; font-size: 1.05rem; }
-    .expanded-poem-card { padding: 1rem 1rem .75rem; }
+    .expanded-nav-btn {
+        width: 40px; height: 40px; font-size: 1.05rem;
+        top: auto; bottom: 14px; transform: none; /* posiziona in basso per non coprire il testo */
+        backdrop-filter: blur(14px) saturate(180%);
+    }
+    .expanded-nav-prev { left: 14px; }
+    .expanded-nav-next { right: 14px; }
+    #expandedPoemContent { max-height: 54vh; font-size: 1.05rem; }
+    .expanded-poem-card { padding: 0.85rem 0.85rem 3.5rem; position: relative; }
+    /* Spazio di sicurezza per pulsanti in basso */
+    #expandedPoemContent.expanded-open { max-height: 68vh; }
 }
 
 /* Dark mode adjustments */
