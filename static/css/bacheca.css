@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.66 - aggiornamento card poesia espansa + aggiunta logica per scorrimento
+Versione: 3.67 - miglioramenti per la visualizzazione delle poesie lunghe
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -1172,6 +1172,50 @@ Versione: 3.66 - aggiornamento card poesia espansa + aggiunta logica per scorrim
     border-top: 1px solid rgba(255,255,255,0.18);
 }
 
+/* Long poem enhancements */
+#expandedPoemContent .expanded-scroll-inner {
+    position: relative;
+    display: block;
+    padding-bottom: 0.5rem;
+}
+
+#expandedPoemContent .expanded-fade {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(16,16,28,0) 0%, rgba(16,16,28,0.55) 55%, rgba(16,16,28,0.85) 100%);
+    border-radius: 0 0 18px 18px;
+    transition: opacity .35s ease;
+}
+
+#expandedPoemContent.expanded-open {
+    max-height: 70vh;
+}
+#expandedPoemContent.expanded-open .expanded-fade { opacity: 0; }
+
+.expanded-toggle-more {
+    position: relative;
+    z-index: 5;
+    background: rgba(255,255,255,0.18) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.28) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+.expanded-toggle-more:hover { background: rgba(255,255,255,0.30) !important; }
+.expanded-toggle-more i { margin-right: 4px !important; }
+
+@media (prefers-color-scheme: light) {
+    #expandedPoemContent .expanded-fade {
+        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 70%, rgba(255,255,255,0.95) 100%);
+    }
+}
+
+
 .expanded-poem-buttons {
     display: flex;
     gap: .5rem;
@@ -1384,7 +1428,7 @@ Versione: 3.66 - aggiornamento card poesia espansa + aggiunta logica per scorrim
 
 .share-box .wrapper .instagram:hover,
 .share-box .wrapper .instagram:hover .tooltip,
-.share-box .wrapper .instagram:hover .tooltip::before { background:#e4405f; color:#fff; }
+.share-box .wrapper .instagram:hover .tooltip::before { background:linear-gradient(to right,#833ab4,#fd1d1d,#fcb045); color:#fff; }
 
 /* Extra message */
 .share-box #shareExtra { font-size:11px; letter-spacing:.4px; }
