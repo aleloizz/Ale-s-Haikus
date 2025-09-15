@@ -46,6 +46,13 @@ class BachecaManager {
             extra: null,
             closeBtn: null
         };
+
+        // Stato navigazione modal espansa
+        this.expandedState = {
+            ids: [],        // ordered list of visible poem ids
+            currentIndex: -1,
+            isOpen: false
+        };
     }
 
     /**
@@ -313,8 +320,8 @@ class BachecaManager {
                 this.elements.searchText.select();
             }
             
-            // Escape per pulire filtri
-            if (e.key === 'Escape') {
+            // Escape per pulire filtri solo se modal non aperto
+            if (e.key === 'Escape' && !this.expandedState.isOpen) {
                 this.clearFilters();
             }
             
@@ -326,6 +333,17 @@ class BachecaManager {
                 } else if (e.key === 'ArrowRight' && this.currentPage < this.totalPages) {
                     e.preventDefault();
                     this.goToPage(this.currentPage + 1);
+                }
+            }
+
+            // Navigazione poesie dentro modal espansa (senza Ctrl)
+            if (this.expandedState.isOpen && !e.ctrlKey) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    this.navigateExpanded(-1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    this.navigateExpanded(1);
                 }
             }
         });
@@ -888,60 +906,125 @@ class BachecaManager {
      */
     expandPoem(poemId) {
         try {
-            const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
-            if (!poemCard) throw new Error('Poesia non trovata');
-
-            // Estrai dati dalla card
-            const title = poemCard.querySelector('.card-title')?.textContent || 'Poesia';
-            const content = poemCard.querySelector('.poem-text')?.innerHTML || '';
-            const author = poemCard.querySelector('.fw-medium')?.textContent || 'Poeta Anonimo';
-            const type = poemCard.querySelector('.badge-poem-type')?.textContent || 'Libero';
-            const dateElement = poemCard.querySelector('.bi-clock')?.parentElement;
-            const date = dateElement ? dateElement.textContent.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || '' : '';
-            
-            // Popola modal
-            if (this.elements.expandedTitle) {
-                this.elements.expandedTitle.textContent = title;
-            }
-            if (this.elements.expandedContent) {
-                this.elements.expandedContent.innerHTML = content;
-            }
-            if (this.elements.expandedAuthor) {
-                this.elements.expandedAuthor.textContent = author;
-            }
-            if (this.elements.expandedInfo) {
-                this.elements.expandedInfo.innerHTML = `
-                    <i class="bi bi-bookmark me-1"></i>${type}
-                    ${date ? ` • ${date}` : ''}
-                `;
-            }
-            
-            // Setup pulsanti modal
-            if (this.elements.expandedCopyBtn) {
-                this.elements.expandedCopyBtn.onclick = () => this.copyPoemText(poemId);
-            }
-            
-            if (this.elements.expandedLikeBtn) {
-                this.elements.expandedLikeBtn.onclick = () => {
-                    const originalBtn = poemCard.querySelector('.like-btn');
-                    if (originalBtn) {
-                        this.toggleLike(poemId, originalBtn);
-                    }
-                };
-            }
-            
-            // Sincronizza conteggio like
-            const originalLikeCount = poemCard.querySelector('.like-count');
-            if (originalLikeCount && this.elements.expandedLikeCount) {
-                this.elements.expandedLikeCount.textContent = originalLikeCount.textContent;
-            }
-            
-            // Mostra modal
+            // Ricostruisci lista visibile se vuota o DOM cambiato
+            this.buildExpandedIds();
+            const idx = this.expandedState.ids.indexOf(String(poemId));
+            if (idx === -1) throw new Error('Poesia non trovata nella lista visibile');
+            this.expandedState.currentIndex = idx;
+            this.updateExpandedContent(idx, { animate: false });
+            this.updateExpandedNavButtons();
             this.showModal('expandedPoemModal');
-            
+            this.expandedState.isOpen = true;
+            this.bindExpandedModalLifecycle();
         } catch (error) {
             console.error('Errore nell\'espansione poesia:', error);
             this.showToast('error', 'Errore nell\'apertura della poesia');
+        }
+    }
+
+    /** Costruisce / aggiorna lista ids visibili */
+    buildExpandedIds() {
+        const cards = document.querySelectorAll('[data-poem-id]');
+        this.expandedState.ids = Array.from(cards).map(c => c.getAttribute('data-poem-id'));
+    }
+
+    /** Aggiorna contenuto modal sulla base dell'indice */
+    updateExpandedContent(index, { animate = true } = {}) {
+        if (index < 0 || index >= this.expandedState.ids.length) return;
+        const poemId = this.expandedState.ids[index];
+        const poemCard = document.querySelector(`[data-poem-id="${poemId}"]`);
+        if (!poemCard) return;
+
+        const title = poemCard.querySelector('.card-title')?.textContent || 'Poesia';
+        const content = poemCard.querySelector('.poem-text')?.innerHTML || '';
+        const author = poemCard.querySelector('.fw-medium')?.textContent || 'Poeta Anonimo';
+        const type = poemCard.querySelector('.badge-poem-type')?.textContent || 'Libero';
+        const dateElement = poemCard.querySelector('.bi-clock')?.parentElement;
+        const date = dateElement ? dateElement.textContent.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || '' : '';
+
+        if (this.elements.expandedTitle) {
+            this.elements.expandedTitle.textContent = title;
+        }
+        if (this.elements.expandedContent) {
+            if (animate) {
+                this.elements.expandedContent.classList.add('switching');
+                setTimeout(() => {
+                    this.elements.expandedContent.innerHTML = content;
+                    this.elements.expandedContent.classList.remove('switching');
+                    this.elements.expandedContent.classList.add('expanded-switching-enter');
+                    setTimeout(() => this.elements.expandedContent.classList.remove('expanded-switching-enter'), 450);
+                }, 140);
+            } else {
+                this.elements.expandedContent.innerHTML = content;
+            }
+        }
+        if (this.elements.expandedAuthor) {
+            this.elements.expandedAuthor.textContent = author;
+        }
+        if (this.elements.expandedInfo) {
+            this.elements.expandedInfo.innerHTML = `
+                <i class="bi bi-bookmark me-1"></i>${type}
+                ${date ? ` • ${date}` : ''}
+                <span class="ms-2 small">${index + 1}/${this.expandedState.ids.length}</span>
+            `;
+        }
+
+        // Pulsanti copia / like
+        if (this.elements.expandedCopyBtn) {
+            this.elements.expandedCopyBtn.onclick = () => this.copyPoemText(poemId);
+        }
+        if (this.elements.expandedLikeBtn) {
+            this.elements.expandedLikeBtn.onclick = () => {
+                const originalBtn = poemCard.querySelector('.like-btn');
+                if (originalBtn) this.toggleLike(poemId, originalBtn);
+            };
+        }
+
+        // Like count sync
+        const originalLikeCount = poemCard.querySelector('.like-count');
+        if (originalLikeCount && this.elements.expandedLikeCount) {
+            this.elements.expandedLikeCount.textContent = originalLikeCount.textContent;
+        }
+    }
+
+    /** Naviga avanti/indietro */
+    navigateExpanded(direction) {
+        if (!this.expandedState.isOpen) return;
+        const newIndex = this.expandedState.currentIndex + direction;
+        if (newIndex < 0 || newIndex >= this.expandedState.ids.length) return;
+        this.expandedState.currentIndex = newIndex;
+        this.updateExpandedContent(newIndex, { animate: true });
+        this.updateExpandedNavButtons();
+    }
+
+    /** Aggiorna stato pulsanti navigazione */
+    updateExpandedNavButtons() {
+        const prevBtn = document.getElementById('expandedNavPrev');
+        const nextBtn = document.getElementById('expandedNavNext');
+        if (!prevBtn || !nextBtn) return;
+        prevBtn.disabled = this.expandedState.currentIndex <= 0;
+        nextBtn.disabled = this.expandedState.currentIndex >= this.expandedState.ids.length - 1;
+    }
+
+    /** Bind eventi ai pulsanti nav e lifecycle del modal */
+    bindExpandedModalLifecycle() {
+        const prevBtn = document.getElementById('expandedNavPrev');
+        const nextBtn = document.getElementById('expandedNavNext');
+        const modalEl = this.elements.expandedModal;
+        if (prevBtn && !prevBtn._bound) {
+            prevBtn.addEventListener('click', () => this.navigateExpanded(-1));
+            prevBtn._bound = true;
+        }
+        if (nextBtn && !nextBtn._bound) {
+            nextBtn.addEventListener('click', () => this.navigateExpanded(1));
+            nextBtn._bound = true;
+        }
+        if (modalEl && !modalEl._expandedBound) {
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                this.expandedState.isOpen = false;
+                this.expandedState.currentIndex = -1;
+            });
+            modalEl._expandedBound = true;
         }
     }
 
