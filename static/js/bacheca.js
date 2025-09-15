@@ -664,7 +664,7 @@ class BachecaManager {
         if (title) parts.push(title);
         if (cleanText) parts.push(cleanText);
         parts.push(`- ${author}`);
-        if (includeAttribution) parts.push('(da Ale\'s Haikus)');
+        if (includeAttribution) parts.push('(da Ale\'s Haikus - www.aleshaikus.me)');
         if (includePermalink) parts.push(this.getPoemPermalink(poemId));
 
         return parts.join('\n\n');
@@ -937,7 +937,9 @@ class BachecaManager {
         if (!poemCard) return;
 
         const title = poemCard.querySelector('.card-title')?.textContent || 'Poesia';
-        const content = poemCard.querySelector('.poem-text')?.innerHTML || '';
+        let content = poemCard.querySelector('.poem-text')?.innerHTML || '';
+        // Normalizza spazi iniziali causati dall'indentazione del template
+        content = this.sanitizePoemHtml(content);
         const author = poemCard.querySelector('.fw-medium')?.textContent || 'Poeta Anonimo';
         const type = poemCard.querySelector('.badge-poem-type')?.textContent || 'Libero';
         const dateElement = poemCard.querySelector('.bi-clock')?.parentElement;
@@ -988,6 +990,41 @@ class BachecaManager {
         if (originalLikeCount && this.elements.expandedLikeCount) {
             this.elements.expandedLikeCount.textContent = originalLikeCount.textContent;
         }
+    }
+
+    /** Rimuove indentazione artificiale (spazi/tab/newline iniziali) e spazi uniformi di ogni riga derivanti dal template */
+    sanitizePoemHtml(html) {
+        if (!html) return html;
+        // Rimuovi BOM/spazi iniziali
+        let cleaned = html.replace(/^([\s\u00A0]+)/, '');
+        // Suddividi sulle <br> preservando i tag
+        const parts = cleaned.split(/<br\s*\/?>/i);
+        // Calcola indentazione comune (solo spazi/tabs) tra righe non vuote
+        let commonIndent = null;
+        const processed = parts.map(p => {
+            // Sostituisci &nbsp; con spazio per analisi
+            const txt = p.replace(/&nbsp;/g, ' ');
+            const match = txt.match(/^[ \t]+/);
+            if (match && txt.trim().length) {
+                if (commonIndent === null) commonIndent = match[0];
+                else {
+                    // Riduci commonIndent se differisce
+                    let ci = commonIndent;
+                    while (ci && !match[0].startsWith(ci)) {
+                        ci = ci.slice(0, -1);
+                    }
+                    commonIndent = ci;
+                }
+            }
+            return p;
+        });
+        if (commonIndent && commonIndent.length > 1) {
+            cleaned = processed.map(p => p.replace(new RegExp('^' + commonIndent.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')), '')).join('<br>');
+        } else {
+            cleaned = processed.join('<br>');
+        }
+        // Trim finale soft
+        return cleaned.replace(/^(\s|&nbsp;)+/, '');
     }
 
     /** Post-processing del contenuto lungo: aggiunge gradient fade e pulsante toggle se necessario */
