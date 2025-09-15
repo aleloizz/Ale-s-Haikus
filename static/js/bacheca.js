@@ -924,8 +924,9 @@ class BachecaManager {
 
     /** Costruisce / aggiorna lista ids visibili */
     buildExpandedIds() {
-        const cards = document.querySelectorAll('[data-poem-id]');
-        this.expandedState.ids = Array.from(cards).map(c => c.getAttribute('data-poem-id'));
+        // Limita la raccolta alle card principali per evitare duplicazioni dovute a elementi interni con data-poem-id
+        const wrappers = document.querySelectorAll('.poem-card-wrapper[data-poem-id]');
+        this.expandedState.ids = Array.from(wrappers).map(c => c.getAttribute('data-poem-id'));
     }
 
     /** Aggiorna contenuto modal sulla base dell'indice */
@@ -950,12 +951,14 @@ class BachecaManager {
                 this.elements.expandedContent.classList.add('switching');
                 setTimeout(() => {
                     this.elements.expandedContent.innerHTML = content;
+                    this.postProcessExpandedContent();
                     this.elements.expandedContent.classList.remove('switching');
                     this.elements.expandedContent.classList.add('expanded-switching-enter');
                     setTimeout(() => this.elements.expandedContent.classList.remove('expanded-switching-enter'), 450);
                 }, 140);
             } else {
                 this.elements.expandedContent.innerHTML = content;
+                this.postProcessExpandedContent();
             }
         }
         if (this.elements.expandedAuthor) {
@@ -984,6 +987,52 @@ class BachecaManager {
         const originalLikeCount = poemCard.querySelector('.like-count');
         if (originalLikeCount && this.elements.expandedLikeCount) {
             this.elements.expandedLikeCount.textContent = originalLikeCount.textContent;
+        }
+    }
+
+    /** Post-processing del contenuto lungo: aggiunge gradient fade e pulsante toggle se necessario */
+    postProcessExpandedContent() {
+        const container = this.elements.expandedContent;
+        if (!container) return;
+        // Rimuovi eventuali wrapper precedenti
+        const existingWrapper = container.querySelector('.expanded-scroll-inner');
+        if (existingWrapper) return; // già processato per questa poesia
+
+        // Se il contenuto è molto lungo, incapsula
+        if (container.scrollHeight > container.clientHeight * 1.15) {
+            const html = container.innerHTML;
+            container.innerHTML = '';
+            const inner = document.createElement('div');
+            inner.className = 'expanded-scroll-inner';
+            inner.innerHTML = html;
+            container.appendChild(inner);
+
+            const fade = document.createElement('div');
+            fade.className = 'expanded-fade';
+            container.appendChild(fade);
+
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'btn btn-haiku btn-sm expanded-toggle-more';
+            toggle.innerHTML = '<i class="bi bi-arrows-expand"></i> Leggi tutto';
+            toggle.addEventListener('click', () => {
+                container.classList.toggle('expanded-open');
+                const open = container.classList.contains('expanded-open');
+                toggle.innerHTML = open
+                    ? '<i class="bi bi-arrows-collapse"></i> Riduci'
+                    : '<i class="bi bi-arrows-expand"></i> Leggi tutto';
+                if (open) {
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+            // Inserisci il toggle dopo il container (nel layout actions rimane richiesto separato?) -> qui lo mettiamo in fondo al container
+            const parentActions = container.parentElement?.querySelector('.expanded-poem-actions');
+            if (parentActions) {
+                // Inserisci prima dei pulsanti esistenti
+                parentActions.insertBefore(toggle, parentActions.firstChild);
+            } else {
+                container.appendChild(toggle);
+            }
         }
     }
 
