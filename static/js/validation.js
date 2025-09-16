@@ -85,19 +85,39 @@ function renderIssues(issues){
   if (!issues.length) { container.style.display='none'; return; }
   container.style.display='block';
 
-  // Prioritize: errors (none yet), then warnings, then info
   const sorted = issues.sort((a,b)=> severityRank(a.severity)-severityRank(b.severity));
   const top = sorted.slice(0,4);
   const frag = document.createDocumentFragment();
 
+  let hasError = false;
   top.forEach(issue => {
     const div = document.createElement('div');
     div.className = `validation-msg validation-${issue.severity}`;
     div.setAttribute('data-code', issue.code);
-    div.innerHTML = `<span class="val-icon">${iconFor(issue.severity)}</span> <span>${issue.message}</span>`;
+    div.innerHTML = `<span class=\"val-icon\">${iconFor(issue.severity)}</span> <span>${issue.message}</span>`;
     frag.appendChild(div);
+    if (issue.severity === 'error') hasError = true;
   });
   container.appendChild(frag);
+
+  // Error toast only (no warnings)
+  if (hasError) {
+    triggerErrorToast(top.filter(i=>i.severity==='error')[0]);
+  }
+}
+
+function triggerErrorToast(issue){
+  const toastEl = document.getElementById('errorToast');
+  const msgEl = document.getElementById('errorToastMessage');
+  if (!toastEl || !msgEl) return;
+  msgEl.textContent = issue.message;
+  // Mostra toast se bootstrap è disponibile (lazy load safe)
+  const show = () => {
+    try { new bootstrap.Toast(toastEl).show(); } catch(e) { /* silent */ }
+  };
+  if (window.bootstrap && window.bootstrap.Toast) show(); else {
+    let tries = 0; const iv = setInterval(()=>{ if (window.bootstrap && window.bootstrap.Toast){ clearInterval(iv); show(); } else if(++tries>20){ clearInterval(iv);} },100);
+  }
 }
 
 function severityRank(sev){

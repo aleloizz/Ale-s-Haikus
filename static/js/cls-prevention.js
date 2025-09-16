@@ -1,7 +1,7 @@
 /**
  * @fileoverview Pre-inizializzazione immediata per prevenire CLS su desktop
  * Questo script deve essere eseguito inline per evitare layout shift
- * @author Poetry Analyzer App
+ * 
  */
 
 (function() {

@@ -6,6 +6,7 @@
 import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js';
 import { saveSelectionState, restoreSelectionState } from './storage.js';
 import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
+import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js';
 /**
  * @fileoverview Entry point principale per l'applicazione di analisi poetica
  * Version tracking & cache busting:
@@ -14,7 +15,7 @@ import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from '
  */
 
 // Increment this to force a new network fetch (mirrors ?v= query in index.html)
-export const APP_VERSION = '1.3.1';
+export const APP_VERSION = '1.3.2';
 import { handlePublishToggle } from './publish.js';
 import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
     console.log(`🚀 Inizializzazione app.js modulare v${APP_VERSION}`);
@@ -164,17 +165,25 @@ function setupEventListeners(elements) {
         copyBtn.addEventListener('click', async () => {
             const textVal = poemText.value || '';
             const trimmed = textVal.trim();
-            // Guard immediata per vuoto: mostra solo messaggi senza tentare copy
+            // REQUIREMENT: mostrare anche toast di errore quando l'utente prova a copiare testo vuoto.
             if (!trimmed) {
-                const emptyIssues = validateCurrentInput({
+                let emptyIssues = validateCurrentInput({
                     text: textVal,
                     poemType: poemTypeSelect?.value,
                     action: 'copy',
                     publishChecked: publishCheckbox?.checked,
                     authorValue: document.getElementById('poemAuthor')?.value || ''
-                });
-                renderIssues(emptyIssues.filter(i=>i.code!=='PUBLISH_NO_AUTHOR_ASSIGNED'));
-                return; // STOP: nessun fallback, niente alert
+                }).filter(i => i.code !== 'PUBLISH_NO_AUTHOR_ASSIGNED');
+                // Aggiunge issue sintetica di tipo error per attivare il toast (senza toccare il catalogo MESSAGES)
+                const alreadyHasError = emptyIssues.some(i => i.severity === 'error');
+                if (!alreadyHasError) {
+                    emptyIssues = [
+                        ...emptyIssues,
+                        { code: 'COPY_EMPTY_ERROR', severity: 'error', message: 'Nulla da copiare: inserisci prima qualche verso.', blockingActions:{ copy:true } }
+                    ];
+                }
+                renderIssues(emptyIssues);
+                return; // STOP: nessun tentativo di copia
             }
             const issues = validateCurrentInput({
                 text: textVal,
