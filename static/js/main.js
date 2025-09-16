@@ -153,8 +153,9 @@ function setupEventListeners(elements) {
     // Event listener per bottone copia
     if (copyBtn && poemText) {
         copyBtn.addEventListener('click', async () => {
+            const textVal = poemText.value || '';
             const issues = validateCurrentInput({
-                text: poemText.value,
+                text: textVal,
                 poemType: poemTypeSelect?.value,
                 action: 'copy',
                 publishChecked: publishCheckbox?.checked,
@@ -162,13 +163,22 @@ function setupEventListeners(elements) {
             });
             const blocks = getBlockingStatus(issues);
             renderIssues(issues.filter(i=>i.code!=='PUBLISH_NO_AUTHOR_ASSIGNED'));
+            // Se blocca la copia (vuoto o whitespace) non tentare clipboard (evita fallback alert su Firefox nightly)
             if (blocks.copy) return;
-            const success = await copyToClipboard(poemText.value);
+            // Evita copia se già trimmed vuoto per robustezza doppia
+            if (!textVal.trim()) return;
+            const success = await copyToClipboard(textVal);
             if (success) {
                 vibrate(7);
                 showBootstrapToast('copyToast');
             } else {
-                alert('Copia non supportata su questo dispositivo. Seleziona e copia manualmente.');
+                // Se fallisce ma testo non vuoto, mostra avviso una sola volta
+                if (!document.getElementById('validationMessages')?.querySelector('[data-code="COPY_FALLBACK"]')) {
+                    renderIssues([
+                        ...issues,
+                        { code:'COPY_FALLBACK', severity:'info', message:'Copia non supportata: seleziona e copia manualmente.', blockingActions:{} }
+                    ]);
+                }
             }
         });
     }
