@@ -8,6 +8,7 @@ import { saveSelectionState, restoreSelectionState } from './storage.js';
 import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
 import { handlePublishToggle } from './publish.js';
 import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
+import { validateCurrentInput, getBlockingStatus, renderIssues, attachValidationHandlers, markAnalysisCompleted } from './validation.js';
 
 // Variabile di stato per il ripristino
 let isRestoringState = false;
@@ -152,8 +153,17 @@ function setupEventListeners(elements) {
     // Event listener per bottone copia
     if (copyBtn && poemText) {
         copyBtn.addEventListener('click', async () => {
+            const issues = validateCurrentInput({
+                text: poemText.value,
+                poemType: poemTypeSelect?.value,
+                action: 'copy',
+                publishChecked: publishCheckbox?.checked,
+                authorValue: document.getElementById('poemAuthor')?.value || ''
+            });
+            const blocks = getBlockingStatus(issues);
+            renderIssues(issues.filter(i=>i.code!=='PUBLISH_NO_AUTHOR_ASSIGNED'));
+            if (blocks.copy) return;
             const success = await copyToClipboard(poemText.value);
-            
             if (success) {
                 vibrate(7);
                 showBootstrapToast('copyToast');
@@ -180,10 +190,13 @@ function setupEventListeners(elements) {
  * @param {Object} elements - Elementi DOM
  */
 function initializeApplication(elements) {
-    const { poemNation, poemTypeSelect, patternDisplay } = elements;
+    const { poemNation, poemTypeSelect, patternDisplay, poemText, publishCheckbox } = elements;
     
     console.log('🔧 Inizializzazione applicazione');
     
+    // Attach validation handlers early
+    attachValidationHandlers(elements);
+
     // Impostazioni iniziali basate sullo stato attuale del DOM (non sovrascrivere scelte utente)
     const currentNation = poemNation.value || 'giapponesi';
     const updateCallback = (type) => updatePatternDisplay(type, patternDisplay);
@@ -231,7 +244,20 @@ window.PoetryApp = {
     restoreState: restoreSelectionState,
     showResults,
     poemTypes,
-    isRestoringState: () => isRestoringState
+    isRestoringState: () => isRestoringState,
+    validate: (action='manual') => {
+        const els = getDOMElements();
+        const issues = validateCurrentInput({
+            text: els.poemText?.value || '',
+            poemType: els.poemTypeSelect?.value,
+            action,
+            publishChecked: els.publishCheckbox?.checked,
+            authorValue: document.getElementById('poemAuthor')?.value || ''
+        });
+        renderIssues(issues);
+        return issues;
+    },
+    markAnalysisCompleted
 };
 
 console.log('📚 Poetry Analyzer App - Versione modulare caricata');
