@@ -6,6 +6,7 @@
 import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations } from './utils.js';
 import { patterns, requiresRhymeAnalysis } from './patterns.js';
 import { publishPoem } from './publish.js';
+import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted } from './validation.js';
 
 /**
  * Gestisce la sottomissione del form di analisi poetica
@@ -35,6 +36,22 @@ export async function handleFormSubmit(e, elements) {
     submitBtn.innerHTML = loadingText;
     
     try {
+        // Validazione pre-submit
+        const issues = validateCurrentInput({
+            text: poemText.value,
+            poemType: poemTypeSelect?.value,
+            action: 'analyze',
+            publishChecked: publishCheckbox?.checked,
+            authorValue: document.getElementById('poemAuthor')?.value || ''
+        });
+        const blocks = getBlockingStatus(issues);
+        renderIssues(issues);
+        if (blocks.analyze) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            return;
+        }
+
         const sanitizedText = sanitizeInput(poemText.value);
         const useTolerance = document.getElementById('useTolerance')?.checked || false;
         
@@ -60,16 +77,19 @@ export async function handleFormSubmit(e, elements) {
             );
         }
         
-        const data = await response.json();
-        showResults(data);
+    const data = await response.json();
+    showResults(data);
+    markAnalysisCompleted(poemText.value);
         
         // Se deve pubblicare e l'analisi è completata (anche se non valida)
         if (shouldPublish && !data.error) {
+            const rawAuthor = document.getElementById('poemAuthor')?.value || '';
+            const author = rawAuthor.trim() || 'Poeta Anonimo';
             await publishPoem({
                 text: sanitizedText,
                 poem_type: poemTypeSelect.value,
                 title: document.getElementById('poemTitle')?.value.trim() || '',
-                author: document.getElementById('poemAuthor')?.value.trim() || 'Poeta Anonimo'
+                author
             }, data.valid);
         }
         

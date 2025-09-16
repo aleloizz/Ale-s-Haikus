@@ -94,8 +94,6 @@ body.loading{background:#fbbda3!important}
     border-radius:16px;
     white-space:nowrap;
     max-width:100%;
-    background:var(--primary, #D4B8FF);
-    color:#333;
 }
 
 /* Fixed form select dimensions */
@@ -358,7 +356,7 @@ body {
                                                     <input type="text" class="form-control" id="poemTitle" placeholder="Titolo (opzionale)" maxlength="100">
                                                 </div>
                                                 <div class="col-md-6 mb-2">
-                                                    <input type="text" class="form-control" id="poemAuthor" placeholder="Il tuo nome (opzionale)" maxlength="50" value="Poeta Anonimo">
+                                                    <input type="text" class="form-control" id="poemAuthor" placeholder="Il tuo nome (opzionale)" maxlength="50">
                                                 </div>
                                             </div>
                                         </div>
@@ -381,6 +379,7 @@ body {
                                             
                                         </div>
 
+                                        <div id="validationMessages" class="mb-3" aria-live="polite" aria-atomic="true"></div>
                                         <!-- Aggiorna i pulsanti -->
                                         <div class="d-grid gap-2 d-md-flex justify-content-md-between">
                                             <div class="d-flex flex-column gap-2">
