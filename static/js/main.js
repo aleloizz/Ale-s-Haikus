@@ -6,11 +6,20 @@
 import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js';
 import { saveSelectionState, restoreSelectionState } from './storage.js';
 import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
+/**
+ * @fileoverview Entry point principale per l'applicazione di analisi poetica
+ * Version tracking & cache busting:
+ *   Increment APP_VERSION when making changes requiring clients to refetch.
+ *   Last update: 2025-09-16
+ */
+
+// Increment this to force a new network fetch (mirrors ?v= query in index.html)
+export const APP_VERSION = '1.3.1';
 import { handlePublishToggle } from './publish.js';
 import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
-import { validateCurrentInput, getBlockingStatus, renderIssues, attachValidationHandlers, markAnalysisCompleted } from './validation.js';
+    console.log(`🚀 Inizializzazione app.js modulare v${APP_VERSION}`);
 
-// Variabile di stato per il ripristino
+console.log(`📚 Poetry Analyzer App - Versione modulare caricata (v${APP_VERSION})`);
 let isRestoringState = false;
 
 /**
@@ -154,6 +163,19 @@ function setupEventListeners(elements) {
     if (copyBtn && poemText) {
         copyBtn.addEventListener('click', async () => {
             const textVal = poemText.value || '';
+            const trimmed = textVal.trim();
+            // Guard immediata per vuoto: mostra solo messaggi senza tentare copy
+            if (!trimmed) {
+                const emptyIssues = validateCurrentInput({
+                    text: textVal,
+                    poemType: poemTypeSelect?.value,
+                    action: 'copy',
+                    publishChecked: publishCheckbox?.checked,
+                    authorValue: document.getElementById('poemAuthor')?.value || ''
+                });
+                renderIssues(emptyIssues.filter(i=>i.code!=='PUBLISH_NO_AUTHOR_ASSIGNED'));
+                return; // STOP: nessun fallback, niente alert
+            }
             const issues = validateCurrentInput({
                 text: textVal,
                 poemType: poemTypeSelect?.value,
@@ -161,19 +183,16 @@ function setupEventListeners(elements) {
                 publishChecked: publishCheckbox?.checked,
                 authorValue: document.getElementById('poemAuthor')?.value || ''
             });
-            const blocks = getBlockingStatus(issues);
             renderIssues(issues.filter(i=>i.code!=='PUBLISH_NO_AUTHOR_ASSIGNED'));
-            // Se blocca la copia (vuoto o whitespace) non tentare clipboard (evita fallback alert su Firefox nightly)
-            if (blocks.copy) return;
-            // Evita copia se già trimmed vuoto per robustezza doppia
-            if (!textVal.trim()) return;
             const success = await copyToClipboard(textVal);
             if (success) {
                 vibrate(7);
                 showBootstrapToast('copyToast');
             } else {
-                // Se fallisce ma testo non vuoto, mostra avviso una sola volta
-                if (!document.getElementById('validationMessages')?.querySelector('[data-code="COPY_FALLBACK"]')) {
+                // Nessun alert: solo messaggio informativo
+                const container = document.getElementById('validationMessages');
+                const existing = container?.querySelector('[data-code="COPY_FALLBACK"]');
+                if (!existing) {
                     renderIssues([
                         ...issues,
                         { code:'COPY_FALLBACK', severity:'info', message:'Copia non supportata: seleziona e copia manualmente.', blockingActions:{} }
