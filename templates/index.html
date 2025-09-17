@@ -542,7 +542,7 @@ body {
                                 if (appLoaded) return;
                                 appLoaded = true;
                                 // Cache bust: keep in sync with APP_VERSION inside main.js
-                                return import("{{ url_for('static', filename='js/main.js') }}?v=1.3.2");
+                                return import("{{ url_for('static', filename='js/main.js') }}?v=1.3.3");
                             };
                             // Carica non appena il DOM è pronto (non blocca LCP e assicura i listener)
                             if (document.readyState === 'loading') {
