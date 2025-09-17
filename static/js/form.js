@@ -6,7 +6,7 @@
 import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations } from './utils.js';
 import { patterns, requiresRhymeAnalysis } from './patterns.js';
 import { publishPoem } from './publish.js';
-import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted } from './validation.js?v=1.3.5';
+import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError } from './validation.js?v=1.3.6';
 
 /**
  * Gestisce la sottomissione del form di analisi poetica
@@ -100,21 +100,9 @@ export async function handleFormSubmit(e, elements) {
         
     } catch (error) {
         console.error('Error:', error);
-        let msg = 'Errore inatteso durante l\'analisi';
-        let code = 'SERVER_ERROR_RUNTIME';
-        const rawMessage = (error && error.message) ? error.message : '';
-
-        // Mapping specifico
-        if (rawMessage === 'OFFLINE_CLIENT') {
-            code = 'NETWORK_OFFLINE';
-            msg = 'Sei offline: controlla la connessione e riprova.';
-        } else if (/Failed to fetch|NetworkError|TypeError/i.test(rawMessage)) {
-            code = 'NETWORK_ERROR';
-            msg = 'Problema di rete o server non raggiungibile.';
-        }
-
-        renderIssues([{ code, severity:'error', message: msg, blockingActions:{ analyze:true } }]);
-        showResults({ error: true, message: msg });
+        const issue = classifyError(error);
+        renderIssues([ issue ]);
+        showResults({ error: true, message: issue.message });
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
