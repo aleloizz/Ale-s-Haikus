@@ -14,7 +14,7 @@ import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValida
  */
 
 // Increment this to force a new network fetch (mirrors ?v= query in index.html)
-export const APP_VERSION = '1.3.2';
+export const APP_VERSION = '1.3.3';
 import { handlePublishToggle } from './publish.js';
 import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
     console.log(`🚀 Inizializzazione app.js modulare v${APP_VERSION}`);
@@ -172,8 +172,9 @@ function setupEventListeners(elements) {
                     action: 'copy',
                     publishChecked: publishCheckbox?.checked,
                     authorValue: document.getElementById('poemAuthor')?.value || ''
-                }).filter(i => i.code !== 'PUBLISH_NO_AUTHOR_ASSIGNED');
-                // Aggiunge issue sintetica di tipo error per attivare il toast (senza toccare il catalogo MESSAGES)
+                })
+                // Filtra warning ridondanti collegati al vuoto (non servono se mostriamo il toast)
+                .filter(i => !['PUBLISH_NO_AUTHOR_ASSIGNED','INPUT_EMPTY','COPY_EMPTY'].includes(i.code));
                 const alreadyHasError = emptyIssues.some(i => i.severity === 'error');
                 if (!alreadyHasError) {
                     emptyIssues = [
