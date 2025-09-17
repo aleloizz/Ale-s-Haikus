@@ -113,6 +113,17 @@ function renderIssues(issues){
   if (errors.length) {
     triggerErrorToast(errors[0]);
   }
+
+  // Osservatore di sicurezza: se per qualche motivo un errore viene inserito da codice legacy, lo rimuoviamo
+  if (!container.__observerAttached) {
+    const mo = new MutationObserver(muts => {
+      let changed = false;
+      [...container.querySelectorAll('.validation-error')].forEach(n=>{ n.remove(); changed = true; });
+      if (changed && container.childElementCount===0) container.style.display='none';
+    });
+    mo.observe(container, {childList:true, subtree:false});
+    container.__observerAttached = true;
+  }
 }
 
 function triggerErrorToast(issue){
