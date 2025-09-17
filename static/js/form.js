@@ -36,6 +36,10 @@ export async function handleFormSubmit(e, elements) {
     submitBtn.innerHTML = loadingText;
     
     try {
+        // Controllo offline immediato
+        if (typeof navigator !== 'undefined' && navigator && navigator.onLine === false) {
+            throw new Error('OFFLINE_CLIENT');
+        }
         // Validazione pre-submit
         const issues = validateCurrentInput({
             text: poemText.value,
@@ -96,12 +100,21 @@ export async function handleFormSubmit(e, elements) {
         
     } catch (error) {
         console.error('Error:', error);
-    // Forza issue di tipo error per attivare solo il toast (inline list mostra solo warning/info)
-    renderIssues([{ code:'SERVER_ERROR_RUNTIME', severity:'error', message: error.message || 'Errore inatteso durante l\'analisi', blockingActions:{ analyze:true } }]);
-        showResults({
-            error: true,
-            message: error.message
-        });
+        let msg = 'Errore inatteso durante l\'analisi';
+        let code = 'SERVER_ERROR_RUNTIME';
+        const rawMessage = (error && error.message) ? error.message : '';
+
+        // Mapping specifico
+        if (rawMessage === 'OFFLINE_CLIENT') {
+            code = 'NETWORK_OFFLINE';
+            msg = 'Sei offline: controlla la connessione e riprova.';
+        } else if (/Failed to fetch|NetworkError|TypeError/i.test(rawMessage)) {
+            code = 'NETWORK_ERROR';
+            msg = 'Problema di rete o server non raggiungibile.';
+        }
+
+        renderIssues([{ code, severity:'error', message: msg, blockingActions:{ analyze:true } }]);
+        showResults({ error: true, message: msg });
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
