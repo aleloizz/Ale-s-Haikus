@@ -1,5 +1,5 @@
 /* Validation and feedback module for index page
-versione 1.3.4 */
+versione 1.3.6 */
 
 const MESSAGES = {
   INPUT_EMPTY: { text: 'Inserisci almeno un verso prima di continuare.', blocks:{analyze:true, copy:true, publish:true}, severity:'warning' },
@@ -12,7 +12,10 @@ const MESSAGES = {
   FREE_VERSE_PATTERN_NOTE: { text: 'Versi liberi: nessun vincolo metrico classico.', blocks:{}, severity:'info' },
   COPY_EMPTY: { text: 'Nulla da copiare: scrivi prima la poesia.', blocks:{copy:true}, severity:'warning' },
   PUBLISH_NO_TEXT: { text: 'Non puoi pubblicare una poesia vuota.', blocks:{publish:true, analyze:true}, severity:'warning' },
-  PUBLISH_NO_AUTHOR_ASSIGNED: { text: 'Autore vuoto: userò “Poeta Anonimo”.', blocks:{}, severity:'info' }
+  PUBLISH_NO_AUTHOR_ASSIGNED: { text: 'Autore vuoto: userò “Poeta Anonimo”.', blocks:{}, severity:'info' },
+  NETWORK_OFFLINE: { text: 'Sei offline: controlla la connessione e riprova.', blocks:{ analyze:true, publish:true, copy:true }, severity:'error' },
+  NETWORK_ERROR: { text: 'Problema di rete o server non raggiungibile.', blocks:{ analyze:true, publish:true }, severity:'error' },
+  SERVER_ERROR_RUNTIME: { text: 'Errore inatteso durante l\'analisi.', blocks:{ analyze:true }, severity:'error' }
 };
 
 let state = {
@@ -39,6 +42,15 @@ function noteInputChanged(){
 function makeIssue(code){
   const def = MESSAGES[code];
   return { code, severity: def.severity, message: def.text, blockingActions: def.blocks };
+}
+
+function classifyError(error){
+  const rawMessage = (error && error.message) ? error.message : '';
+  if (rawMessage === 'OFFLINE_CLIENT') return makeIssue('NETWORK_OFFLINE');
+  if (/Failed to fetch|NetworkError|TypeError: Failed to fetch/i.test(rawMessage)) return makeIssue('NETWORK_ERROR');
+  if (rawMessage === 'NETWORK_ERROR') return makeIssue('NETWORK_ERROR');
+  if (rawMessage === 'NETWORK_OFFLINE') return makeIssue('NETWORK_OFFLINE');
+  return makeIssue('SERVER_ERROR_RUNTIME');
 }
 
 function validateCurrentInput(ctx){
@@ -135,8 +147,27 @@ function triggerErrorToast(issue){
   const show = () => {
     try { new bootstrap.Toast(toastEl).show(); } catch(e) { /* silent */ }
   };
-  if (window.bootstrap && window.bootstrap.Toast) show(); else {
-    let tries = 0; const iv = setInterval(()=>{ if (window.bootstrap && window.bootstrap.Toast){ clearInterval(iv); show(); } else if(++tries>20){ clearInterval(iv);} },100);
+  if (window.bootstrap && window.bootstrap.Toast) {
+    show();
+  } else {
+    let tries = 0;
+    const iv = setInterval(()=>{
+      if (window.bootstrap && window.bootstrap.Toast){
+        clearInterval(iv); show();
+      } else if(++tries>20){
+        clearInterval(iv);
+        // Fallback manuale: mostra il div come toast minimale
+        toastEl.classList.add('show');
+        toastEl.style.opacity = '1';
+        // Auto-hide dopo delay configurato (5000ms di default data-bs-delay)
+        const delayAttr = toastEl.getAttribute('data-bs-delay');
+        const delay = delayAttr ? parseInt(delayAttr,10) : 5000;
+        setTimeout(()=>{
+          toastEl.classList.remove('show');
+          toastEl.style.opacity = '0';
+        }, delay);
+      }
+    },100);
   }
 }
 
@@ -175,5 +206,6 @@ export {
   renderIssues,
   markAnalysisCompleted,
   noteInputChanged,
-  attachValidationHandlers
+  attachValidationHandlers,
+  classifyError
 };
