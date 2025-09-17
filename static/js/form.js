@@ -6,7 +6,7 @@
 import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations } from './utils.js';
 import { patterns, requiresRhymeAnalysis } from './patterns.js';
 import { publishPoem } from './publish.js';
-import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError } from './validation.js?v=1.3.6';
+import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError } from './validation.js?v=1.3.7';
 
 /**
  * Gestisce la sottomissione del form di analisi poetica

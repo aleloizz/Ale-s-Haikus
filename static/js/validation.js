@@ -1,5 +1,5 @@
 /* Validation and feedback module for index page
-versione 1.3.6 */
+versione 1.3.7 */
 
 const MESSAGES = {
   INPUT_EMPTY: { text: 'Inserisci almeno un verso prima di continuare.', blocks:{analyze:true, copy:true, publish:true}, severity:'warning' },
@@ -151,10 +151,12 @@ function triggerErrorToast(issue){
     show();
   } else {
     let tries = 0;
+    // Riduciamo la latenza del fallback: prima era 20 tentativi (~2s), ora ~800ms
+    const maxTries = 8;
     const iv = setInterval(()=>{
       if (window.bootstrap && window.bootstrap.Toast){
         clearInterval(iv); show();
-      } else if(++tries>20){
+      } else if(++tries>maxTries){
         clearInterval(iv);
         // Fallback manuale: mostra il div come toast minimale
         toastEl.classList.add('show');
@@ -207,5 +209,6 @@ export {
   markAnalysisCompleted,
   noteInputChanged,
   attachValidationHandlers,
-  classifyError
+  classifyError,
+  triggerErrorToast
 };
