@@ -535,7 +535,7 @@ body {
             <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}?v=1.2">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}?v=1.2">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}?v=1.2">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/validation.js') }}?v=1.3.4">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/validation.js') }}?v=1.3.5">
                         <!-- JavaScript modulare: importa su DOMContentLoaded (con guardia singola), con fallback su prima interazione -->
                         <script type="module">
                             let appLoaded = false;
@@ -543,7 +543,7 @@ body {
                                 if (appLoaded) return;
                                 appLoaded = true;
                                 // Cache bust: keep in sync with APP_VERSION inside main.js
-                                return import("{{ url_for('static', filename='js/main.js') }}?v=1.3.4");
+                                return import("{{ url_for('static', filename='js/main.js') }}?v=1.3.5");
                             };
                             // Carica non appena il DOM è pronto (non blocca LCP e assicura i listener)
                             if (document.readyState === 'loading') {

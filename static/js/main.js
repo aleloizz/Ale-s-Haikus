@@ -6,7 +6,7 @@
 import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js';
 import { saveSelectionState, restoreSelectionState } from './storage.js';
 import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
-import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js';
+import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js?v=1.3.5';
 /**
  * @fileoverview Entry point principale per l'applicazione di analisi poetica
  * Version tracking & cache busting:
@@ -14,7 +14,7 @@ import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValida
  */
 
 // Increment this to force a new network fetch (mirrors ?v= query in index.html)
-export const APP_VERSION = '1.3.4';
+export const APP_VERSION = '1.3.5';
 import { handlePublishToggle } from './publish.js';
 import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js';
     console.log(`🚀 Inizializzazione app.js modulare v${APP_VERSION}`);

@@ -6,7 +6,7 @@
 import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations } from './utils.js';
 import { patterns, requiresRhymeAnalysis } from './patterns.js';
 import { publishPoem } from './publish.js';
-import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted } from './validation.js'; // (cache bust handled via main.js entrypoint)
+import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted } from './validation.js?v=1.3.5';
 
 /**
  * Gestisce la sottomissione del form di analisi poetica
@@ -44,8 +44,9 @@ export async function handleFormSubmit(e, elements) {
             publishChecked: publishCheckbox?.checked,
             authorValue: document.getElementById('poemAuthor')?.value || ''
         });
-        const blocks = getBlockingStatus(issues);
-        renderIssues(issues);
+    const blocks = getBlockingStatus(issues);
+    // Mostra solo warning/info inline; errori andranno solo nel toast
+    renderIssues(issues.filter(i=> i.severity !== 'error'));
         if (blocks.analyze) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
