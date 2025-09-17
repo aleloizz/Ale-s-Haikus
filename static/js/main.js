@@ -11,7 +11,6 @@ import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValida
  * @fileoverview Entry point principale per l'applicazione di analisi poetica
  * Version tracking & cache busting:
  *   Increment APP_VERSION when making changes requiring clients to refetch.
- *   Last update: 2025-09-16
  */
 
 // Increment this to force a new network fetch (mirrors ?v= query in index.html)
@@ -99,7 +98,7 @@ function setupEventListeners(elements) {
     if (poemTypeSelect) {
         poemTypeSelect.addEventListener('change', () => {
             const selectedType = poemTypeSelect.value;
-            console.log('🎛️ Cambio tipo poesia a:', selectedType);
+            console.log('Cambio tipo poesia a:', selectedType);
             
             updatePatternDisplay(selectedType, patternDisplay);
             
