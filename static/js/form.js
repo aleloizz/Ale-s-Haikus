@@ -95,8 +95,8 @@ export async function handleFormSubmit(e, elements) {
         
     } catch (error) {
         console.error('Error:', error);
-        // Forza issue di tipo error per attivare toast se non già presente
-        renderIssues([{ code:'SERVER_ERROR_RUNTIME', severity:'error', message: error.message || 'Errore inatteso durante l\'analisi', blockingActions:{ analyze:true } }]);
+    // Forza issue di tipo error per attivare solo il toast (inline list mostra solo warning/info)
+    renderIssues([{ code:'SERVER_ERROR_RUNTIME', severity:'error', message: error.message || 'Errore inatteso durante l\'analisi', blockingActions:{ analyze:true } }]);
         showResults({
             error: true,
             message: error.message

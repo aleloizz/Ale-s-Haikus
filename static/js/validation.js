@@ -1,4 +1,5 @@
-/* Validation and feedback module for index page */
+/* Validation and feedback module for index page
+versione 1.3.4 */
 
 const MESSAGES = {
   INPUT_EMPTY: { text: 'Inserisci almeno un verso prima di continuare.', blocks:{analyze:true, copy:true, publish:true}, severity:'warning' },
@@ -81,11 +82,15 @@ function getBlockingStatus(issues){
 function renderIssues(issues){
   const container = document.getElementById('validationMessages');
   if (!container) return;
+  // Failsafe: se vecchi nodi error residui, pulisci
   container.innerHTML = '';
 
   // Separa errori da warning/info: errori non vanno più nel container
   const errors = issues.filter(i=> i.severity === 'error');
-  const nonErrors = issues.filter(i=> i.severity !== 'error');
+  let nonErrors = issues.filter(i=> i.severity !== 'error');
+  // Deduplica per code (mantieni il primo occorrente)
+  const seen = new Set();
+  nonErrors = nonErrors.filter(i=> { if(seen.has(i.code)) return false; seen.add(i.code); return true; });
 
   if (!nonErrors.length) {
     container.style.display='none';
