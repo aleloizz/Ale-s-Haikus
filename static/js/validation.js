@@ -82,27 +82,31 @@ function renderIssues(issues){
   const container = document.getElementById('validationMessages');
   if (!container) return;
   container.innerHTML = '';
-  if (!issues.length) { container.style.display='none'; return; }
-  container.style.display='block';
 
-  const sorted = issues.sort((a,b)=> severityRank(a.severity)-severityRank(b.severity));
-  const top = sorted.slice(0,4);
-  const frag = document.createDocumentFragment();
+  // Separa errori da warning/info: errori non vanno più nel container
+  const errors = issues.filter(i=> i.severity === 'error');
+  const nonErrors = issues.filter(i=> i.severity !== 'error');
 
-  let hasError = false;
-  top.forEach(issue => {
-    const div = document.createElement('div');
-    div.className = `validation-msg validation-${issue.severity}`;
-    div.setAttribute('data-code', issue.code);
-    div.innerHTML = `<span class=\"val-icon\">${iconFor(issue.severity)}</span> <span>${issue.message}</span>`;
-    frag.appendChild(div);
-    if (issue.severity === 'error') hasError = true;
-  });
-  container.appendChild(frag);
+  if (!nonErrors.length) {
+    container.style.display='none';
+  } else {
+    container.style.display='block';
+    const sorted = nonErrors.sort((a,b)=> severityRank(a.severity)-severityRank(b.severity));
+    const top = sorted.slice(0,4);
+    const frag = document.createDocumentFragment();
+    top.forEach(issue => {
+      const div = document.createElement('div');
+      div.className = `validation-msg validation-${issue.severity}`;
+      div.setAttribute('data-code', issue.code);
+      div.innerHTML = `<span class=\"val-icon\">${iconFor(issue.severity)}</span> <span>${issue.message}</span>`;
+      frag.appendChild(div);
+    });
+    container.appendChild(frag);
+  }
 
-  // Error toast only (no warnings)
-  if (hasError) {
-    triggerErrorToast(top.filter(i=>i.severity==='error')[0]);
+  // Mostra toast se ci sono errori (anche se nascosti dalla lista)
+  if (errors.length) {
+    triggerErrorToast(errors[0]);
   }
 }
 
