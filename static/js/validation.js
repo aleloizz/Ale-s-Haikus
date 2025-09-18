@@ -212,3 +212,59 @@ export {
   classifyError,
   triggerErrorToast
 };
+
+/**
+ * Renderizza l'UI per errori di struttura (versi mancanti/troppi)
+ * Centralizzato qui per coerenza con il nuovo sistema di validazione
+ * @param {Object} data - risposta server con campi: error_type, poem_type, pattern, required, received, message
+ */
+export function renderStructureErrorResults(data){
+  const resultContainer = document.getElementById('resultContainer');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultMessage = document.getElementById('resultMessage');
+  const syllableDetails = document.getElementById('syllableDetails');
+  if (!resultContainer || !resultTitle || !resultMessage || !syllableDetails) return;
+
+  resultContainer.style.display = 'block';
+  const alertEl = resultContainer.querySelector('.alert');
+
+  let icon, alertClass, title;
+  if (data.error_type === 'too_few_verses') {
+    icon = '<i class="bi bi-arrow-down-circle-fill"></i>';
+    alertClass = 'alert-warning';
+    title = 'Versi Mancanti';
+  } else {
+    icon = '<i class="bi bi-arrow-up-circle-fill"></i>';
+    alertClass = 'alert-danger';
+    title = 'Troppi Versi';
+  }
+
+  resultTitle.textContent = title;
+  resultMessage.innerHTML = `${icon} ${data.message || ''}`;
+  if (alertEl) alertEl.className = `alert ${alertClass}`;
+
+  const safeRequired = Number.isFinite(data.required) ? data.required : 0;
+  const safeReceived = Number.isFinite(data.received) ? data.received : 0;
+  const diff = Math.abs(safeRequired - safeReceived);
+  const verseWord = diff === 1 ? 'verso' : 'versi';
+  const typeNames = {
+    'haiku': 'Haiku',
+    'tanka': 'Tanka',
+    'sonetto': 'Sonetto',
+    'quartina': 'Quartina',
+    'limerick': 'Limerick'
+  };
+  const poemTypeName = typeNames[data.poem_type] || data.poem_type || '';
+  const pattern = Array.isArray(data.pattern) ? data.pattern : [];
+
+  syllableDetails.innerHTML = `
+    <div class="verse-count-error ${alertClass.replace('alert-', 'text-')}">
+      <i class="bi ${data.error_type === 'too_few_verses' ? 'bi-info-circle-fill' : 'bi-x-circle-fill'}"></i>
+      ${data.error_type === 'too_few_verses' ? 'Mancano' : 'Rimuovi'} ${diff} ${verseWord}!
+    </div>
+    <div class="pattern-info mt-2">
+      ${poemTypeName ? `<span class=\"poem-type-badge\">${poemTypeName}</span>` : ''}
+      <span class="patternDisplay">${pattern.join('-')}</span>
+    </div>
+  `;
+}

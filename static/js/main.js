@@ -6,7 +6,7 @@
 import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js';
 import { saveSelectionState, restoreSelectionState } from './storage.js';
 import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
-import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js?v=1.3.7';
+import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js?v=1.3.8';
 /**
  * @fileoverview Entry point principale per l'applicazione di analisi poetica
  * Version tracking & cache busting:

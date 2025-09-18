@@ -6,7 +6,7 @@
 import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations } from './utils.js';
 import { patterns, requiresRhymeAnalysis } from './patterns.js';
 import { publishPoem } from './publish.js';
-import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError } from './validation.js?v=1.3.7';
+import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError, renderStructureErrorResults } from './validation.js?v=1.3.8';
 
 /**
  * Gestisce la sottomissione del form di analisi poetica
@@ -148,7 +148,8 @@ export function showResults(data) {
 
     // Gestione errori di struttura (numero versi errato)
     if (data.error && data.error_type) {
-        showStructureErrorResults(data, resultTitle, resultMessage, syllableDetails, resultContainer, poemText);
+        // Usa renderer centralizzato in validation.js per coerenza
+        renderStructureErrorResults(data);
         return;
     }
 
@@ -221,6 +222,7 @@ function showErrorResults(data, resultTitle, resultMessage, resultContainer) {
 /**
  * Mostra risultati di errore di struttura
  */
+// Fallback legacy renderer (kept for compatibility); prefer renderStructureErrorResults from validation.js
 function showStructureErrorResults(data, resultTitle, resultMessage, syllableDetails, resultContainer, poemText) {
     const lines = (poemText?.value || '').split('\n').filter(line => line.trim() !== '');
     // Il select #poemType è fuori dal <form>, quindi non usare closest('form')
