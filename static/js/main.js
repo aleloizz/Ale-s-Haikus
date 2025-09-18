@@ -14,9 +14,9 @@ import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValida
  */
 
 // Increment this to force a new network fetch (mirrors ?v= query in index.html)
-export const APP_VERSION = '1.3.7';
-import { handlePublishToggle } from './publish.js';
-import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js?v=1.3.7';
+export const APP_VERSION = '1.3.8';
+import { handlePublishToggle } from './publish.js?v=1.3.8';
+import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js?v=1.3.8';
     console.log(`🚀 Inizializzazione app.js modulare v${APP_VERSION}`);
 
 console.log(`📚 Poetry Analyzer App - Versione modulare caricata (v${APP_VERSION})`);
