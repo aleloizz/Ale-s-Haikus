@@ -185,7 +185,7 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
 
     <!-- Preload main module early to avoid ESM fetch latency in LCP chain -->
-    <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}?v=1.2">
+    <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}?v=1.3.7">
 
         <!-- Fonts - optimized loading with font-display: swap and preload -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -550,11 +550,11 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
             </div>
             
             <!-- Modulepreload dependencies to avoid ESM waterfall -->
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/utils.js') }}?v=1.2">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/storage.js') }}?v=1.2">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}?v=1.2">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}?v=1.2">
-            <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}?v=1.2">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/utils.js') }}?v=1.3.7">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/storage.js') }}?v=1.3.7">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/patterns.js') }}?v=1.3.7">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/publish.js') }}?v=1.3.7">
+            <link rel="modulepreload" href="{{ url_for('static', filename='js/form.js') }}?v=1.3.7">
             <link rel="modulepreload" href="{{ url_for('static', filename='js/validation.js') }}?v=1.3.7">
                         <!-- JavaScript modulare: importa su DOMContentLoaded (con guardia singola), con fallback su prima interazione -->
                         <script type="module">
