@@ -1,5 +1,5 @@
 /* Validation and feedback module for index page
-versione 1.3.7 */
+versione 1.3.8 */
 
 const MESSAGES = {
   INPUT_EMPTY: { text: 'Inserisci almeno un verso prima di continuare.', blocks:{analyze:true, copy:true, publish:true}, severity:'warning' },
