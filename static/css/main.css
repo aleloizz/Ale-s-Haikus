@@ -1,6 +1,6 @@
 /* 
 ===== MAIN.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 1.36 - nuovi colori per errorToast
+Versione: 1.37 - mobile tap highlight tweak + a11y
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root { 
@@ -367,6 +367,22 @@ button:active {
   border-radius: 2rem !important;
 }
 .btn-haiku i{margin-right:.5rem;display:inline-block;line-height:0}
+
+/* Mobile-only: rimuovi tap highlight WebKit e aggiungi feedback :active */
+@media (pointer: coarse) {
+  html, body, a, button, .btn { -webkit-tap-highlight-color: transparent; }
+  a:active, button:active, .btn:active {
+    filter: brightness(0.97);
+    transform: translateY(0.5px);
+    transition: filter 120ms ease, transform 120ms ease;
+  }
+}
+
+/* Tastiera/desktop: focus ben visibile (non rimuovere) */
+a:focus-visible, button:focus-visible, .btn:focus-visible {
+  outline: 2px solid #a084e8;
+  outline-offset: 2px;
+}
 
 /* Checkbox label alignment (publishPoem, useTolerance) */
 .form-check{
