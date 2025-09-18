@@ -222,14 +222,15 @@ function showErrorResults(data, resultTitle, resultMessage, resultContainer) {
  * Mostra risultati di errore di struttura
  */
 function showStructureErrorResults(data, resultTitle, resultMessage, syllableDetails, resultContainer, poemText) {
-    const lines = poemText.value.split('\n').filter(line => line.trim() !== '');
+    const lines = (poemText?.value || '').split('\n').filter(line => line.trim() !== '');
     // Il select #poemType è fuori dal <form>, quindi non usare closest('form')
     const selectedType = (
         document.getElementById('poemType')?.value ||
         document.getElementById('hiddenPoemType')?.value ||
         (typeof data.poem_type === 'string' ? data.poem_type : 'haiku')
     );
-    const requiredLines = patterns[selectedType] ? patterns[selectedType].syllables.length : 0;
+    const patternFromType = patterns[selectedType]?.syllables || [];
+    const requiredLines = Array.isArray(patternFromType) ? patternFromType.length : 0;
     
     if (lines.length !== requiredLines) {
         let icon, alertClass, title;
@@ -246,9 +247,12 @@ function showStructureErrorResults(data, resultTitle, resultMessage, syllableDet
 
         resultTitle.textContent = title;
         resultMessage.innerHTML = `${icon} ${data.message}`;
-        resultContainer.querySelector('.alert').className = `alert ${alertClass}`;
+        const alertBox = resultContainer.querySelector('.alert');
+        if (alertBox) alertBox.className = `alert ${alertClass}`;
 
-        const diff = Math.abs(data.required - data.received);
+        const safeRequired = Number.isFinite(data.required) ? data.required : requiredLines;
+        const safeReceived = Number.isFinite(data.received) ? data.received : lines.length;
+        const diff = Math.abs(safeRequired - safeReceived);
         const verseWord = diff === 1 ? 'verso' : 'versi';
         const typeNames = {
             'haiku': 'Haiku',
@@ -257,7 +261,8 @@ function showStructureErrorResults(data, resultTitle, resultMessage, syllableDet
             'quartina': 'Quartina',
             'limerick': 'Limerick'
         };
-        const poemTypeName = typeNames[data.poem_type] || data.poem_type;
+        const poemTypeName = typeNames[data.poem_type] || data.poem_type || selectedType;
+        const safePattern = Array.isArray(data.pattern) ? data.pattern : patternFromType;
         
         syllableDetails.innerHTML = `
             <div class="verse-count-error ${alertClass.replace('alert-', 'text-')}">
@@ -266,7 +271,7 @@ function showStructureErrorResults(data, resultTitle, resultMessage, syllableDet
             </div>
             <div class="pattern-info mt-2">
                 <span class="poem-type-badge">${poemTypeName}</span>
-                <span class="patternDisplay">${data.pattern.join('-')}</span>
+                <span class="patternDisplay">${(safePattern || []).join('-')}</span>
             </div>
         `;
     }
