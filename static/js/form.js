@@ -59,6 +59,30 @@ export async function handleFormSubmit(e, elements) {
 
         const sanitizedText = sanitizeInput(poemText.value);
         const useTolerance = document.getElementById('useTolerance')?.checked || false;
+        // Pre-check client-side: se il numero di versi non coincide con il pattern, mostra subito il warning
+        const selectedType = poemTypeSelect?.value || 'haiku';
+        if (selectedType !== 'versi_liberi') {
+            const required = Array.isArray(patterns[selectedType]?.syllables) ? patterns[selectedType].syllables.length : 0;
+            const received = sanitizedText.split('\n').map(l=>l.trim()).filter(Boolean).length;
+            if (required && received !== required) {
+                const error_type = received < required ? 'too_few_verses' : 'too_many_verses';
+                const data = {
+                    error: true,
+                    error_type,
+                    poem_type: selectedType,
+                    pattern: patterns[selectedType]?.syllables || [],
+                    required,
+                    received,
+                    message: received < required
+                        ? `Poesia troppo corta! Un ${selectedType} richiede ${required} versi.`
+                        : `Poesia troppo lunga! Un ${selectedType} richiede ${required} versi.`
+                };
+                showResults(data);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                return;
+            }
+        }
         
         // Prima sempre l'analisi
         const response = await fetch('/api/analyze', {
