@@ -223,7 +223,12 @@ function showErrorResults(data, resultTitle, resultMessage, resultContainer) {
  */
 function showStructureErrorResults(data, resultTitle, resultMessage, syllableDetails, resultContainer, poemText) {
     const lines = poemText.value.split('\n').filter(line => line.trim() !== '');
-    const selectedType = poemText.closest('form').querySelector('#poemType').value;
+    // Il select #poemType è fuori dal <form>, quindi non usare closest('form')
+    const selectedType = (
+        document.getElementById('poemType')?.value ||
+        document.getElementById('hiddenPoemType')?.value ||
+        (typeof data.poem_type === 'string' ? data.poem_type : 'haiku')
+    );
     const requiredLines = patterns[selectedType] ? patterns[selectedType].syllables.length : 0;
     
     if (lines.length !== requiredLines) {
