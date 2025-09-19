@@ -134,11 +134,12 @@ def create_app(config_name=None):
                 # Altri static: cache media
                 response.headers['Cache-Control'] = 'public, max-age=86400'
         
-        # Cache per pagine HTML: validazione con ETag ma cache breve
+        # Pagine HTML dinamiche: niente cache per evitare contenuti stantii (bacheca, dettagli, ecc.)
         elif response.content_type and 'text/html' in response.content_type:
-            response.cache_control.max_age = 300  # 5 minuti
-            response.cache_control.public = True
-            response.add_etag()
+            # Disabilita cache per assicurare che azioni come delete siano visibili subito
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
         
         return response
     
