@@ -26,7 +26,8 @@
         <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.2">
         <meta name="theme-color" content="#faf7ff">
     
-        <!-- Critical Above-the-fold CSS - Inline per zero blocking -->
+    <script>document.documentElement.classList.add('js');</script>
+    <!-- Critical Above-the-fold CSS - Inline per zero blocking -->
         <style>
 /* Above-the-fold Critical CSS */
 :root{--primary:#D4B8FF;--secondary:#FFE5D9;--accent:#A2D7D8;--text:#5E5E5E;--bg:#FAF7FF}
@@ -52,6 +53,18 @@ body{font-family:'Inter',sans-serif;margin:0;padding:0;min-height:100vh;display:
 .btn-haiku.btn-primary{background:var(--primary);border:none}
 .btn-haiku.btn-secondary{background:var(--secondary);color:var(--text);border:none}
 body.loading{background:#fbbda3!important}
+
+/* Instant Loading Overlay (shows only if JS enabled) */
+.app-loader{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:2000;color:#fff}
+.js .app-loader{display:flex}
+.app-loader__backdrop{position:absolute;inset:0;background:linear-gradient(135deg,#cca9ff 0%,#ffb18d 100%)}
+.app-loader__content{position:relative;display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:1rem 1.25rem;border-radius:14px;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,0.08)}
+.app-loader__logo{width:40px;height:40px;border-radius:10px;box-shadow:0 2px 12px rgba(160,132,232,0.18);background:#fff}
+.app-loader__spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+.app-loader__text{font-size:.95rem;opacity:.9}
+.app-loader--hidden{opacity:0;transition:opacity .28s ease;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.app-loader__spinner{animation:none;border-top-color:transparent}.app-loader__text{opacity:1}}
 
 /* ===== FLEXIBLE LAYOUT (replaces earlier rigid CLS prevention) ===== */
 @media (min-width: 992px) {
@@ -272,6 +285,28 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
     </head>
     
     <body class="loading">
+        <!-- Lightweight Loading Overlay -->
+        <div id="app-loader" class="app-loader" role="status" aria-live="polite" aria-label="Caricamento applicazione">
+            <div class="app-loader__backdrop" aria-hidden="true"></div>
+            <div class="app-loader__content">
+                <img src="{{ url_for('static', filename='favicon-96x96.png') }}?v=1.2" alt="" class="app-loader__logo" aria-hidden="true">
+                <div class="app-loader__spinner" aria-hidden="true"></div>
+                <p class="app-loader__text">Caricamento…</p>
+            </div>
+        </div>
+        <script>
+        (function(){
+          const overlay=document.getElementById('app-loader');
+          if(!overlay) return;
+          const hide=()=>{overlay.classList.add('app-loader--hidden');overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true});};
+          // Prefer app:ready from main.js; fallback to load; hard timeout safety
+          let t=setTimeout(hide, 4000);
+          const done=()=>{clearTimeout(t);hide();};
+                    document.addEventListener('app:ready', done, { once:true });
+                    document.addEventListener('DOMContentLoaded', done, { once:true });
+          window.addEventListener('load', done, { once:true });
+        })();
+        </script>
         <div class="main-wrapper">
             <script>
                 // Rimuove la classe loading quando l'immagine è caricata
