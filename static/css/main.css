@@ -232,7 +232,7 @@ body::after {
   text-align: center;
 }
 
-.form-select {
+.form-select-container .form-select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -256,7 +256,7 @@ body::after {
   padding-right: 3rem; /* Spazio per la nostra icona */
 }
 
-.form-select:hover {
+.form-select-container .form-select:hover {
   transform: translateY(-2px);
   border-color: #d76f43;
   box-shadow: 
@@ -264,7 +264,7 @@ body::after {
     0 3px 6px rgba(205, 158, 117, 0.1);
 }
 
-.form-select:focus {
+.form-select-container .form-select:focus {
   outline: none;
   box-shadow: 
     0 0 0 2px rgba(190, 118, 82, 0.578),
@@ -292,16 +292,16 @@ body::after {
 }
 
 /* Rimuove la freccia nera residua su alcuni browser */
-.form-select::-ms-expand {
+.form-select-container .form-select::-ms-expand {
   display: none;
 }
 
-.form-select:focus + .select-icon {
+.form-select-container .form-select:focus + .select-icon {
   transform: translateY(-50%) rotate(180deg);
 }
 
 /* Effetto per opzioni */
-.form-select option {
+.form-select-container .form-select option {
   background: rgba(255, 255, 255, 0.9);
   color: var(--text);
   padding: 0.5rem;

@@ -204,12 +204,12 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
 </style>
 
         <!-- Preload essential resources -->
-        <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}?v=1.2"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3"></noscript>
         
         <!-- Async load non-critical CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}?v=1.37" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.37"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}?v=1.38" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.38"></noscript>
 
     <!-- Icons - load async (local subset) -->
     <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -502,7 +502,7 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
                                                         <button type="button"
                                                                 id="toleranceInfoBtn"
                                                                 class="btn btn-link p-0 m-0 align-middle"
-                                                                aria-label="Cos'è la tolleranza delle sillabe?"
+                                                                aria-label="Cosa fà l'opzione tolleranza?"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#toleranceInfoModal"
                                                                 style="color: var(--text); text-decoration: none;">
@@ -634,13 +634,10 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                         </div>
                         <div class="modal-body pt-3 pb-4 px-4" style="font-size: 1.02em; color:#4b4b4b;">
-                            <p class="mb-2">Se abilitata, la verifica metrica accetta una variazione di <strong>±1–2 sillabe per verso</strong>.</p>
-                            <ul class="mb-3">
-                                <li>Utile per <em>licenze poetiche</em> e varianti linguistiche.</li>
-                                <li>Mantiene coerenza globale pur concedendo flessibilità.</li>
-                                <li>Disattiva la tolleranza per una verifica più rigida.</li>
-                            </ul>
-                            <div class="small text-muted">Suggerimento: se stai imparando una forma rigida (es. haiku 5-7-5), prova prima senza tolleranza.</div>
+                            <p class="mb-2">La poesia risiede nel contenuto, non nella forma.
+                                Se abilitata, la verifica metrica accetta una variazione di <strong>±1–2 sillabe per verso</strong>.</p>
+                            <p class="mb-2">Questo consente di mantenere la libertà creativa, pur offrendo un'indicazione generale sulla metrica.</p>
+                            <div class="small text-muted">Suggerimento: puoi usare questa opzione se i vincoli metrici stanno limitando la tua creatività.</div>
                         </div>
                         <div class="modal-footer border-0 pt-0 px-4 pb-4">
                             <button type="button" class="btn btn-haiku btn-primary" data-bs-dismiss="modal">
