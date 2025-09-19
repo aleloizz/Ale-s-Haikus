@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, maximum-scale=1, viewport-fit=cover">
     <title>Wiki delle forme poetiche | Ale's Haikus</title>
+    <script>document.documentElement.classList.add('js');</script>
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.png') }}">
@@ -32,6 +33,17 @@
         body {
             background: #ffffff00;
         }
+        /* Instant Loading Overlay (shows only if JS enabled) */
+        .app-loader{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:2000;color:#fff}
+        .js .app-loader{display:flex}
+        .app-loader__backdrop{position:absolute;inset:0;background:linear-gradient(135deg,#cca9ff 0%,#ffb18d 100%)}
+        .app-loader__content{position:relative;display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:1rem 1.25rem;border-radius:14px;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,0.08)}
+        .app-loader__logo{width:40px;height:40px;border-radius:10px;box-shadow:0 2px 12px rgba(160,132,232,0.18);background:#fff}
+        .app-loader__spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+        .app-loader__text{font-size:.95rem;opacity:.9}
+        .app-loader--hidden{opacity:0;transition:opacity .28s ease;pointer-events:none}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @media (prefers-reduced-motion: reduce){.app-loader__spinner{animation:none;border-top-color:transparent}.app-loader__text{opacity:1}}
         .wiki-section {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
@@ -89,6 +101,27 @@
     </style>
 </head>
 <body>
+    <!-- Lightweight Loading Overlay -->
+    <div id="app-loader" class="app-loader" role="status" aria-live="polite" aria-label="Caricamento pagina">
+        <div class="app-loader__backdrop" aria-hidden="true"></div>
+        <div class="app-loader__content">
+            <img src="{{ url_for('static', filename='favicon-96x96.png') }}?v=1.2" alt="" class="app-loader__logo" aria-hidden="true">
+            <div class="app-loader__spinner" aria-hidden="true"></div>
+            <p class="app-loader__text">Caricamento…</p>
+        </div>
+    </div>
+    <script>
+    (function(){
+      const overlay=document.getElementById('app-loader');
+      if(!overlay) return;
+      const hide=()=>{overlay.classList.add('app-loader--hidden');overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true});};
+      let t=setTimeout(hide, 4000);
+      const done=()=>{clearTimeout(t);hide();};
+            document.addEventListener('app:ready', done, { once:true });
+            document.addEventListener('DOMContentLoaded', done, { once:true });
+      window.addEventListener('load', done, { once:true });
+    })();
+    </script>
     <div class="main-wrapper">
         <header>
             <div class="bg-haiku-primary text-white text-center py-4 header-content">
