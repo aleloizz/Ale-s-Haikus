@@ -119,7 +119,7 @@ export async function handleFormSubmit(e, elements) {
                 poem_type: poemTypeSelect.value,
                 title: document.getElementById('poemTitle')?.value.trim() || '',
                 author
-            }, data.valid);
+            }, data.valid_structure);
         }
         
     } catch (error) {
