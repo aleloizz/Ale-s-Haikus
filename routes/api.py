@@ -323,51 +323,73 @@ def api_create_poem():
     """API endpoint per creare una poesia (alias per pubblica)"""
     try:
         data = request.get_json()
-        
+
         # Validazione dati richiesti
         required_fields = ['title', 'text', 'author']
         for field in required_fields:
             if not data or field not in data or not data[field].strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
-        
+
         # Rimappa i campi per compatibilità con api_pubblica
         data['titolo'] = data['title']
         data['testo'] = data['text']
         data['autore'] = data['author']
-        
-        # Parametro tolleranza opzionale
+
+        # Parametri opzionali
         use_tolerance = data.get('use_tolerance', False)
-        
+        selected_type = (data.get('poem_type') or '').strip().lower() or None
+
         # Analizza la poesia (passando parametro tolleranza)
         analisi = analizza_poesia_completa(data['testo'], use_tolerance=use_tolerance)
-        
+
         # Verifica se ci sono errori nell'analisi
         if 'errore' in analisi:
-            return jsonify({'error': f'Errore nell\'analisi: {analisi["errore"]}'}), 400
-        
-        # Controlla se rispetta la metrica (solo se richiesto)
-        richiede_metrica = data.get('richiede_metrica', False)  # Default False per poems
-        if richiede_metrica and not analisi.get('rispetta_metrica', False):
+            return jsonify({'error': f"Errore nell'analisi: {analisi['errore']}"}), 400
+
+        # Enforce: pubblicazione consentita SOLO se la poesia rispetta la metrica
+        # 1) Calcolo basato sul tipo selezionato dall'utente (se fornito)
+        from services.poetry_analyzer import verifica_metrica
+        is_valid_selected = None
+        if selected_type:
+            is_valid_selected = verifica_metrica(
+                selected_type,
+                analisi.get('num_versi', 0),
+                analisi.get('sillabe_per_verso', []),
+                analisi.get('schema_rime', ''),
+                use_tolerance=use_tolerance
+            )
+
+        # 2) Fallback: usa la validità calcolata dall'analizzatore (tipo riconosciuto)
+        is_valid_recognized = bool(analisi.get('rispetta_metrica', False))
+
+        # Determina validità finale (preferisci controllo sul tipo selezionato se presente)
+        final_valid = (is_valid_selected if is_valid_selected is not None else is_valid_recognized)
+        if not final_valid:
+            # Prepara messaggio coerente col frontend
+            expected_info = get_syllable_pattern(selected_type) if selected_type else None
             return jsonify({
-                'error': 'La poesia non rispetta la metrica richiesta',
-                'tipo_riconosciuto': analisi.get('tipo_riconosciuto', 'sconosciuto'),
-                'dettagli_metrica': analisi.get('dettagli_metrica', {}),
+                'success': False,
+                'message': 'Pubblicazione non consentita: la poesia non rispetta i vincoli metrici della tipologia scelta.',
+                'details': [
+                    f"Tipo selezionato: {selected_type}" if selected_type else f"Tipo riconosciuto: {analisi.get('tipo_riconosciuto', 'sconosciuto')}",
+                    f"Tolleranza attiva: {'sì' if use_tolerance else 'no'}",
+                ] + ([f"Pattern atteso: {expected_info}"] if expected_info else []),
                 'analisi': analisi
             }), 400
-        
+
         # Crea e salva la poesia
         poesia = Poem.create_from_analysis(data['titolo'], data['testo'], data['autore'], analisi)
-        
+
         db.session.add(poesia)
         db.session.commit()
-        
+
         return jsonify({
             'success': True,
             'message': 'Poesia pubblicata con successo!',
             'id': poesia.id,
             'analisi': analisi
         })
-        
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Errore durante la pubblicazione: {str(e)}'}), 500
@@ -377,47 +399,66 @@ def api_pubblica():
     """API endpoint per pubblicare una poesia nella bacheca"""
     try:
         data = request.get_json()
-        
+
         # Validazione dati richiesti
         required_fields = ['titolo', 'testo', 'autore']
         for field in required_fields:
             if not data or field not in data or not data[field].strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
-        
+
         titolo = data['titolo'].strip()
         testo = data['testo'].strip()
         autore = data['autore'].strip()
-        
-        # Analizza la poesia
-        analisi = analizza_poesia_completa(testo)
-        
+
+        # Parametri opzionali
+        use_tolerance = data.get('use_tolerance', False)
+        selected_type = (data.get('poem_type') or data.get('tipo') or '').strip().lower() or None
+
+        # Analizza la poesia con eventuale tolleranza
+        analisi = analizza_poesia_completa(testo, use_tolerance=use_tolerance)
+
         # Verifica se ci sono errori nell'analisi
         if 'errore' in analisi:
-            return jsonify({'error': f'Errore nell\'analisi: {analisi["errore"]}'}), 400
-        
-        # Controlla se rispetta la metrica (solo se richiesto)
-        richiede_metrica = data.get('richiede_metrica', True)
-        if richiede_metrica and not analisi.get('rispetta_metrica', False):
+            return jsonify({'error': f"Errore nell'analisi: {analisi['errore']}"}), 400
+
+        # Enforce: la pubblicazione è consentita SOLO se la poesia rispetta la metrica del tipo scelto
+        from services.poetry_analyzer import verifica_metrica
+        is_valid_selected = None
+        if selected_type:
+            is_valid_selected = verifica_metrica(
+                selected_type,
+                analisi.get('num_versi', 0),
+                analisi.get('sillabe_per_verso', []),
+                analisi.get('schema_rime', ''),
+                use_tolerance=use_tolerance
+            )
+        is_valid_recognized = bool(analisi.get('rispetta_metrica', False))
+        final_valid = (is_valid_selected if is_valid_selected is not None else is_valid_recognized)
+        if not final_valid:
+            expected_info = get_syllable_pattern(selected_type) if selected_type else None
             return jsonify({
-                'error': 'La poesia non rispetta la metrica richiesta',
-                'tipo_riconosciuto': analisi.get('tipo_riconosciuto', 'sconosciuto'),
-                'dettagli_metrica': analisi.get('dettagli_metrica', {}),
+                'success': False,
+                'message': 'Pubblicazione non consentita: la poesia non rispetta i vincoli metrici della tipologia scelta.',
+                'details': [
+                    f"Tipo selezionato: {selected_type}" if selected_type else f"Tipo riconosciuto: {analisi.get('tipo_riconosciuto', 'sconosciuto')}",
+                    f"Tolleranza attiva: {'sì' if use_tolerance else 'no'}",
+                ] + ([f"Pattern atteso: {expected_info}"] if expected_info else []),
                 'analisi': analisi
             }), 400
-        
+
         # Crea e salva la poesia
         poesia = Poem.create_from_analysis(titolo, testo, autore, analisi)
-        
+
         db.session.add(poesia)
         db.session.commit()
-        
+
         return jsonify({
             'success': True,
             'message': 'Poesia pubblicata con successo!',
             'id': poesia.id,
             'analisi': analisi
         })
-        
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Errore durante la pubblicazione: {str(e)}'}), 500

@@ -11,6 +11,15 @@
  */
 export async function publishPoem(formData, isValid) {
     try {
+        // Client-side guard: non inviare se già sappiamo che è invalida
+        if (isValid === false) {
+            const typeLabel = formData.poem_type ? `Tipo selezionato: ${formData.poem_type}` : null;
+            showPublishError(
+                'Pubblicazione non consentita: la poesia non rispetta i vincoli metrici.',
+                [typeLabel].filter(Boolean)
+            );
+            return;
+        }
         const useTolerance = document.getElementById('useTolerance')?.checked || false;
         
         const publishResponse = await fetch('/api/poems', {
@@ -25,7 +34,7 @@ export async function publishPoem(formData, isValid) {
             })
         });
         
-        const publishData = await publishResponse.json();
+    const publishData = await publishResponse.json();
         
         if (publishData.success) {
             showPublishSuccess();
@@ -34,7 +43,8 @@ export async function publishPoem(formData, isValid) {
             if (publishData.details && publishData.details.length > 0) {
                 showPublishError(publishData.message, publishData.details);
             } else {
-                showPublishError(publishData.message || 'Errore nella pubblicazione');
+                const message = publishData.message || publishData.error || 'Errore nella pubblicazione';
+                showPublishError(message);
             }
         }
         
