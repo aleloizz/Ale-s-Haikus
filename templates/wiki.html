@@ -114,9 +114,17 @@
     (function(){
       const overlay=document.getElementById('app-loader');
       if(!overlay) return;
-      const hide=()=>{overlay.classList.add('app-loader--hidden');overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true});};
-      let t=setTimeout(hide, 4000);
-      const done=()=>{clearTimeout(t);hide();};
+            let hidden=false;
+            const started=performance.now();
+            const MIN_SHOW_MS=500;
+            const hide=()=>{ if(hidden) return; hidden=true; overlay.classList.add('app-loader--hidden'); overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true}); };
+            let t=setTimeout(hide, 4000);
+            const done=()=>{
+                clearTimeout(t);
+                const elapsed=performance.now()-started;
+                const wait=Math.max(0, MIN_SHOW_MS - elapsed);
+                if(wait>0) setTimeout(hide, wait); else hide();
+            };
             document.addEventListener('app:ready', done, { once:true });
             document.addEventListener('DOMContentLoaded', done, { once:true });
       window.addEventListener('load', done, { once:true });
