@@ -118,8 +118,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.69" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.69"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.7" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.7"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -250,7 +250,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
             <div class="container">
                 
                 <!-- Barra filtri avanzata -->
-                <div class="filter-card">
+                <div class="filter-card" aria-label="Filtri di ricerca e ordinamento">
                     <div class="row align-items-end">
                         <!-- Ricerca per testo -->
                         <div class="col-md-4 mb-3">
@@ -258,8 +258,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <i class="bi bi-search me-1"></i>Cerca poesia
                             </label>
                             <input type="text" id="searchText" class="form-control" 
-                                   placeholder="Titolo, contenuto, autore..." 
+                                   placeholder="Cerca per titolo, contenuto o autore" 
+                                   aria-label="Campo di ricerca per titolo, contenuto o autore" 
                                    value="{{ search_query if search_query else '' }}">
+                            <div class="form-text">Suggerimento: usa parole chiave per restringere i risultati.</div>
                         </div>
                         
                         <!-- Filtro per tipologia -->
@@ -277,6 +279,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <option value="sonetto" {% if tipo_filtro == 'sonetto' %}selected{% endif %}>Sonetto</option>
                                 <option value="libero" {% if tipo_filtro == 'libero' %}selected{% endif %}>Verso libero</option>
                             </select>
+                            <div class="form-text d-flex align-items-center gap-2">
+                                <small>Seleziona una forma poetica.</small>
+                                {% if tipo_filtro %}
+                                <button type="button" class="btn btn-link p-0 small" title="Rimuovi filtro tipologia" onclick="(function(){var el=document.getElementById('typeFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">Pulisci</button>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <!-- Filtro per autore -->
@@ -294,6 +302,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 {% endfor %}
                                 {% endif %}
                             </select>
+                            <div class="form-text d-flex align-items-center gap-2">
+                                <small>Filtra per autore specifico.</small>
+                                {% if autore_filtro %}
+                                <button type="button" class="btn btn-link p-0 small" title="Rimuovi filtro autore" onclick="(function(){var el=document.getElementById('authorFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">Pulisci</button>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <!-- Controlli aggiuntivi -->
@@ -306,22 +320,69 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 </label>
                             </div>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-haiku btn-primary btn-sm" id="applyFilters">
-                                    <i class="bi bi-funnel"></i>
+                                <button type="button" class="btn btn-haiku btn-primary btn-sm" id="applyFilters" title="Applica i filtri selezionati">
+                                    <i class="bi bi-funnel me-1"></i> Applica
                                 </button>
-                                <button type="button" class="btn btn-haiku btn-secondary btn-sm" id="clearFilters">
-                                    <i class="bi bi-x"></i>
+                                <button type="button" class="btn btn-haiku btn-secondary btn-sm" id="clearFilters" title="Pulisci i campi dei filtri">
+                                    <i class="bi bi-x-lg me-1"></i> Pulisci
                                 </button>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Filtri attivi (server-rendered) -->
+                    <div class="pt-2">
+                        {% if (search_query and search_query.strip()) or (tipo_filtro and tipo_filtro.strip()) or (autore_filtro and autore_filtro.strip()) or solo_valide %}
+                        <div class="d-flex align-items-center flex-wrap gap-2" aria-live="polite">
+                            <span class="text-muted small me-1">Filtri attivi:</span>
+                            {% if search_query and search_query.strip() %}
+                            <span class="badge rounded-pill text-bg-light" title="Filtro testo">
+                                Testo: {{ search_query }}
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro testo"
+                                    onclick="(function(){var el=document.getElementById('searchText'); if(el){el.value=''; el.dispatchEvent(new Event('input',{bubbles:true}));}})()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </span>
+                            {% endif %}
+                            {% if tipo_filtro and tipo_filtro.strip() %}
+                            <span class="badge rounded-pill text-bg-light" title="Filtro tipologia">
+                                Tipo: {{ tipo_filtro }}
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro tipologia"
+                                    onclick="(function(){var el=document.getElementById('typeFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </span>
+                            {% endif %}
+                            {% if autore_filtro and autore_filtro.strip() %}
+                            <span class="badge rounded-pill text-bg-light" title="Filtro autore">
+                                Autore: {{ autore_filtro }}
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro autore"
+                                    onclick="(function(){var el=document.getElementById('authorFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </span>
+                            {% endif %}
+                            {% if solo_valide %}
+                            <span class="badge rounded-pill text-bg-light" title="Solo poesie valide">
+                                Solo valide
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Disattiva solo valide"
+                                    onclick="(function(){var el=document.getElementById('onlyValidFilter'); if(el){el.checked=false; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="text-muted small">Nessun filtro attivo.</div>
+                        {% endif %}
                     </div>
                     
                     <!-- Barra azioni superiore -->
                     <div class="d-flex justify-content-between align-items-center pt-3 border-top border-light">
                         <div class="d-flex align-items-center gap-3">
                             <div class="dropdown">
-                                <button class="btn btn-haiku btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-sort-down me-1"></i>Ordina per
+                                <button class="btn btn-haiku btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Scegli l'ordinamento dei risultati">
+                                    <i class="bi bi-sort-down me-1"></i> Ordina per
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" data-sort="recent" {% if sort_by == 'recent' %}style="font-weight: 600;"{% endif %}>Più recenti</a></li>

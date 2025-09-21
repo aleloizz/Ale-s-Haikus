@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.68 - ottimizzazione pulsanti mobile
+Versione: 3.7 - filter-card chiara
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -976,10 +976,6 @@ Versione: 3.68 - ottimizzazione pulsanti mobile
 
 /* ===== DARK MODE SUPPORT ===== */
 @media (prefers-color-scheme: dark) {
-    .filter-card {
-        background: rgba(0, 0, 0, 0.3);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
     
     .dropdown-menu {
         background: rgba(0, 0, 0, 0.8);
