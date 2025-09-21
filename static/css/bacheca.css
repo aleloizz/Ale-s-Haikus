@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.7 - filter-card chiara
+Versione: 3.71 - ottimizzazioni mobile
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -565,6 +565,8 @@ Versione: 3.7 - filter-card chiara
     margin-bottom: 2rem;
     box-shadow: 0 1rem 3rem rgba(0,0,0,0.175);
     transition: box-shadow 0.3s ease;
+    /* Prevent accidental horizontal scroll from inner flex rows */
+    overflow-x: hidden;
 }
 
 .filter-card:hover {
@@ -813,6 +815,28 @@ Versione: 3.7 - filter-card chiara
     .filter-card {
         padding: 1rem;
         margin-bottom: 1rem;
+    }
+
+    /* MOBILE: Wrap and stack actions in filter header */
+    .filter-actions {
+        flex-wrap: wrap !important;
+        align-items: stretch !important;
+        row-gap: .5rem !important;
+    }
+    .filter-actions .actions-left {
+        flex: 1 1 100% !important;
+        flex-wrap: wrap !important;
+        gap: .5rem 1rem !important;
+    }
+    .filter-actions .actions-right {
+        flex: 1 1 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: .5rem !important;
+    }
+    .filter-actions .actions-right .btn,
+    .filter-actions .actions-right a.btn {
+        width: 100% !important;
     }
     
     /* MOBILE: Line clamp ridotto per tutti i tipi */
