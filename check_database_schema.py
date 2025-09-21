@@ -44,6 +44,19 @@ def check_schema():
                 print("❌ Colonna 'content' NON trovata")
                 if 'text' in column_names:
                     print("⚠️  Trovata colonna 'text' invece di 'content'")
+
+            # Conteggio righe e sample
+            try:
+                total = db.session.query(Poem).count()
+                print(f"\n📦 Totale poesie: {total}")
+                if total > 0:
+                    print("🧾 Esempi (max 5):")
+                    samples = db.session.query(Poem).order_by(Poem.created_at.desc()).limit(5).all()
+                    for p in samples:
+                        created = p.created_at.isoformat() if p.created_at else 'n/a'
+                        print(f"  - id={p.id} | titolo='{p.title}' | autore='{p.author}' | created_at={created}")
+            except Exception as e:
+                print(f"⚠️  Impossibile leggere i dati: {e}")
                     
         else:
             print("❌ Tabella 'poems' NON trovata")
