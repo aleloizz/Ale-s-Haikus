@@ -261,7 +261,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                    placeholder="Cerca per titolo, contenuto o autore" 
                                    aria-label="Campo di ricerca per titolo, contenuto o autore" 
                                    value="{{ search_query if search_query else '' }}">
-                            <div class="form-text">Suggerimento: usa parole chiave per restringere i risultati.</div>
                         </div>
                         
                         <!-- Filtro per tipologia -->
@@ -271,13 +270,29 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             </label>
                             <select id="typeFilter" class="form-select">
                                 <option value="">Tutte le tipologie</option>
-                                <option value="haiku" {% if tipo_filtro and tipo_filtro == 'haiku' %}selected{% endif %}>Haiku</option>
-                                <option value="tanka" {% if tipo_filtro == 'tanka' %}selected{% endif %}>Tanka</option>
-                                <option value="katauta" {% if tipo_filtro == 'katauta' %}selected{% endif %}>Katauta</option>
-                                <option value="choka" {% if tipo_filtro == 'choka' %}selected{% endif %}>Choka</option>
-                                <option value="sedoka" {% if tipo_filtro == 'sedoka' %}selected{% endif %}>Sedoka</option>
-                                <option value="sonetto" {% if tipo_filtro == 'sonetto' %}selected{% endif %}>Sonetto</option>
-                                <option value="libero" {% if tipo_filtro == 'libero' %}selected{% endif %}>Verso libero</option>
+                                <optgroup label="Giapponesi">
+                                    <option value="haiku" {% if tipo_filtro and tipo_filtro == 'haiku' %}selected{% endif %}>Haiku</option>
+                                    <option value="tanka" {% if tipo_filtro == 'tanka' %}selected{% endif %}>Tanka</option>
+                                    <option value="katauta" {% if tipo_filtro == 'katauta' %}selected{% endif %}>Katauta</option>
+                                    <option value="choka" {% if tipo_filtro == 'choka' %}selected{% endif %}>Choka</option>
+                                    <option value="sedoka" {% if tipo_filtro == 'sedoka' %}selected{% endif %}>Sedoka</option>
+                                </optgroup>
+                                <optgroup label="Italiane">
+                                    <option value="sonetto" {% if tipo_filtro == 'sonetto' %}selected{% endif %}>Sonetto</option>
+                                    <option value="quartina" {% if tipo_filtro == 'quartina' %}selected{% endif %}>Quartina</option>
+                                    <option value="stornello" {% if tipo_filtro == 'stornello' %}selected{% endif %}>Stornello</option>
+                                    <option value="ottava_rima" {% if tipo_filtro == 'ottava_rima' %}selected{% endif %}>Ottava rima</option>
+                                    <option value="terzina_dantesca" {% if tipo_filtro == 'terzina_dantesca' %}selected{% endif %}>Terzina dantesca</option>
+                                </optgroup>
+                                <optgroup label="Inglesi">
+                                    <option value="limerick" {% if tipo_filtro == 'limerick' %}selected{% endif %}>Limerick</option>
+                                    <option value="ballad" {% if tipo_filtro == 'ballad' %}selected{% endif %}>Ballad</option>
+                                    <option value="clerihew" {% if tipo_filtro == 'clerihew' %}selected{% endif %}>Clerihew</option>
+                                    <option value="cinquain" {% if tipo_filtro == 'cinquain' %}selected{% endif %}>Cinquain</option>
+                                </optgroup>
+                                <optgroup label="Altro">
+                                    <option value="versi_liberi" {% if tipo_filtro == 'versi_liberi' %}selected{% endif %}>Versi liberi</option>
+                                </optgroup>
                             </select>
                             <div class="form-text d-flex align-items-center gap-2">
                                 <small>Seleziona una forma poetica.</small>

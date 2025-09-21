@@ -74,10 +74,40 @@ def identifica_tipo_poesia(num_versi, sillabe_per_verso, schema_rime, use_tolera
         tolerance = 1 if use_tolerance else 0
         if all(abs(sillabe_per_verso[i] - target[i]) <= tolerance for i in range(5)):
             return 'tanka'
+
+    # Cinquain: 5 versi, schema 2-4-6-8-2 (nessuna rima specifica)
+    if num_versi == 5 and len(sillabe_per_verso) == 5:
+        target = [2, 4, 6, 8, 2]
+        tolerance = 1 if use_tolerance else 0
+        if all(abs(sillabe_per_verso[i] - target[i]) <= tolerance for i in range(5)):
+            return 'cinquain'
     
     # Limerick: 5 versi, schema AABBA
     if num_versi == 5 and schema_rime == 'AABBA':
         return 'limerick'
+
+    # Stornello: 3 versi [5,11,11] con rima ABA
+    if num_versi == 3 and len(sillabe_per_verso) == 3 and schema_rime == 'ABA':
+        tol_first = 1 if use_tolerance else 0
+        tol_ende = 2 if use_tolerance else 0
+        if (abs(sillabe_per_verso[0] - 5) <= tol_first and
+            abs(sillabe_per_verso[1] - 11) <= tol_ende and
+            abs(sillabe_per_verso[2] - 11) <= tol_ende):
+            return 'stornello'
+
+    # Ballad: 4 versi [8,6,8,6] con rima ABCB
+    if num_versi == 4 and len(sillabe_per_verso) == 4 and schema_rime == 'ABCB':
+        target = [8, 6, 8, 6]
+        tolerance = 1 if use_tolerance else 0
+        if all(abs(sillabe_per_verso[i] - target[i]) <= tolerance for i in range(4)):
+            return 'ballad'
+
+    # Clerihew: 4 versi ~8 sillabe ciascuno con rima AABB
+    if num_versi == 4 and len(sillabe_per_verso) == 4 and schema_rime == 'AABB':
+        target = [8, 8, 8, 8]
+        tolerance = 2 if use_tolerance else 0
+        if all(abs(sillabe_per_verso[i] - target[i]) <= tolerance for i in range(4)):
+            return 'clerihew'
     
     # Quartina - riconosce anche con tolleranza sulle sillabe se abilitata
     if num_versi == 4:
@@ -95,6 +125,12 @@ def identifica_tipo_poesia(num_versi, sillabe_per_verso, schema_rime, use_tolera
         else:
             # Se le sillabe sono molto diverse, potrebbe essere verso libero
             return 'versi_liberi'  # Usa nome compatibile con SCHEMI_POESIA
+
+    # Ottava rima: 8 versi endecasillabi con schema ABABABCC
+    if num_versi == 8 and len(sillabe_per_verso) == 8 and schema_rime == 'ABABABCC':
+        tolerance = 2 if use_tolerance else 0
+        if all(abs(s - 11) <= tolerance for s in sillabe_per_verso):
+            return 'ottava_rima'
     
     # Terzina - riconosce anche con tolleranza sulle sillabe se abilitata
     if num_versi == 3:
