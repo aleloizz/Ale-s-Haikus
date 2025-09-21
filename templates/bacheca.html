@@ -897,14 +897,48 @@ function initHeartLikes() {
     });
 }
 
+// Sincronizza stato like da server (per sessione corrente)
+async function initHeartLikeStatus() {
+    try {
+        const containers = document.querySelectorAll('.like-container[data-poem-id]');
+        const fetches = Array.from(containers).map(async (container) => {
+            const poemId = container.getAttribute('data-poem-id');
+            if (!poemId) return;
+            try {
+                const resp = await fetch(`/api/poems/${poemId}/like/status`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const checkbox = container.querySelector('.heart-container .checkbox');
+                const countEl = container.querySelector('.like-count');
+                if (data && data.success) {
+                    if (checkbox && typeof data.liked === 'boolean') {
+                        checkbox.checked = data.liked;
+                    }
+                    if (countEl && typeof data.likes === 'number') {
+                        countEl.textContent = data.likes;
+                    }
+                }
+            } catch (e) {
+                // silenzia errori di rete per non bloccare la pagina
+                console.debug('Status like non disponibile per', poemId);
+            }
+        });
+        await Promise.all(fetches);
+        console.log('✅ Stato like sincronizzato');
+    } catch (e) {
+        console.debug('Impossibile sincronizzare lo stato like');
+    }
+}
+
 // Funzione per API like (da implementare)
 // Deprecato: toggleLikePoem ora gestito direttamente nel change handler
 
 // Inizializza i heart likes quando il DOM è pronto
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeartLikes);
+    document.addEventListener('DOMContentLoaded', () => { initHeartLikes(); initHeartLikeStatus(); });
 } else {
     initHeartLikes();
+    initHeartLikeStatus();
 }
 
 // ===== RENDI TUTTO IL LIKE-CONTAINER CLICCABILE =====
