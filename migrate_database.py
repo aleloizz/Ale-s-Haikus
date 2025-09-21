@@ -92,6 +92,11 @@ def migrate_schema():
                     if 'is_valid' not in columns:
                         print("➕ Aggiunta colonna 'is_valid'...")
                         db.engine.execute(text("ALTER TABLE poems ADD COLUMN is_valid BOOLEAN DEFAULT FALSE"))
+                    
+                    # Aggiungi colonna likes se mancante
+                    if 'likes' not in columns:
+                        print("➕ Aggiunta colonna 'likes'...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN likes INTEGER DEFAULT 0"))
                         
                 else:
                     print("🆕 Creazione nuova tabella 'poems'...")
@@ -99,7 +104,19 @@ def migrate_schema():
                     print("✅ Tabella creata")
             else:
                 # Per SQLite, ricrea semplicemente la tabella
-                print("🔧 Database SQLite - ricreazione schema...")
+                print("🔧 Database SQLite - aggiornamento schema...")
+                # Per SQLite, verifica ed aggiungi la colonna 'likes' se manca
+                try:
+                    result = db.engine.execute(text("PRAGMA table_info(poems);"))
+                    columns = {row[1] for row in result}
+                    print(f"📋 Colonne attuali (SQLite): {columns}")
+                    if 'likes' not in columns:
+                        print("➕ Aggiunta colonna 'likes' su SQLite...")
+                        db.engine.execute(text("ALTER TABLE poems ADD COLUMN likes INTEGER NOT NULL DEFAULT 0"))
+                except Exception as e_sqlite:
+                    print(f"⚠️  Impossibile ispezionare/alterare tabella SQLite: {e_sqlite}")
+                
+                # Esegui comunque create_all per eventuali nuove tabelle
                 db.create_all()
                 print("✅ Schema aggiornato")
             

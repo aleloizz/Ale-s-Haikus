@@ -21,6 +21,7 @@ class Poem(db.Model):
     # Metadati
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_valid = db.Column(db.Boolean, default=False)  # Rispetta la metrica
+    likes = db.Column(db.Integer, nullable=False, default=0)  # Conteggio like
     
     def __repr__(self):
         return f'<Poem {self.title} by {self.author}>'
@@ -37,7 +38,8 @@ class Poem(db.Model):
             'rhyme_scheme': self.rhyme_scheme,
             'poem_type': self.poem_type,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'is_valid': self.is_valid
+            'is_valid': self.is_valid,
+            'likes': self.likes or 0
         }
     
     @classmethod

@@ -528,20 +528,13 @@ def api_like_poem(poem_id):
         # Trova la poesia
         poem = Poem.query.get_or_404(poem_id)
         
-        # Per ora incrementa semplicemente il conteggio
-        # In futuro si potrebbbe implementare un sistema più sofisticato
-        # con utenti registrati e tracciamento dei like per utente
-        
-        # Simula un incremento di like
-        # Nota: questa è una implementazione semplice senza persistenza
-        # In produzione dovresti avere una tabella likes separata
-        current_likes = getattr(poem, '_likes', 0)
-        new_likes = current_likes + 1
-        setattr(poem, '_likes', new_likes)
+        # Incrementa likes persistenti (no utenti, semplice contatore)
+        poem.likes = (poem.likes or 0) + 1
+        db.session.commit()
         
         return jsonify({
             'success': True,
-            'likes': new_likes,
+            'likes': poem.likes,
             'message': 'Like aggiunto con successo!'
         })
         
@@ -558,13 +551,13 @@ def api_unlike_poem(poem_id):
         # Trova la poesia
         poem = Poem.query.get_or_404(poem_id)
         
-        # Simula rimozione like
-        current_likes = max(0, getattr(poem, '_likes', 0) - 1)
-        setattr(poem, '_likes', current_likes)
+        # Decrementa likes persistenti senza scendere sotto zero
+        poem.likes = max(0, (poem.likes or 0) - 1)
+        db.session.commit()
         
         return jsonify({
             'success': True,
-            'likes': current_likes,
+            'likes': poem.likes,
             'message': 'Like rimosso!'
         })
         
