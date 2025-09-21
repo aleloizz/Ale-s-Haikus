@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from services.poetry_analyzer import analizza_poesia_completa
 from models.poem import Poem, db
 from config.constants import SCHEMI_POESIA
@@ -528,9 +528,24 @@ def api_like_poem(poem_id):
         # Trova la poesia
         poem = Poem.query.get_or_404(poem_id)
         
-        # Incrementa likes persistenti (no utenti, semplice contatore)
+        # Evita doppio-like nella stessa sessione
+        liked_poems = session.get('liked_poems', [])
+        if poem_id in liked_poems:
+            # Nessun incremento, già apprezzata in questa sessione
+            return jsonify({
+                'success': True,
+                'likes': poem.likes or 0,
+                'already_liked': True,
+                'message': 'Hai già messo like a questa poesia.'
+            })
+        
+        # Incrementa likes persistenti (contatore)
         poem.likes = (poem.likes or 0) + 1
         db.session.commit()
+        
+        # Aggiorna sessione
+        liked_poems.append(poem_id)
+        session['liked_poems'] = liked_poems
         
         return jsonify({
             'success': True,
@@ -551,21 +566,41 @@ def api_unlike_poem(poem_id):
         # Trova la poesia
         poem = Poem.query.get_or_404(poem_id)
         
-        # Decrementa likes persistenti senza scendere sotto zero
-        poem.likes = max(0, (poem.likes or 0) - 1)
-        db.session.commit()
+        # Rimuovi like solo se presente nella sessione
+        liked_poems = session.get('liked_poems', [])
+        if poem_id in liked_poems:
+            poem.likes = max(0, (poem.likes or 0) - 1)
+            db.session.commit()
+            liked_poems = [pid for pid in liked_poems if pid != poem_id]
+            session['liked_poems'] = liked_poems
+        # Se non era presente, non decrementare
         
         return jsonify({
             'success': True,
             'likes': poem.likes,
             'message': 'Like rimosso!'
         })
-        
     except Exception as e:
         return jsonify({
             'success': False,
             'error': f'Errore nel rimuovere like: {str(e)}'
         }), 500
+        
+@api_bp.route('/poems/<int:poem_id>/like/status', methods=['GET'])
+def api_like_status(poem_id):
+    """Ritorna lo stato like per questa poesia nella sessione corrente"""
+    try:
+        poem = Poem.query.get_or_404(poem_id)
+        liked_poems = session.get('liked_poems', [])
+        return jsonify({
+            'success': True,
+            'liked': poem_id in liked_poems,
+            'likes': poem.likes or 0
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    
 
 @api_bp.route('/stats', methods=['GET'])
 def api_stats():
