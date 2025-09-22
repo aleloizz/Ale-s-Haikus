@@ -598,6 +598,17 @@ Versione: 3.71 - ottimizzazioni mobile
     .filter-actions .btn-group.btn-group-sm{display:none!important}
 }
 
+/* Mobile optimizations for filter-card header */
+@media (max-width: 576px){
+    .filter-card-header{row-gap:1rem;column-gap:0}
+    .filter-card-header .col-md-4,
+    .filter-card-header .col-md-3,
+    .filter-card-header .col-md-2{width:100%;flex:0 0 100%}
+    .filter-card-header .form-text{margin-top:.25rem}
+    .filter-card-header .filter-controls{width:100%;display:flex;gap:.5rem}
+    .filter-card-header .filter-controls .btn{flex:1 1 0}
+}
+
 /* Spaziatura dedicata per l'intestazione della filter-card */
 .filter-card-header {
     /* gap tra controlli della row */
