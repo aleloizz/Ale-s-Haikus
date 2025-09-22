@@ -218,6 +218,12 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
 
+        <style>
+            /* Prefer font-based Bootstrap Icons on this page to inherit color properly */
+            .bi[class^="bi-"]::before,
+            .bi[class*=" bi-"]::before { background-image: none !important; }
+        </style>
+
     <!-- Preload main module early to avoid ESM fetch latency in LCP chain -->
     <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}?v=1.3.8">
 
