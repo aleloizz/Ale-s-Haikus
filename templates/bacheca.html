@@ -337,13 +337,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         
                         <!-- Controlli aggiuntivi -->
                         <div class="col-md-2 mb-3 d-flex flex-column gap-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="onlyValidFilter" 
-                                       {% if solo_valide %}checked{% endif %}>
-                                <label class="form-check-label text-muted" for="onlyValidFilter">
-                                    <i class="bi bi-check-circle text-success"></i> Solo valide
-                                </label>
-                            </div>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-haiku btn-primary btn-sm" id="applyFilters" title="Applica i filtri selezionati">
                                     <i class="bi bi-funnel me-1"></i> Applica
@@ -357,7 +350,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                     
                     <!-- Filtri attivi (server-rendered) -->
                     <div class="pt-2">
-                        {% if (search_query and search_query.strip()) or (tipo_filtro and tipo_filtro.strip()) or (autore_filtro and autore_filtro.strip()) or solo_valide %}
+                        {% if (search_query and search_query.strip()) or (tipo_filtro and tipo_filtro.strip()) or (autore_filtro and autore_filtro.strip()) %}
                         <div class="d-flex align-items-center flex-wrap gap-2" aria-live="polite">
                             <span class="text-muted small me-1">Filtri attivi:</span>
                             {% if search_query and search_query.strip() %}
@@ -383,15 +376,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 Autore: {{ autore_filtro }}
                                 <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro autore"
                                     onclick="(function(){var el=document.getElementById('authorFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
-                                    <i class="bi bi-x-circle"></i>
-                                </button>
-                            </span>
-                            {% endif %}
-                            {% if solo_valide %}
-                            <span class="badge rounded-pill text-bg-light" title="Solo poesie valide">
-                                Solo valide
-                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Disattiva solo valide"
-                                    onclick="(function(){var el=document.getElementById('onlyValidFilter'); if(el){el.checked=false; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </span>
@@ -458,10 +442,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                 <div id="poemsContainer" class="poems-grid">
                     {% if poesie and poesie.items %}
                     {% for poem in poesie.items %}
-                    <div class="poem-card-wrapper" 
-                         data-poem-type="{{ poem.poem_type|lower if poem.poem_type else 'libero' }}" 
-                         data-author="{{ poem.author|lower if poem.author else 'anonimo' }}" 
-                         data-valid="{{ poem.is_valid|lower if poem.is_valid else 'false' }}">
+                <div class="poem-card-wrapper" 
+                    data-poem-type="{{ poem.poem_type|lower if poem.poem_type else 'libero' }}" 
+                    data-author="{{ poem.author|lower if poem.author else 'anonimo' }}">
     
                         <div class="card glass-card poem-card"
                              data-poem-id="{{ poem.id }}"
@@ -478,11 +461,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                             <span class="badge bg-primary badge-poem-type">
                                                 {{ poem.poem_type.replace('_', ' ').title() if poem.poem_type else 'Libero' }}
                                             </span>
-                                            {% if poem.is_valid %}
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i> Valida
-                                            </span>
-                                            {% endif %}
+                                            
                                         </div>
                                     </div>
                                     
@@ -570,14 +549,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <i class="bi bi-journal-text display-1 text-white-50 mb-3"></i>
                                 <h4 class="text-white">Nessuna poesia trovata</h4>
                                 <p class="text-white-75 mb-4">
-                                    {% if (tipo_filtro and tipo_filtro != '') or (autore_filtro and autore_filtro != '') or solo_valide %}
+                                    {% if (tipo_filtro and tipo_filtro != '') or (autore_filtro and autore_filtro != '') %}
                                     Prova a modificare i filtri di ricerca oppure
                                     {% else %}
                                     Non ci sono ancora poesie nella bacheca.
                                     {% endif %}
                                 </p>
                                 <div class="d-flex gap-3 justify-content-center">
-                                    {% if (tipo_filtro and tipo_filtro != '') or (autore_filtro and autore_filtro != '') or solo_valide %}
+                                    {% if (tipo_filtro and tipo_filtro != '') or (autore_filtro and autore_filtro != '') %}
                                     <button type="button" class="btn btn-haiku btn-secondary" id="clearAllFilters">
                                         <i class="bi bi-funnel-x"></i> Rimuovi filtri
                                     </button>
@@ -614,12 +593,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <!-- Primo e precedente -->
                         {% if poesie.page > 1 %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=1, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Prima pagina">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=1, tipo=tipo_filtro, autore=autore_filtro) }}" title="Prima pagina">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.prev_num, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Pagina precedente">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.prev_num, tipo=tipo_filtro, autore=autore_filtro) }}" title="Pagina precedente">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
@@ -631,7 +610,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         
                         {% if start_page > 1 %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=1, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}">1</a>
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=1, tipo=tipo_filtro, autore=autore_filtro) }}">1</a>
                         </li>
                         {% if start_page > 2 %}
                         <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -640,7 +619,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         
                         {% for page_num in range(start_page, end_page + 1) %}
                         <li class="page-item {% if page_num == poesie.page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=page_num, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=page_num, tipo=tipo_filtro, autore=autore_filtro) }}">
                                 {{ page_num }}
                             </a>
                         </li>
@@ -651,7 +630,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <li class="page-item disabled"><span class="page-link">...</span></li>
                         {% endif %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.pages, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.pages, tipo=tipo_filtro, autore=autore_filtro) }}">
                                 {{ poesie.pages }}
                             </a>
                         </li>
@@ -660,12 +639,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <!-- Successivo e ultimo -->
                         {% if poesie.page < poesie.pages %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.next_num, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Pagina successiva">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.next_num, tipo=tipo_filtro, autore=autore_filtro) }}" title="Pagina successiva">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.pages, tipo=tipo_filtro, autore=autore_filtro, solo_valide=solo_valide) }}" title="Ultima pagina">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=poesie.pages, tipo=tipo_filtro, autore=autore_filtro) }}" title="Ultima pagina">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
@@ -799,7 +778,7 @@ window.BACHECA_CONFIG = {
         tipo: {{ (tipo_filtro or '')|tojson|safe }},
         autore: {{ (autore_filtro or '')|tojson|safe }},
         search: {{ (search_query or '')|tojson|safe }},
-        solo_valide: {{ solo_valide|tojson|safe if solo_valide is not none else false }}
+        
     },
     sortBy: {{ (sort_by or 'recent')|tojson|safe }},
     baseUrl: {{ url_for('web.bacheca')|tojson|safe }}
