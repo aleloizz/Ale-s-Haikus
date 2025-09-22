@@ -305,7 +305,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 </optgroup>
                             </select>
                             <div class="form-text d-flex align-items-center gap-2">
-                                <small>Seleziona una forma poetica.</small>
                                 {% if tipo_filtro %}
                                 <button type="button" class="btn btn-link p-0 small" title="Rimuovi filtro tipologia" onclick="(function(){var el=document.getElementById('typeFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">Pulisci</button>
                                 {% endif %}
@@ -328,7 +327,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 {% endif %}
                             </select>
                             <div class="form-text d-flex align-items-center gap-2">
-                                <small>Filtra per autore specifico.</small>
                                 {% if autore_filtro %}
                                 <button type="button" class="btn btn-link p-0 small" title="Rimuovi filtro autore" onclick="(function(){var el=document.getElementById('authorFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">Pulisci</button>
                                 {% endif %}

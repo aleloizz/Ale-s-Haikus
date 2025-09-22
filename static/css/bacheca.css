@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.75 - ottimizzazioni dropdown
+Versione: 3.76 - ottimizzazioni grafiche
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -741,10 +741,10 @@ Versione: 3.75 - ottimizzazioni dropdown
 /* DROPDOWN MENU - Bootstrap compatibile */
 .dropdown-menu {
     list-style-type: none;
-    background: rgba(255, 255, 255, 0.4) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
     backdrop-filter: blur(20px) brightness(50%);
     -webkit-backdrop-filter: blur(20px) brightness(50%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgb(255, 255, 255) !important;
     border-radius: 1rem !important;
     box-shadow: 
         0 10px 40px rgba(0, 0, 0, 0.1),
@@ -781,7 +781,7 @@ Versione: 3.75 - ottimizzazioni dropdown
 }
 
 .dropdown-item:hover {
-    background: rgba(212, 184, 255, 0.2) !important;
+    background: rgba(191, 149, 255, 0.35) !important;
     color: var(--text-dark) !important;
     transform: translateX(2px) !important;
 }
