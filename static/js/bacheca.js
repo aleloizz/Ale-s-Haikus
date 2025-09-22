@@ -9,8 +9,7 @@ class BachecaManager {
         this.currentFilters = {
             search: '',
             type: 'all',
-            author: 'all',
-            valid_only: false
+            author: 'all'
         };
         
         this.currentSort = 'recent';
@@ -78,7 +77,6 @@ class BachecaManager {
             searchText: document.getElementById('searchText'),
             typeFilter: document.getElementById('typeFilter'),
             authorFilter: document.getElementById('authorFilter'),
-            onlyValidFilter: document.getElementById('onlyValidFilter'),
             applyFilters: document.getElementById('applyFilters'),
             clearFilters: document.getElementById('clearFilters'),
             clearAllFilters: document.getElementById('clearAllFilters'),
@@ -167,13 +165,7 @@ class BachecaManager {
             });
         }
 
-        // Solo valide
-        if (this.elements.onlyValidFilter) {
-            this.elements.onlyValidFilter.addEventListener('change', (e) => {
-                this.currentFilters.valid_only = e.target.checked;
-                this.applyFilters();
-            });
-        }
+        // (solo valide) rimosso
 
         // Pulsanti filtri
         if (this.elements.applyFilters) {
@@ -415,9 +407,7 @@ class BachecaManager {
         if (this.elements.authorFilter) {
             this.elements.authorFilter.value = this.currentFilters.author;
         }
-        if (this.elements.onlyValidFilter) {
-            this.elements.onlyValidFilter.checked = this.currentFilters.valid_only;
-        }
+        // (solo valide) rimosso
     }
 
     /**
@@ -444,9 +434,7 @@ class BachecaManager {
             if (this.currentFilters.author !== 'all') {
                 params.append('autore', this.currentFilters.author);
             }
-            if (this.currentFilters.valid_only) {
-                params.append('solo_valide', 'true');
-            }
+            // (solo_valide) rimosso
             if (this.currentSort !== 'recent') {
                 params.append('sort', this.currentSort);
             }
@@ -482,8 +470,7 @@ class BachecaManager {
         this.currentFilters = {
             search: '',
             type: 'all',
-            author: 'all',
-            valid_only: false
+            author: 'all'
         };
         
         this.syncFiltersToUI();
@@ -1239,8 +1226,7 @@ class BachecaManager {
             this.elements.applyFilters,
             this.elements.clearFilters,
             this.elements.typeFilter,
-            this.elements.authorFilter,
-            this.elements.onlyValidFilter
+            this.elements.authorFilter
         ];
         
         controls.forEach(element => {
