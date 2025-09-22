@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.71 - ottimizzazioni mobile
+Versione: 3.75 - ottimizzazioni dropdown
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -565,8 +565,10 @@ Versione: 3.71 - ottimizzazioni mobile
     margin-bottom: 2rem;
     box-shadow: 0 1rem 3rem rgba(0,0,0,0.175);
     transition: box-shadow 0.3s ease;
-    /* Prevent accidental horizontal scroll from inner flex rows */
-    overflow-x: hidden;
+    /* Permetti ai dropdown di uscire dai bordi della card */
+    overflow: visible;
+    position: relative;
+    z-index: 40; /* superiore alle poem-cards sotto */
 }
 
 .filter-card:hover {
@@ -615,6 +617,7 @@ Versione: 3.71 - ottimizzazioni mobile
     row-gap: 1rem;
     column-gap: 1rem;
     margin-bottom: 0.25rem; /* leggero respiro sotto la prima riga */
+    align-items: center;
 }
 
 /* Migliora lo spacing su schermi piccoli */
