@@ -575,6 +575,29 @@ Versione: 3.71 - ottimizzazioni mobile
         0 0.5rem 1rem rgba(149, 117, 205, 0.1);
 }
 
+/* Nascondi i radio default per i toggle vista, mantenendo accessibilità */
+.btn-check {
+    position: absolute !important;
+    clip: rect(0, 0, 0, 0) !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+
+/* Stato attivo del pulsante associato (opzionale, leggero focus ring) */
+.btn-check:checked + .btn,
+.btn-check:checked + .btn-haiku {
+    box-shadow: 0 0 0 0.2rem rgba(212, 184, 255, 0.35) !important;
+}
+
+/* Mobile: hide view mode toggle (radios + labels) */
+@media (max-width: 576px){
+    .filter-actions .btn-group.btn-group-sm{display:none!important}
+}
+
 /* Spaziatura dedicata per l'intestazione della filter-card */
 .filter-card-header {
     /* gap tra controlli della row */

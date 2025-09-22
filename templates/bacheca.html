@@ -118,8 +118,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.72" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.72"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.73" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.73"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -265,7 +265,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <!-- Ricerca per testo -->
                         <div class="col-md-4 mb-3">
                             <label for="searchText" class="form-label fw-medium text-muted">
-                                <i class="bi bi-search me-1"></i>Cerca poesia
+                                <i class="bi bi-search me-1"></i>   Cerca poesia
                             </label>
                             <input type="text" id="searchText" class="form-control" 
                                    placeholder="Cerca per titolo, contenuto o autore" 
@@ -276,7 +276,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <!-- Filtro per tipologia -->
                         <div class="col-md-3 mb-3">
                             <label for="typeFilter" class="form-label fw-medium text-muted">
-                                <i class="bi bi-bookmark me-1"></i>Tipologia
+                                <i class="bi bi-bookmark me-1"></i>   Tipologia
                             </label>
                             <select id="typeFilter" class="form-select">
                                 <option value="">Tutte le tipologie</option>
@@ -315,7 +315,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         <!-- Filtro per autore -->
                         <div class="col-md-3 mb-3">
                             <label for="authorFilter" class="form-label fw-medium text-muted">
-                                <i class="bi bi-person me-1"></i>Autore
+                                <i class="bi bi-person me-1"></i>   Autore
                             </label>
                             <select id="authorFilter" class="form-select">
                                 <option value="">Tutti gli autori</option>
@@ -336,7 +336,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         </div>
                         
                         <!-- Controlli aggiuntivi -->
-                        <div class="col-md-2 mb-3 d-flex flex-column gap-2">
+                        <div class="col-md-2 mb-3 d-flex flex-column gap-2" style="align-self: center;padding-left: 390px;">
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-haiku btn-primary btn-sm" id="applyFilters" title="Applica i filtri selezionati">
                                     <i class="bi bi-funnel me-1"></i> Applica
@@ -405,12 +405,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <div class="btn-group btn-group-sm" role="group">
                                 <input type="radio" class="btn-check" name="viewMode" id="viewGrid" checked>
                                 <label class="btn btn-haiku btn-primary" for="viewGrid">
-                                    <i class="bi bi-grid-3x2"></i>
+                                    <i class="bi bi-grid-3x2" style="margin-right: unset;"></i>
                                 </label>
                                 
                                 <input type="radio" class="btn-check" name="viewMode" id="viewList">
                                 <label class="btn btn-haiku btn-primary" for="viewList">
-                                    <i class="bi bi-list"></i>
+                                    <i class="bi bi-list" style="margin-right: unset;"></i>
                                 </label>
                             </div>
                             
