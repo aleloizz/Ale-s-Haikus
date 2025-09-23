@@ -368,6 +368,18 @@ button:active {
 }
 .btn-haiku i{margin-right:.5rem;display:inline-block;line-height:0}
 
+/* ===== NAVBAR COMPACT + HORIZONTAL LINKS (shared) ===== */
+.haiku-navbar{padding:.25rem 0!important;min-height:48px}
+.haiku-navbar .container{padding-top:0!important;padding-bottom:0!important}
+.haiku-nav{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:.75rem 1rem;margin:0;padding:0}
+.haiku-nav .nav-link{padding:.35rem .75rem;border-radius:.75rem;display:inline-flex;align-items:center;gap:.35rem;line-height:1;font-weight:500}
+.haiku-nav .nav-link i{margin-right:.35rem}
+.haiku-nav .nav-link.active{background:rgba(255,255,255,0.15)!important;color:#fff!important}
+@media (max-width:576px){
+  .haiku-nav{gap:.5rem}
+  .haiku-nav .nav-link{padding:.3rem .6rem;font-size:.95rem}
+}
+
 /* Mobile-only: rimuovi tap highlight WebKit e aggiungi feedback :active */
 @media (pointer: coarse) {
   html, body, a, button, .btn { -webkit-tap-highlight-color: transparent; }
