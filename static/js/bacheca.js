@@ -1,8 +1,11 @@
 /**
  * Bacheca delle Poesie - JavaScript Module
  * Gestisce l'interfaccia interattiva della bacheca poetica
- * @version 1.10 - Aggiunto supporto condivisione social
+ * @version 1.11 - Hardening ricerca: sanificazione input e limiti
  */
+
+// Sanificazione input lato client (riuso utilità condivisa)
+import { sanitizeInput } from './utils.js';
 
 class BachecaManager {
     constructor() {
@@ -27,6 +30,7 @@ class BachecaManager {
         // Configurazione
         this.config = {
             searchDelay: 500,
+            maxSearchLength: 120,
             animationDuration: 300,
             loadingTimeout: 10000,
             share: {
@@ -143,7 +147,21 @@ class BachecaManager {
             this.elements.searchText.addEventListener('input', (e) => {
                 clearTimeout(this.searchTimeout);
                 this.searchTimeout = setTimeout(() => {
-                    this.currentFilters.search = e.target.value.trim();
+                    // 1) Sanifica input utente
+                    let raw = typeof e.target.value === 'string' ? e.target.value : '';
+                    // Normalizza whitespace (spazi multipli -> singolo spazio)
+                    let normalized = raw.replace(/[\t\n\r]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+                    // Sanifica contenuto per rimuovere tag/payload pericolosi
+                    let safe = sanitizeInput(normalized);
+                    // Applica limite lunghezza per evitare query costose
+                    if (safe.length > this.config.maxSearchLength) {
+                        safe = safe.slice(0, this.config.maxSearchLength);
+                    }
+                    // Riflette eventuale sanificazione nel campo (feedback all'utente)
+                    if (safe !== e.target.value) {
+                        e.target.value = safe;
+                    }
+                    this.currentFilters.search = safe;
                     this.applyFilters();
                 }, this.config.searchDelay);
             });
@@ -399,7 +417,14 @@ class BachecaManager {
      */
     syncFiltersToUI() {
         if (this.elements.searchText) {
-            this.elements.searchText.value = this.currentFilters.search;
+            // Garantisce che eventuali valori persistiti siano safe
+            let safe = sanitizeInput(String(this.currentFilters.search || ''))
+                .replace(/[\t\n\r]+/g, ' ')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
+            if (safe.length > this.config.maxSearchLength) safe = safe.slice(0, this.config.maxSearchLength);
+            this.elements.searchText.value = safe;
+            this.currentFilters.search = safe;
         }
         if (this.elements.typeFilter) {
             this.elements.typeFilter.value = this.currentFilters.type;

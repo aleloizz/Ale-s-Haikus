@@ -30,7 +30,18 @@ def bacheca():
         # Parametri filtro - SEMPRE stringe, mai None
         tipo_filtro = request.args.get('tipo', '').strip()
         autore_filtro = request.args.get('autore', '').strip()
-        search_query = request.args.get('search', '').strip()
+        # Ricerca: normalizza e applica limiti
+        raw_search = request.args.get('search', '') or ''
+        # Normalizza whitespace e rimuovi caratteri di controllo
+        try:
+            import re
+            search_query = re.sub(r"[\t\n\r\x00-\x1F\x7F]+", " ", str(raw_search))
+            search_query = re.sub(r"\s{2,}", " ", search_query).strip()
+        except Exception:
+            search_query = str(raw_search).strip()
+        # Limite di lunghezza per query efficienti
+        if len(search_query) > 120:
+            search_query = search_query[:120]
         solo_valide = request.args.get('solo_valide', '').lower() == 'true'
         sort_by = request.args.get('sort', 'recent').strip() or 'recent'
         
@@ -39,12 +50,15 @@ def bacheca():
         
         # Applica filtri solo se non vuoti
         if search_query:
-            search_pattern = f'%{search_query}%'
+            # Escapa i caratteri jolly di LIKE per trattarli come letterali
+            # Usa backslash come escape char e specifica escape='\\'
+            like_input = search_query.replace('\\', '\\\\').replace('%', r'\%').replace('_', r'\_')
+            search_pattern = f"%{like_input}%"
             query = query.filter(
                 db.or_(
-                    Poem.title.ilike(search_pattern),
-                    Poem.content.ilike(search_pattern),
-                    Poem.author.ilike(search_pattern)
+                    Poem.title.ilike(search_pattern, escape='\\'),
+                    Poem.content.ilike(search_pattern, escape='\\'),
+                    Poem.author.ilike(search_pattern, escape='\\')
                 )
             )
         

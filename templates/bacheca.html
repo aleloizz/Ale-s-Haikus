@@ -265,10 +265,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <label for="searchText" class="form-label fw-medium text-muted">
                                 <i class="bi bi-search me-1"></i>   Cerca poesia
                             </label>
-                            <input type="text" id="searchText" class="form-control" 
-                                   placeholder="Cerca per titolo, contenuto o autore" 
-                                   aria-label="Campo di ricerca per titolo, contenuto o autore" 
-                                   value="{{ search_query if search_query else '' }}">
+                <input type="text" id="searchText" class="form-control" 
+                    placeholder="Cerca per titolo, contenuto o autore" 
+                    aria-label="Campo di ricerca per titolo, contenuto o autore" 
+                    maxlength="120" inputmode="search" 
+                    value="{{ search_query if search_query else '' }}">
                         </div>
                         
                         <!-- Filtro per tipologia -->
