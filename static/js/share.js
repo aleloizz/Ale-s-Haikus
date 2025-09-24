@@ -146,7 +146,7 @@ export async function renderShareImage({
       }
     : {
         x: cfg.safe.l,
-        y: cfg.safe.t + 120, // slight downward shift per feedback
+        y: cfg.safe.t + 150, // slight downward shift per feedback
         w: cfg.w - cfg.safe.l - cfg.safe.r,
         h: cfg.h - cfg.safe.t - cfg.safe.b,
         r: 40,
@@ -184,7 +184,7 @@ export async function renderShareImage({
   if (safeAuthor) {
     ctx.font = `600 ${authorSize}px Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
     ctx.fillStyle = '#5e5e5e';
-    ctx.fillText(`— ${safeAuthor}`, panel.x + 32, cursorY);
+    ctx.fillText(`- ${safeAuthor}`, panel.x + 32, cursorY);
     cursorY += authorSize + 24;
   }
 
