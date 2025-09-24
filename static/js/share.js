@@ -150,7 +150,7 @@ export async function renderShareImage({
     ctx.fillStyle = '#d76f43';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    const lines = wrapText(ctx, safeTitle, maxWidth, lineHeight, 2);
+    const lines = wrapTextWithBreaks(ctx, safeTitle, maxWidth, 2);
     lines.forEach(line => {
       ctx.fillText(line, panel.x + 32, cursorY);
       cursorY += Math.round(titleSize * 1.1);
