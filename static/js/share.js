@@ -29,29 +29,47 @@ async function ensureFonts(fontFamilies = []) {
   } catch (_) { /* no-op */ }
 }
 
-function wrapText(ctx, text, maxWidth, lineHeight, maxLines) {
+// Wrap a single logical line into multiple canvas-fit lines
+function wrapWords(ctx, text, maxWidth) {
+  if (text === '') return [''];
   const words = text.split(/\s+/);
-  const lines = [];
+  const out = [];
   let line = '';
   for (let i = 0; i < words.length; i++) {
     const test = line ? line + ' ' + words[i] : words[i];
-    const m = ctx.measureText(test);
-    if (m.width > maxWidth && line) {
-      lines.push(line);
+    if (ctx.measureText(test).width > maxWidth && line) {
+      out.push(line);
       line = words[i];
-      if (lines.length >= maxLines) break;
     } else {
       line = test;
     }
   }
-  if (line && lines.length < maxLines) lines.push(line);
-  if (lines.length === maxLines && i < words.length) {
-    // ellipsize last line
-    let last = lines[lines.length - 1];
-    while (ctx.measureText(last + '…').width > maxWidth && last.length > 0) {
-      last = last.slice(0, -1);
+  if (line) out.push(line);
+  return out;
+}
+
+// Respect explicit newlines (\n) as hard breaks while still wrapping long lines
+function wrapTextWithBreaks(ctx, text, maxWidth, maxLines) {
+  const rawLines = String(text).split(/\n/);
+  const lines = [];
+  for (let idx = 0; idx < rawLines.length; idx++) {
+    const seg = rawLines[idx]; // keep empty to allow blank lines
+    const pieces = wrapWords(ctx, seg, maxWidth);
+    for (const p of pieces) {
+      if (lines.length < maxLines) lines.push(p);
+      else break;
     }
-    lines[lines.length - 1] = last + '…';
+    if (lines.length >= maxLines) break;
+  }
+  // Ellipsize if truncated
+  if (rawLines.length && lines.length >= maxLines) {
+    let last = lines[lines.length - 1];
+    const ell = '…';
+    while (last && ctx.measureText(last + ell).width > maxWidth) {
+      last = last.slice(0, -1);
+      if (last.length === 0) break;
+    }
+    lines[lines.length - 1] = (last || '').trimEnd() + ell;
   }
   return lines;
 }
@@ -106,7 +124,7 @@ export async function renderShareImage({
   // Soft panel for text area (like your template)
   const panel = {
     x: cfg.safe.l,
-    y: cfg.safe.t,
+    y: cfg.safe.t + 16, // slight downward shift per feedback
     w: cfg.w - cfg.safe.l - cfg.safe.r,
     h: cfg.h - cfg.safe.t - cfg.safe.b,
     r: 40,
@@ -152,7 +170,7 @@ export async function renderShareImage({
   ctx.font = `400 ${bodySize}px Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
   ctx.fillStyle = '#5e5e5e';
   const maxLines = Math.floor((panel.y + panel.h - cursorY - 32) / lineHeight);
-  const bodyLines = wrapText(ctx, safeText, maxWidth, lineHeight, Math.max(6, maxLines));
+  const bodyLines = wrapTextWithBreaks(ctx, safeText, maxWidth, Math.max(6, maxLines));
   bodyLines.forEach(line => {
     ctx.fillText(line, panel.x + 32, cursorY);
     cursorY += lineHeight;
