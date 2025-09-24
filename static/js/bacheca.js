@@ -881,7 +881,8 @@ class BachecaManager {
             case 'instagram': {
                 try {
                     // Lazy import del generatore immagine
-                    const shareMod = await import('./share.js');
+                    const ver = (window.__ASSETS_VERSION__ || Date.now());
+                    const shareMod = await import(`./share.js?v=${ver}`);
                     // Scegli formato (semplice prompt per Phase 1; in seguito UI dedicata)
                     const choice = window.prompt('Formato Instagram: scrivi "story" oppure "post"', 'story');
                     const format = (choice || 'story').toLowerCase().includes('post') ? 'post' : 'story';
