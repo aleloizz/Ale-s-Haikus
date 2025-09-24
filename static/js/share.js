@@ -8,7 +8,8 @@ import { sanitizeInput } from './utils.js';
 
 const FORMATS = {
   story: { w: 1080, h: 1920, safe: { l: 120, r: 120, t: 320, b: 280 } },
-  post:  { w: 1080, h: 1080, safe: { l: 96,  r: 96,  t: 140, b: 140 } },
+  // Instagram Post (portrait 4:5): 1080 x 1350
+  post:  { w: 1080, h: 1350, safe: { l: 96,  r: 96,  t: 160, b: 160 } },
 };
 
 function loadImage(src) {
@@ -112,8 +113,16 @@ export async function renderShareImage({
 
   // Background image or gradient fallback
   if (backgroundUrl) {
-    const bg = await loadImage(backgroundUrl);
-    ctx.drawImage(bg, 0, 0, cfg.w, cfg.h);
+    try {
+      const bg = await loadImage(backgroundUrl);
+      ctx.drawImage(bg, 0, 0, cfg.w, cfg.h);
+    } catch (err) {
+      // Fallback to gradient if image fails to load (CORS or missing asset)
+      const grad = ctx.createLinearGradient(0, 0, cfg.w, cfg.h);
+      grad.addColorStop(0, '#ffd6c0');
+      grad.addColorStop(1, '#ffeef2');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, cfg.w, cfg.h);
+    }
   } else {
     const grad = ctx.createLinearGradient(0, 0, cfg.w, cfg.h);
     grad.addColorStop(0, '#ffd6c0');
@@ -121,10 +130,10 @@ export async function renderShareImage({
     ctx.fillStyle = grad; ctx.fillRect(0, 0, cfg.w, cfg.h);
   }
 
-  // Soft panel for text area (like your template)
+  // Soft panel for text area
   const panel = {
     x: cfg.safe.l,
-    y: cfg.safe.t + 16, // slight downward shift per feedback
+    y: cfg.safe.t + 70, // slight downward shift per feedback
     w: cfg.w - cfg.safe.l - cfg.safe.r,
     h: cfg.h - cfg.safe.t - cfg.safe.b,
     r: 40,
