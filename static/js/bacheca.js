@@ -879,22 +879,48 @@ class BachecaManager {
                 shareUrl = fbUrl;
                 break; }
             case 'instagram': {
-                // Copia sempre testo completo + permalink
                 try {
-                    const instaText = `${baseText}\n\n${permalink}`;
-                    if (navigator.clipboard?.writeText) {
-                        await navigator.clipboard.writeText(instaText);
-                        if (this.shareState.extra) {
-                            this.shareState.extra.style.display = 'block';
-                            this.shareState.extra.textContent = 'Testo e link copiati! Incollali nelle storie o nel post.';
-                        }
-                        this.showToast('copy', 'Testo copiato!');
-                    } else {
-                        this.fallbackCopyText(instaText);
+                    // Lazy import del generatore immagine
+                    const shareMod = await import('./share.js');
+                    // Scegli formato (semplice prompt per Phase 1; in seguito UI dedicata)
+                    const choice = window.prompt('Formato Instagram: scrivi "story" oppure "post"', 'story');
+                    const format = (choice || 'story').toLowerCase().includes('post') ? 'post' : 'story';
+
+                    // Estrai dati dalla card
+                    const card = document.querySelector(`[data-poem-id="${poemId}"]`);
+                    const title = card?.querySelector('.card-title')?.textContent?.trim() || '';
+                    const author = card?.getAttribute('data-poem-author')
+                                  || card?.querySelector('.fw-medium')?.textContent?.trim()
+                                  || '';
+                    let bodyHtml = card?.querySelector('.poem-text')?.innerHTML || '';
+                    bodyHtml = bodyHtml.replace(/<br\s*\/?>(\n)?/gi, '\n');
+                    const tmp = document.createElement('div'); tmp.innerHTML = bodyHtml;
+                    const text = (tmp.textContent || tmp.innerText || '').trim();
+
+                    // Sfondi per formato (usa il template story fornito, post usa fallback gradiente)
+                    const bgUrl = format === 'story'
+                      ? `${window.location.origin}/static/images/share/story-template.png`
+                      : '';
+
+                    const canvas = await shareMod.renderShareImage({
+                        format,
+                        backgroundUrl: bgUrl,
+                        title,
+                        author,
+                        text,
+                        watermark: 'aleshaikus.me'
+                    });
+                    const filename = `poesia-${poemId}-${format}.png`;
+                    const result = await shareMod.shareOrDownload(canvas, filename);
+                    if (this.shareState.extra) {
+                        this.shareState.extra.style.display = 'block';
+                        this.shareState.extra.textContent = result === 'shared'
+                          ? 'Condivisione avviata: scegli Instagram dal menu di sistema.'
+                          : 'Immagine scaricata: apri Instagram e caricala come Storia/Post.';
                     }
                 } catch (err) {
-                    console.error('Instagram copy failed:', err);
-                    this.showToast('error', 'Impossibile preparare il testo per Instagram');
+                    console.error('Instagram image share failed:', err);
+                    this.showToast('error', 'Condivisione immagine non riuscita');
                 }
                 return; }
             default:
