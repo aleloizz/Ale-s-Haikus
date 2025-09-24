@@ -131,24 +131,37 @@ export async function renderShareImage({
   }
 
   // Soft panel for text area
-  const panel = {
-    x: cfg.safe.l,
-    y: cfg.safe.t + 70, // slight downward shift per feedback
-    w: cfg.w - cfg.safe.l - cfg.safe.r,
-    h: cfg.h - cfg.safe.t - cfg.safe.b,
-    r: 40,
-  };
+  // Story uses safe-area; Post uses a custom panel narrower and much lower
+  const panel = (format === 'post')
+    ? {
+        // ~18% side margins → narrower card
+        x: Math.round(cfg.w * 0.18),                     // ≈ 194px on 1080w
+        // place the panel much lower (~39% from top)
+        y: Math.round(cfg.h * 0.39),                     // ≈ 526px on 1350h
+        // ~64% width for a compact feel
+        w: Math.round(cfg.w * 0.64),                     // ≈ 691px
+        // ~47% height to leave top/bottom breathing room
+        h: Math.round(cfg.h * 0.47),                     // ≈ 635px
+        r: 40,
+      }
+    : {
+        x: cfg.safe.l,
+        y: cfg.safe.t + 120, // slight downward shift per feedback
+        w: cfg.w - cfg.safe.l - cfg.safe.r,
+        h: cfg.h - cfg.safe.t - cfg.safe.b,
+        r: 40,
+      };
   ctx.save();
-  ctx.globalAlpha = 0.85;
+  ctx.globalAlpha = (format === 'post') ? 0.80 : 0.85;
   drawRoundedRect(ctx, panel.x, panel.y, panel.w, panel.h, panel.r);
   ctx.fillStyle = theme === 'dark' ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.65)';
   ctx.fill();
   ctx.restore();
 
   // Typography
-  const titleSize = format === 'story' ? 54 : 40;
-  const authorSize = format === 'story' ? 36 : 28;
-  const bodySize = format === 'story' ? 40 : 32;
+  const titleSize = format === 'story' ? 54 : 38;
+  const authorSize = format === 'story' ? 36 : 26;
+  const bodySize = format === 'story' ? 40 : 30;
   const lineHeight = Math.round(bodySize * 1.35);
   const maxWidth = panel.w - 64; // inner padding 32px each side
   let cursorY = panel.y + 56; // top padding
