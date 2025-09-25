@@ -1,6 +1,6 @@
 /* 
 ===== BACHECA.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 3.76 - ottimizzazioni grafiche
+Versione: 3.77 - ottimizzazioni grafiche
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root {
@@ -633,6 +633,28 @@ Versione: 3.76 - ottimizzazioni grafiche
     border: 1px solid #ced4da;
     background: #fff;
     transition: all 0.3s ease;
+}
+
+/* High-contrast selects for filters */
+.form-select.haiku-select {
+    color: var(--text-dark) !important; /* darker base text */
+}
+
+/* Options inside the high-contrast selects */
+.form-select.haiku-select option {
+    color: var(--text-dark) !important; /* ensure options are readable */
+    background: #fff !important;
+}
+
+.form-select.haiku-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(212,184,255,0.25) !important;
+}
+
+/* Placeholder option (empty value) muted but still readable */
+.form-select.haiku-select option[value=""],
+.form-select.haiku-select option[disabled] {
+    color: #6c757d !important;
 }
 
 .form-control:focus,
