@@ -116,8 +116,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
     <!-- Preload essential resources -->
     <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.75" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.75"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.77" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/bacheca.css') }}?v=3.77"></noscript>
 
     <!-- POI critical.css -->
     <link rel="preload" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -277,7 +277,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <label for="typeFilter" class="form-label fw-medium text-muted">
                                 <i class="bi bi-bookmark me-1"></i>   Tipologia
                             </label>
-                            <select id="typeFilter" class="form-select">
+                            <select id="typeFilter" class="form-select haiku-select">
                                 <option value="">Tutte le tipologie</option>
                                 <optgroup label="Giapponesi">
                                     <option value="haiku" {% if tipo_filtro and tipo_filtro == 'haiku' %}selected{% endif %}>Haiku</option>
@@ -303,11 +303,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                     <option value="versi_liberi" {% if tipo_filtro == 'versi_liberi' %}selected{% endif %}>Versi liberi</option>
                                 </optgroup>
                             </select>
-                            <div class="form-text d-flex align-items-center gap-2">
-                                {% if tipo_filtro %}
-                                <button type="button" class="btn btn-link p-0 small" title="Rimuovi filtro tipologia" onclick="(function(){var el=document.getElementById('typeFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">Pulisci</button>
-                                {% endif %}
-                            </div>
                         </div>
                         
                         <!-- Filtro per autore -->
@@ -315,7 +310,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             <label for="authorFilter" class="form-label fw-medium text-muted">
                                 <i class="bi bi-person me-1"></i>   Autore
                             </label>
-                            <select id="authorFilter" class="form-select">
+                            <select id="authorFilter" class="form-select haiku-select">
                                 <option value="">Tutti gli autori</option>
                                 {% if autori and autori|length > 0 %}
                                 {% for author in autori %}
@@ -325,11 +320,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 {% endfor %}
                                 {% endif %}
                             </select>
-                            <div class="form-text d-flex align-items-center gap-2">
-                                {% if autore_filtro %}
-                                <button type="button" class="btn btn-link p-0 small" title="Rimuovi filtro autore" onclick="(function(){var el=document.getElementById('authorFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">Pulisci</button>
-                                {% endif %}
-                            </div>
                         </div>
                         
                         <!-- Controlli aggiuntivi -->
