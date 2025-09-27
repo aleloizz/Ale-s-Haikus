@@ -1,0 +1,44 @@
+/* Landing Page - CSS incrementale (non critical) */
+:root {
+  --ease: cubic-bezier(.16,.8,.32,1);
+}
+
+/* Riduci saturazione immagini fuori viewport (progressive reveal) */
+.lazy-illustration:not(.loaded) img { filter: blur(8px) saturate(.7) brightness(.9); }
+
+.feature-card.reveal, .seo-card.reveal { animation: riseIn .85s var(--ease) forwards; }
+.feature-card:nth-child(2){animation-delay:.05s}
+.feature-card:nth-child(3){animation-delay:.1s}
+.feature-card:nth-child(4){animation-delay:.15s}
+.feature-card:nth-child(5){animation-delay:.2s}
+.feature-card:nth-child(6){animation-delay:.25s}
+.seo-card:nth-child(2){animation-delay:.05s}
+.seo-card:nth-child(3){animation-delay:.1s}
+.seo-card:nth-child(4){animation-delay:.15s}
+.seo-card:nth-child(5){animation-delay:.2s}
+.seo-card:nth-child(6){animation-delay:.25s}
+
+@keyframes riseIn { 0% {opacity:0; transform:translateY(30px) scale(.98);} 55% {opacity:1;} 100% {opacity:1; transform:translateY(0) scale(1);} }
+
+/* Hover accent subtle */
+.feature-card:hover { box-shadow:0 10px 34px -12px rgba(0,0,0,.18),0 4px 12px -2px rgba(0,0,0,.08); transform:translateY(-4px); transition:.55s var(--ease); }
+.seo-card:hover { box-shadow:0 12px 28px -14px rgba(0,0,0,.2),0 4px 14px -3px rgba(0,0,0,.08); transform:translateY(-4px); transition:.55s var(--ease); }
+
+/* Focus ring personalizzato mantenendo a11y */
+.feature-card:focus-within, .seo-card:focus-within { outline:2px solid #a084e8; outline-offset:3px; }
+
+/* Riduzione motion */
+@media (prefers-reduced-motion:reduce) {
+  .feature-card.reveal, .seo-card.reveal { animation:none!important; opacity:1!important; transform:none!important; }
+  .feature-card:hover, .seo-card:hover { transform:none!important; }
+}
+
+/* Piccoli raffinamenti tipografici opzionali */
+.hero-sub strong { color:#fff; font-weight:600; }
+.section-head em { font-style:normal; background:linear-gradient(90deg,#cca9ff,#ffb18d); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* Utility SEO text balancing (solo se supportato) */
+@supports (text-wrap:balance) {
+  h1, .section-head h2 { text-wrap:balance; }
+  .hero-sub, .section-head p { text-wrap:pretty; }
+}
