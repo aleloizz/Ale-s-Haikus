@@ -9,6 +9,11 @@ def index():
     """Pagina principale dell'applicazione"""
     return render_template('index.html')
 
+@web_bp.route('/landing')
+def landing():
+    """Landing page SEO / performance ottimizzata (non linkata nella navbar)."""
+    return render_template('landing.html')
+
 @web_bp.route('/comingsoon')
 def comingsoon():
     """Pagina coming soon per la bacheca"""
