@@ -36,14 +36,16 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
 
-    <!-- Preload hero background (WebP fallback) -->
-    <link rel="preload" as="image" href="{{ url_for('static', filename='images/background.webp') }}">
+    <!-- Preload nuovo background landing -->
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/landingBg.webp') }}">
 
     <!-- Inline Critical CSS (Hero + Navbar + Above the fold) -->
     <style>
     :root{--primary:#D4B8FF;--secondary:#FFE5D9;--accent:#A2D7D8;--text:#5E5E5E;--bg:#FAF7FF;--gradient:linear-gradient(135deg,#cca9ff 0%,#ffb18d 100%)}
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{min-height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#faf7ff;color:var(--text);-webkit-font-smoothing:antialiased}
+        html,body{min-height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
+        /* Background della landing applicato via classe per evitare parsing problemi con Jinja dentro CSS */
+        .landing-bg{background:#faf7ff url('/static/images/landingBg.webp') top center / contain no-repeat;background-attachment:scroll;}
     body.loading{background:#fbbda3!important}
     a{text-decoration:none;color:inherit}
     img{max-width:100%;height:auto;display:block}
@@ -143,7 +145,7 @@
     <!-- JS Landing (defer) -->
     <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=0.1"></script>
 </head>
-<body class="loading">
+<body class="loading landing-bg">
     <a href="#contenuto" class="visually-hidden focusable">Salta al contenuto</a>
     <header>
         <nav class="navbar" aria-label="Navigazione principale">
