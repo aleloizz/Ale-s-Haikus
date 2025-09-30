@@ -246,36 +246,70 @@
         </section>
 
         <!-- SEZIONE TEST ANIMAZIONE SVG (solo per sviluppo) -->
-        <section id="morphing-test" aria-labelledby="morphing-title" style="background:#111;padding:3.5rem 1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+                <section id="morphing-test" aria-labelledby="morphing-title" style="background:#111;padding:3.5rem 1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
             <h2 id="morphing-title" style="color:#fff;font-size:1.35rem;margin:0;font-weight:600;letter-spacing:.5px;">Test Animazione Morphing</h2>
             <p style="color:#bbb;font-size:.9rem;max-width:620px;text-align:center;margin:0;">Sezione temporanea per provare il morphing di un path SVG con <code>anime.js</code>. Non indicizzata: verrà rimossa o ottimizzata in produzione.</p>
             <div style="width:100%;max-width:520px;aspect-ratio:2/1;display:flex;align-items:center;justify-content:center;">
-                <svg viewBox="0 0 400 200" role="img" aria-label="Animazione morphing path" style="width:100%;height:100%;">
-                    <!-- Path iniziale "caotico" -->
-                    <path id="morphingPath" d="M50,150 C150,50 250,250 350,100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+                                <svg viewBox="0 0 400 200" role="img" aria-label="Animazione morphing path" style="width:100%;height:100%;overflow:visible">
+                                        <!-- Path iniziale "curva" -->
+                                        <path id="morphingPath" d="M30 150 C140 40 260 240 370 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
                 </svg>
             </div>
             <button type="button" id="restartMorph" class="btn btn-accent" style="--btn-bg:#A2D7D8;--btn-color:#10393d;">Restart</button>
             <script>
-            (function(){
-              // Evita errori se anime non è ancora pronto
-              function startMorph(){
-                if(!window.anime){return setTimeout(startMorph,120);}                
-                // Se esiste un'animazione precedente la rimuovo
-                if(window.__morphAnim && window.__morphAnim.pause){window.__morphAnim.pause();}
-                window.__morphAnim = window.anime({
-                  targets:'#morphingPath',
-                  d:[{ value: "M100,150 L150,50 L200,150 L175,100 L125,100 Z" }],
-                  easing:'easeInOutQuad',
-                  duration:3000,
-                  loop:true,
-                  direction:'alternate'
-                });
-              }
-              // Avvio dopo load per essere sicuri che anime (defer) sia disponibile
-              window.addEventListener('load', startMorph);
-              document.getElementById('restartMorph').addEventListener('click', startMorph);
-            })();
+                        (function(){
+                            // Carica dinamicamente flubber se non presente (solo per test dev)
+                            function ensureFlubber(cb){
+                                if(window.flubber){return cb();}
+                                const s=document.createElement('script');
+                                s.src='https://unpkg.com/flubber@0.4.2/dist/flubber.min.js';
+                                s.defer=true; s.onload=cb; document.head.appendChild(s);
+                            }
+
+                            // Path finale che disegna una parola stilizzata "HAIKU" come singolo tracciato (semplificato/monoline)
+                            // NOTA: È un contorno molto minimale pensato solo per test morphing.
+                            const FINAL_PATH = "M40 150 L40 60 L40 105 L80 105 L80 60 L80 150 M120 60 L120 150 M120 105 L160 105 M160 60 L160 150 M200 60 L240 150 M240 60 L200 150 M280 60 L280 150 L320 150 L320 60 M280 105 L320 105";
+                            const INITIAL_PATH = document.getElementById('morphingPath').getAttribute('d');
+                            let directionForward = true;
+                            let animInstance = null;
+
+                            function buildAnimation(){
+                                if(!window.anime){return setTimeout(buildAnimation,120);} // attende anime.js
+                                ensureFlubber(()=>{
+                                    if(!window.flubber){return;}
+                                    // Crea interpolatori (curve -> testo) e (testo -> curve)
+                                    const toText = window.flubber.interpolate(INITIAL_PATH, FINAL_PATH, { maxSegmentLength: 8 });
+                                    const toCurve = window.flubber.interpolate(FINAL_PATH, INITIAL_PATH, { maxSegmentLength: 8 });
+                                    const pathEl = document.getElementById('morphingPath');
+                                    if(!pathEl) return;
+                                    // Arresta precedente
+                                    if(animInstance) animInstance.pause();
+                                    animInstance = window.anime({
+                                        targets:{progress:0},
+                                        progress:1,
+                                        duration:4000,
+                                        easing:'easeInOutCubic',
+                                        direction:'alternate',
+                                        loop:true,
+                                        update:anim=>{
+                                            const p = anim.animations[0].currentValue; // valore 0..1
+                                            // Decide direzione
+                                            const d = directionForward ? toText(p) : toCurve(p);
+                                            pathEl.setAttribute('d', d);
+                                        },
+                                        loopBegin:()=>{ directionForward = !directionForward; }
+                                    });
+                                });
+                            }
+
+                            function restart(){
+                                directionForward = true;
+                                buildAnimation();
+                            }
+
+                            window.addEventListener('load', buildAnimation);
+                            document.getElementById('restartMorph').addEventListener('click', restart);
+                        })();
             </script>
         </section>
     </main>
