@@ -257,94 +257,79 @@
             </div>
             <button type="button" id="restartMorph" class="btn btn-accent" style="--btn-bg:#A2D7D8;--btn-color:#10393d;">Restart</button>
             <script>
-                                    (function(){
-                                        // Loader resiliente per flubber: prova più CDN, poi fallback locale opzionale
-                                        function loadScriptSequential(urls, done){
-                                            let i=0;
-                                            function attempt(){
-                                                if(i>=urls.length){return done(new Error('Impossibile caricare flubber da tutte le CDN'));}
-                                                const url=urls[i++];
-                                                const s=document.createElement('script');
-                                                s.src=url;
-                                                s.async=true;
-                                                s.onload=()=>done(null, url);
-                                                s.onerror=()=>{ console.warn('[flubber] fallito', url); attempt(); };
-                                                document.head.appendChild(s);
-                                            }
-                                            attempt();
-                                        }
-                                        function ensureFlubber(cb){
-                                            if(window.flubber){return cb();}
-                                            const candidates = [
-                                                'https://cdn.jsdelivr.net/npm/flubber@0.4.2/dist/flubber.min.js',
-                                                'https://unpkg.com/flubber@0.4.2/dist/flubber.min.js',
-                                                // Fallback locale eventuale (crea il file vendor se vuoi sostituire):
-                                                '{{ url_for("static", filename="js/vendor/flubber.min.js") }}'
-                                            ];
-                                            loadScriptSequential(candidates, (err, url)=>{
-                                                if(err){
-                                                    console.error('[flubber] fallback finale: morph degradato');
-                                                } else {
-                                                    console.info('[flubber] caricato da', url);
-                                                }
-                                                cb();
-                                            });
-                                        }
+                                                (function(){
+                                                    // RIMOSSO uso flubber: implementazione leggera basata su sampling punti
+                                                    // Obiettivo: interpolare fra due path qualsiasi (anche con segmenti diversi)
+                                                    const pathEl = document.getElementById('morphingPath');
+                                                    if(!pathEl) return;
 
-                            // Path finale che disegna una parola stilizzata "HAIKU" come singolo tracciato (semplificato/monoline)
-                            // NOTA: È un contorno molto minimale pensato solo per test morphing.
-                            const FINAL_PATH = "M40 150 L40 60 L40 105 L80 105 L80 60 L80 150 M120 60 L120 150 M120 105 L160 105 M160 60 L160 150 M200 60 L240 150 M240 60 L200 150 M280 60 L280 150 L320 150 L320 60 M280 105 L320 105";
-                            const INITIAL_PATH = document.getElementById('morphingPath').getAttribute('d');
-                            let directionForward = true;
-                            let animInstance = null;
+                                                    const INITIAL_PATH = pathEl.getAttribute('d');
+                                                    // Path finale (semplificato) H A I K U continuo per rendering più fluido
+                                                    const FINAL_PATH = "M40 150 L40 60 L80 60 L80 150 L110 150 L110 60 L150 60 L150 150 L190 150 L190 60 L230 150 L270 150 L270 60 L310 60 L310 150";
 
-                            function buildAnimation(){
-                                if(!window.anime){return setTimeout(buildAnimation,120);} // attende anime.js
-                                ensureFlubber(()=>{
-                                    if(!window.flubber){return;}
-                                    // Crea interpolatori (curve -> testo) e (testo -> curve)
-                                                        let toText, toCurve;
-                                                        try {
-                                                            toText = window.flubber.interpolate(INITIAL_PATH, FINAL_PATH, { maxSegmentLength: 8 });
-                                                            toCurve = window.flubber.interpolate(FINAL_PATH, INITIAL_PATH, { maxSegmentLength: 8 });
-                                                        } catch(e){
-                                                            console.warn('[flubber] interpolazione avanzata non disponibile, uso fallback semplice');
+                                                    // Parametri sampling
+                                                    const SAMPLES = 160; // più alto = morph più fluido
+
+                                                    function samplePath(d){
+                                                        // Crea path temporaneo per calcolare lunghezze
+                                                        const tmp = document.createElementNS('http://www.w3.org/2000/svg','path');
+                                                        tmp.setAttribute('d', d);
+                                                        const total = tmp.getTotalLength();
+                                                        const pts = [];
+                                                        for(let i=0;i<SAMPLES;i++){
+                                                            const p = tmp.getPointAtLength(total * (i/(SAMPLES-1)));
+                                                            pts.push([p.x,p.y]);
                                                         }
-                                    const pathEl = document.getElementById('morphingPath');
-                                    if(!pathEl) return;
-                                    // Arresta precedente
-                                    if(animInstance) animInstance.pause();
-                                    animInstance = window.anime({
-                                        targets:{progress:0},
-                                        progress:1,
-                                        duration:4000,
-                                        easing:'easeInOutCubic',
-                                        direction:'alternate',
-                                        loop:true,
-                                        update:anim=>{
-                                            const p = anim.animations[0].currentValue; // valore 0..1
-                                                                let d;
-                                                                if(toText && toCurve){
-                                                                    d = directionForward ? toText(p) : toCurve(p);
-                                                                } else {
-                                                                    // Degradazione: interpolo solo transizione opaca scegliendo quando p>0.5
-                                                                    d = directionForward ? (p<0.5?INITIAL_PATH:FINAL_PATH) : (p<0.5?FINAL_PATH:INITIAL_PATH);
-                                                                }
-                                            pathEl.setAttribute('d', d);
-                                        },
-                                        loopBegin:()=>{ directionForward = !directionForward; }
-                                    });
-                                });
-                            }
+                                                        return pts;
+                                                    }
 
-                            function restart(){
-                                directionForward = true;
-                                buildAnimation();
-                            }
+                                                    const initialPts = samplePath(INITIAL_PATH);
+                                                    const finalPts   = samplePath(FINAL_PATH);
 
-                            window.addEventListener('load', buildAnimation);
-                            document.getElementById('restartMorph').addEventListener('click', restart);
-                        })();
+                                                    function mix(a,b,t){ return a + (b-a)*t; }
+                                                    function buildPath(t, forward=true){
+                                                        const segs = [];
+                                                        for(let i=0;i<SAMPLES;i++){
+                                                            const from = forward? initialPts[i] : finalPts[i];
+                                                            const to   = forward? finalPts[i] : initialPts[i];
+                                                            const x = mix(from[0], to[0], t);
+                                                            const y = mix(from[1], to[1], t);
+                                                            segs.push([x,y]);
+                                                        }
+                                                        // Converti in polilinea M + L ...
+                                                        let d = 'M'+segs[0][0].toFixed(2)+' '+segs[0][1].toFixed(2);
+                                                        for(let i=1;i<segs.length;i++){
+                                                            d += ' L'+segs[i][0].toFixed(2)+' '+segs[i][1].toFixed(2);
+                                                        }
+                                                        return d;
+                                                    }
+
+                                                    let forward = true;
+                                                    let animInstance = null;
+
+                                                    function start(){
+                                                        if(!window.anime){ return setTimeout(start, 80); }
+                                                        if(animInstance) animInstance.pause();
+                                                        animInstance = window.anime({
+                                                            targets:{p:0},
+                                                            p:1,
+                                                            duration:4200,
+                                                            easing:'easeInOutCubic',
+                                                            direction:'alternate',
+                                                            loop:true,
+                                                            update:anim => {
+                                                                const t = anim.animations[0].currentValue;
+                                                                const d = buildPath(t, forward);
+                                                                pathEl.setAttribute('d', d);
+                                                            },
+                                                            loopBegin:()=>{ forward = !forward; }
+                                                        });
+                                                    }
+
+                                                    function restart(){ forward = true; start(); }
+                                                    window.addEventListener('load', start);
+                                                    document.getElementById('restartMorph').addEventListener('click', restart);
+                                                })();
             </script>
         </section>
     </main>
