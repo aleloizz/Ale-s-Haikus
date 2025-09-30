@@ -257,14 +257,39 @@
             </div>
             <button type="button" id="restartMorph" class="btn btn-accent" style="--btn-bg:#A2D7D8;--btn-color:#10393d;">Restart</button>
             <script>
-                        (function(){
-                            // Carica dinamicamente flubber se non presente (solo per test dev)
-                            function ensureFlubber(cb){
-                                if(window.flubber){return cb();}
-                                const s=document.createElement('script');
-                                s.src='https://unpkg.com/flubber@0.4.2/dist/flubber.min.js';
-                                s.defer=true; s.onload=cb; document.head.appendChild(s);
-                            }
+                                    (function(){
+                                        // Loader resiliente per flubber: prova più CDN, poi fallback locale opzionale
+                                        function loadScriptSequential(urls, done){
+                                            let i=0;
+                                            function attempt(){
+                                                if(i>=urls.length){return done(new Error('Impossibile caricare flubber da tutte le CDN'));}
+                                                const url=urls[i++];
+                                                const s=document.createElement('script');
+                                                s.src=url;
+                                                s.async=true;
+                                                s.onload=()=>done(null, url);
+                                                s.onerror=()=>{ console.warn('[flubber] fallito', url); attempt(); };
+                                                document.head.appendChild(s);
+                                            }
+                                            attempt();
+                                        }
+                                        function ensureFlubber(cb){
+                                            if(window.flubber){return cb();}
+                                            const candidates = [
+                                                'https://cdn.jsdelivr.net/npm/flubber@0.4.2/dist/flubber.min.js',
+                                                'https://unpkg.com/flubber@0.4.2/dist/flubber.min.js',
+                                                // Fallback locale eventuale (crea il file vendor se vuoi sostituire):
+                                                '{{ url_for("static", filename="js/vendor/flubber.min.js") }}'
+                                            ];
+                                            loadScriptSequential(candidates, (err, url)=>{
+                                                if(err){
+                                                    console.error('[flubber] fallback finale: morph degradato');
+                                                } else {
+                                                    console.info('[flubber] caricato da', url);
+                                                }
+                                                cb();
+                                            });
+                                        }
 
                             // Path finale che disegna una parola stilizzata "HAIKU" come singolo tracciato (semplificato/monoline)
                             // NOTA: È un contorno molto minimale pensato solo per test morphing.
@@ -278,8 +303,13 @@
                                 ensureFlubber(()=>{
                                     if(!window.flubber){return;}
                                     // Crea interpolatori (curve -> testo) e (testo -> curve)
-                                    const toText = window.flubber.interpolate(INITIAL_PATH, FINAL_PATH, { maxSegmentLength: 8 });
-                                    const toCurve = window.flubber.interpolate(FINAL_PATH, INITIAL_PATH, { maxSegmentLength: 8 });
+                                                        let toText, toCurve;
+                                                        try {
+                                                            toText = window.flubber.interpolate(INITIAL_PATH, FINAL_PATH, { maxSegmentLength: 8 });
+                                                            toCurve = window.flubber.interpolate(FINAL_PATH, INITIAL_PATH, { maxSegmentLength: 8 });
+                                                        } catch(e){
+                                                            console.warn('[flubber] interpolazione avanzata non disponibile, uso fallback semplice');
+                                                        }
                                     const pathEl = document.getElementById('morphingPath');
                                     if(!pathEl) return;
                                     // Arresta precedente
@@ -293,8 +323,13 @@
                                         loop:true,
                                         update:anim=>{
                                             const p = anim.animations[0].currentValue; // valore 0..1
-                                            // Decide direzione
-                                            const d = directionForward ? toText(p) : toCurve(p);
+                                                                let d;
+                                                                if(toText && toCurve){
+                                                                    d = directionForward ? toText(p) : toCurve(p);
+                                                                } else {
+                                                                    // Degradazione: interpolo solo transizione opaca scegliendo quando p>0.5
+                                                                    d = directionForward ? (p<0.5?INITIAL_PATH:FINAL_PATH) : (p<0.5?FINAL_PATH:INITIAL_PATH);
+                                                                }
                                             pathEl.setAttribute('d', d);
                                         },
                                         loopBegin:()=>{ directionForward = !directionForward; }
