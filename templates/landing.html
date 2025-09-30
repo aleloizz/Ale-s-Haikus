@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="index, follow">
-    <title>Haiku Online & Analizzatore Metrico | Ale's Haikus</title>
+    <title>Ale's Haikus | Benvenuto :)</title>
     <meta name="description" content="Scrivi e analizza haiku online: analizzatore metrico avanzato per poesie brevi, tanka, sonetti e versi liberi. Crea, ottimizza e condividi le tue poesie.">
-    <meta name="keywords" content="haiku online, analizzatore metrica, poesie brevi, scrivere haiku, conta sillabe poesia, tanka, sonetto, poesia italiana, poesia giapponese">
+    <meta name="keywords" content="haiku online, analizzatore metrica, poesie brevi, scrivere haiku, conta sillabe poesia, tanka, sonetto, poesia italiana, poesia giapponese, bacheca poesie, wiki poetica, analizzatore haiku, limerick, versi liberi, poesia digitale">
     <link rel="canonical" href="https://www.aleshaikus.me/landing">
     <meta name="theme-color" content="#faf7ff">
 
@@ -55,8 +55,9 @@
     .nav-list{list-style:none;display:flex;gap:.85rem;margin:0;padding:0}
     .nav-list a{display:inline-flex;align-items:center;padding:.45rem .9rem;border-radius:.75rem;font-weight:500;color:#fff;font-size:.95rem;transition:background .3s ease}
     .nav-list a:hover,.nav-list a:focus-visible{background:rgba(255,255,255,0.18);outline:none}
-    .hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(3.5rem,12vh,7.5rem) 1rem;overflow:hidden;background:var(--gradient);color:#fff}
-    .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.25),transparent 60%),radial-gradient(circle at 70% 60%,rgba(255,255,255,.18),transparent 65%);mix-blend-mode:overlay;pointer-events:none}
+    /* Hero glassmorphism trasparente senza gradient */
+    .hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(3.5rem,12vh,7.5rem) 1rem;overflow:hidden;background:rgba(255,255,255,0.10);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.35);box-shadow:0 8px 32px -12px rgba(0,0,0,.25);color:#2d2340}
+    /* Rimosso pseudo-elemento con radial gradient */
     .hero-inner{max-width:960px;margin-inline:auto;display:flex;flex-direction:column;gap:1.25rem}
     h1{font-size:clamp(2.15rem,4.2vw,3.35rem);line-height:1.08;font-weight:600;letter-spacing:-.5px;margin:0;font-family:'Inter',sans-serif}
     .hero-sub{font-size:clamp(1.05rem,1.4vw,1.35rem);font-weight:300;line-height:1.45;margin:0 auto;max-width:760px}
@@ -71,7 +72,8 @@
     .scroll-indicator{margin-top:2.25rem;opacity:.85;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;font-weight:500}
     .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:pulse 2.2s infinite}
     @keyframes pulse{to{box-shadow:0 0 0 14px rgba(255,255,255,0);transform:scale(.9)}}
-    .features{background:#faf7ff;position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem}
+    /* Sezione features senza fascia bianca: glass leggero */
+    .features{position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem;background:rgba(255,255,255,0.04);backdrop-filter:blur(14px) saturate(130%);-webkit-backdrop-filter:blur(14px) saturate(130%);border:1px solid rgba(255,255,255,0.25);}
     .features-grid{--min:250px;display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--min),1fr));gap:1.75rem;max-width:1140px;margin:0 auto}
     .feature-card{position:relative;padding:1.4rem 1.35rem 1.6rem;border-radius:1.25rem;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.55);box-shadow:0 4px 26px -10px rgba(0,0,0,.1),0 2px 8px -2px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:.65rem;overflow:hidden;min-height:200px;opacity:0;transform:translateY(28px);will-change:transform,opacity}
     .feature-card h3{font-size:1.05rem;margin:0;font-weight:600;color:#4a3c62;display:flex;align-items:center;gap:.5rem}
@@ -80,7 +82,8 @@
     .section-head{max-width:820px;margin:0 auto 2.2rem;text-align:center}
     .section-head h2{font-size:clamp(1.65rem,2.8vw,2.15rem);margin:.25rem 0;font-weight:600;letter-spacing:-.5px;color:#4a3c62}
     .section-head p{font-size:1rem;line-height:1.55;margin:0 auto;max-width:680px;color:#665c73}
-    .seo-block{background:linear-gradient(135deg,#f3ecff,#fff);padding:3.25rem 1rem 3.75rem;margin:0;position:relative}
+    /* Blocco SEO senza banda bianca/gradient, resa coerente con stile glass */
+    .seo-block{background:rgba(255,255,255,0.05);padding:3.25rem 1rem 3.75rem;margin:0;position:relative;backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border-top:1px solid rgba(255,255,255,0.22);border-bottom:1px solid rgba(255,255,255,0.18);}
     .seo-inner{max-width:1080px;margin:0 auto;display:grid;gap:2.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
     .seo-card{padding:1.4rem 1.25rem 1.6rem;border-radius:1rem;background:#fff;box-shadow:0 6px 18px -6px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:.55rem;opacity:0;transform:translateY(26px);will-change:opacity,transform}
     .seo-card h3{margin:0;font-size:1rem;font-weight:600;color:#403655}
@@ -146,22 +149,11 @@
     <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=0.1"></script>
 </head>
 <body class="loading landing-bg">
-    <a href="#contenuto" class="visually-hidden focusable">Salta al contenuto</a>
-    <header>
-        <nav class="navbar" aria-label="Navigazione principale">
-            <ul class="nav-list">
-                <li><a href="{{ url_for('web.index') }}" title="Analizzatore poetico">Analizza</a></li>
-                <li><a href="{{ url_for('web.bacheca') }}" title="Bacheca poesie">Bacheca</a></li>
-                <li><a href="{{ url_for('web.wiki') }}" title="Wiki poetica">Wiki</a></li>
-            </ul>
-        </nav>
-    </header>
-
+    
     <main id="contenuto">
         <!-- HERO -->
         <section class="hero" aria-labelledby="hero-title">
             <div class="hero-inner">
-                <span class="tag-pill" aria-hidden="true">Beta Evoluta</span>
                 <h1 id="hero-title">Scrivi, Analizza e Condividi Haiku & Poesie in Tempo Reale</h1>
                 <p class="hero-sub">Uno <strong>strumento metrico intelligente</strong> per haiku, tanka, sonetti e versi liberi. Conta sillabe, verifica schemi e lasciati ispirare dalla community.
                 </p>
