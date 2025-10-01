@@ -45,8 +45,8 @@
     *{box-sizing:border-box;margin:0;padding:0}
         html,body{min-height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
         /* Background della landing applicato via classe per evitare parsing problemi con Jinja dentro CSS */
-    .landing-bg{background:#ff6678 url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
-    body.loading{background:#fbbda3!important}
+    .landing-bg{background:#ce5869 url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
+    body.loading{background:#ce5869!important}
     a{text-decoration:none;color:inherit}
     img{max-width:100%;height:auto;display:block}
     .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
@@ -73,7 +73,7 @@
     .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:pulse 2.2s infinite}
     @keyframes pulse{to{box-shadow:0 0 0 14px rgba(255,255,255,0);transform:scale(.9)}}
     /* Sezione features senza fascia bianca: glass leggero */
-    .features{position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem;background:rgba(255,255,255,0.04);backdrop-filter:blur(14px) saturate(130%);-webkit-backdrop-filter:blur(14px) saturate(130%);border:1px solid rgba(255,255,255,0.25);}
+    .features{position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem;background:rgba(255, 255, 255, 0);backdrop-filter:blur(5px) saturate(120%);-webkit-backdrop-filter:blur(5px) saturate(120%);}
     .features-grid{--min:250px;display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--min),1fr));gap:1.75rem;max-width:1140px;margin:0 auto}
     .feature-card{position:relative;padding:1.4rem 1.35rem 1.6rem;border-radius:1.25rem;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.55);box-shadow:0 4px 26px -10px rgba(0,0,0,.1),0 2px 8px -2px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:.65rem;overflow:hidden;min-height:200px;opacity:0;transform:translateY(28px);will-change:transform,opacity}
     .feature-card h3{font-size:1.05rem;margin:0;font-weight:600;color:#4a3c62;display:flex;align-items:center;gap:.5rem}
