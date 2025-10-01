@@ -45,7 +45,7 @@
     *{box-sizing:border-box;margin:0;padding:0}
         html,body{min-height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
         /* Background della landing applicato via classe per evitare parsing problemi con Jinja dentro CSS */
-    .landing-bg{background:#771919 url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
+    .landing-bg{background:#ff6678 url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
     body.loading{background:#fbbda3!important}
     a{text-decoration:none;color:inherit}
     img{max-width:100%;height:auto;display:block}
@@ -56,7 +56,7 @@
     .nav-list a{display:inline-flex;align-items:center;padding:.45rem .9rem;border-radius:.75rem;font-weight:500;color:#fff;font-size:.95rem;transition:background .3s ease}
     .nav-list a:hover,.nav-list a:focus-visible{background:rgba(255,255,255,0.18);outline:none}
     /* Hero glassmorphism trasparente senza gradient */
-    .hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(3.5rem,12vh,7.5rem) 1rem;overflow:hidden;background:rgba(255,255,255,0.10);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.35);box-shadow:0 8px 32px -12px rgba(0,0,0,.25);color:#2d2340}
+    .hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(3.5rem,12vh,7.5rem) 1rem;overflow:hidden;background:rgba(255, 255, 255, 0);backdrop-filter:blur(5px) saturate(120%);-webkit-backdrop-filter:blur(5px) saturate(120%);box-shadow:0 8px 32px -12px rgba(0,0,0,.25);color:#2d2340}
     /* Rimosso pseudo-elemento con radial gradient */
     .hero-inner{max-width:960px;margin-inline:auto;display:flex;flex-direction:column;gap:1.25rem}
     h1{font-size:clamp(2.15rem,4.2vw,3.35rem);line-height:1.08;font-weight:600;letter-spacing:-.5px;margin:0;font-family:'Inter',sans-serif}
