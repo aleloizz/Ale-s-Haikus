@@ -1,4 +1,4 @@
-/* Landing Page - CSS v0.2 */
+/* Landing Page - CSS v0.3 */
 :root {
   --ease: cubic-bezier(.16,.8,.32,1);
 }
@@ -46,7 +46,7 @@
 /* ================= Glitch Heading (scoped) ================= */
 /* Evitiamo reset globali: nessun override di body/p generico */
 .hero-heading-glitch { display:flex; flex-direction:column; align-items:center; gap:1.15rem; }
-.hero-heading-glitch .glitch-wrapper { position:relative; font-size:clamp(2.4rem,6.5vw,4.2rem); font-weight:700; line-height:1; font-family:'Inter',system-ui,sans-serif; letter-spacing:-.05em; }
+.hero-heading-glitch .glitch-wrapper { position:relative; font-size:clamp(2.4rem,6.5vw,4.2rem); font-weight:700; line-height:1; font-family:'Inter',system-ui,sans-serif; letter-spacing:-.05em; color: #ffffff; }
 .hero-heading-glitch .glitch-original { position:absolute; opacity:0; pointer-events:none; }
 .glitch-anim .word { position:relative; display:inline-block; }
 .glitch-anim [data-char] { color:transparent; position:relative; }

@@ -98,8 +98,8 @@
     </style>
 
     <!-- Preload & Load Non-critical CSS (Landing specific) -->
-    <link rel="preload" href="{{ url_for('static', filename='css/landing.css') }}?v=0.2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v=0.2"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/landing.css') }}?v=0.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v=0.3"></noscript>
     <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.4" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=1.4"></noscript>
 
@@ -159,6 +159,7 @@
                                     <h1 id="hero-title" class="sr-only">Scrivi, Analizza e Condividi Haiku & Poesie in Tempo Reale</h1>
                                     <!-- Wrapper animazione -->
                                     <div class="glitch-wrapper" aria-hidden="true">
+                                        <h1>Dove la poesia prende</h1>
                                         <p data-scroll="in" class="glitch-original">forma</p>
                                         <p class="reveal--2 words chars splitting glitch-anim" data-scroll="in" data-splitting
                                              style="--word-total:1; --char-total:5;">
@@ -171,7 +172,7 @@
                                             </span>
                                         </p>
                                     </div>
-                                    <p class="hero-sub">Uno <strong>strumento metrico intelligente</strong> per haiku, tanka, sonetti e versi liberi. Conta sillabe, verifica schemi e lasciati ispirare dalla community.</p>
+                                    <p class="hero-sub">Ale's Haikus è uno <strong>strumento metrico intelligente</strong> per haiku, tanka, sonetti molto altro. Conta le sillabe e verifica gli schemi rimici per tè, lasciandoti concentrare sul contenuto delle tue poesie.</p>
                                 </div>
                 <div class="cta-wrap" role="group" aria-label="Azioni principali">
                     <a class="btn btn-primary" href="{{ url_for('web.index') }}" title="Vai all'analizzatore" data-cta="analyze">Inizia Subito</a>
