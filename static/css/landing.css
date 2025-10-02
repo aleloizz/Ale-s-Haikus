@@ -50,7 +50,7 @@
 .hero-heading-glitch .glitch-original { position:absolute; opacity:0; pointer-events:none; }
 .glitch-anim .word { position:relative; display:inline-block; }
 .glitch-anim [data-char] { color:transparent; position:relative; }
-.glitch-anim [data-char]::after { --txt: attr(data-char); animation-name:glitch-switch; animation-duration:.22s; animation-delay:.4s; animation-timing-function:steps(1); animation-fill-mode:backwards; content:var(--txt); position:absolute; left:0; top:0; color:#2d2340; text-shadow:0 0 1px rgba(0,0,0,.25); }
+.glitch-anim [data-char]::after { --txt: attr(data-char); animation-name:glitch-switch; animation-duration:.22s; animation-delay:.4s; animation-timing-function:steps(1); animation-fill-mode:backwards; content:var(--txt); position:absolute; left:0; top:0; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.35),0 0 4px rgba(255,255,255,.25); }
 .reveal--2.glitch-anim [data-char]::after { animation-iteration-count:7; }
 @keyframes glitch-switch { 0%{content:var(--char-0);}10%{content:var(--char-1);}20%{content:var(--char-2);}30%{content:var(--char-3);}40%{content:var(--char-4);}50%{content:var(--char-5);}60%{content:var(--char-6);}70%{content:var(--char-7);}80%{content:var(--char-8);}90%{content:var(--char-9);}100%{content:var(--txt);} }
 
