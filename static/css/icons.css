@@ -3,6 +3,7 @@
 .bi {
   display: inline-block;
   width: 1em;
+  height: 1em; /* added to ensure consistent box sizing */
   fill: currentColor;
   vertical-align: -0.125em;
 }
