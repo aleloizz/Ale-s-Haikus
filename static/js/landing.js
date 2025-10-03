@@ -67,93 +67,76 @@
     }
   });
 
-  // SVG scroll drawing effect (Opzione B: sempre inizia da zero anche se reload a metà)
+  // SVG scroll drawing effect (semplificato: progress legato alla porzione della sezione visibile, sempre da zero)
   const path = document.getElementById('forma-path');
   const section = document.querySelector('.scroll-section');
   if (path && section) {
     try {
-      const length = path.getTotalLength();
-      if (!length || !isFinite(length) || length === 0) {
+      const len = path.getTotalLength();
+      if (!len || !isFinite(len)) {
         path.classList.add('force-visible');
         return;
       }
-
-      // Setup iniziale (sempre completamente "non disegnato")
-      path.style.strokeDasharray = length + ' ' + length;
-      path.style.strokeDashoffset = length;
-      path.getBoundingClientRect(); // layout sync
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // Setup iniziale completamente non disegnato
+      path.style.strokeDasharray = len + ' ' + len;
+      path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
       requestAnimationFrame(()=> path.classList.add('path-ready'));
 
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) {
         path.style.strokeDashoffset = 0;
         path.style.strokeDasharray = 'none';
         return;
       }
 
-      const START_BUFFER = 120; // px prima che il tratto inizi a disegnarsi
-      const clamp = (v,min,max)=> v<min?min:(v>max?max:v);
+      // Parametri regolabili
+      const START_BUFFER = 80;   // px di scroll interni prima che inizi a disegnare
+      const END_BUFFER   = 40;   // px finali “morti” per rallentare completamento
+      const EASING = (p)=> Math.pow(p,0.95); // leggera spinta iniziale
 
-      // Cattura la posizione iniziale della sezione quando attiviamo l'animazione
-      let baselineTop = null;
-      let active = false;
-      let lastDraw = -1;
+      let sectionTop = 0;
+      let sectionHeight = 0;
+      let drawable = 0;
 
-      function computePct() {
-        if (baselineTop === null) return 0; // finché non attivato
-        const rect = section.getBoundingClientRect();
+      function recalc() {
+        sectionTop = section.offsetTop;
+        sectionHeight = section.offsetHeight;
         const vpH = window.innerHeight || document.documentElement.clientHeight;
-        const totalScrollable = rect.height - vpH;
-        if (totalScrollable <= 0) return 1;
-        // offset relativo (quanto la sezione si è spostata rispetto alla baseline)
-        let relative = baselineTop - rect.top - START_BUFFER;
-        if (relative < 0) relative = 0;
-        const raw = relative / (totalScrollable - START_BUFFER);
-        const pct = clamp(raw,0,1);
-        return pct;
+        drawable = sectionHeight - vpH - START_BUFFER - END_BUFFER;
       }
 
-      function updateFrame() {
-        if (!active) return;
-        const pct = computePct();
-        const draw = length * pct;
-        if (draw !== lastDraw) {
-            path.style.strokeDashoffset = length - draw;
-            lastDraw = draw;
+      function computeProgress() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        let rel = scrollY - sectionTop - START_BUFFER;
+        if (rel < 0) rel = 0;
+        if (drawable <= 0) return 1; // se la sezione non è abbastanza alta disegna tutto
+        let pct = rel / drawable;
+        if (pct > 1) pct = 1; else if (pct < 0) pct = 0;
+        return EASING(pct);
+      }
+
+      function draw() {
+        const pct = computeProgress();
+        const drawLen = len * pct;
+        path.style.strokeDashoffset = len - drawLen;
+        if (pct >= 1) {
+          // opzionale togli dash: path.style.strokeDasharray = 'none';
         }
-        requestAnimationFrame(updateFrame);
       }
 
-      // IntersectionObserver per avviare SEMPRE da zero
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(ent=>{
-          if (ent.isIntersecting) {
-            if (!active) {
-              // Congela baseline al momento dell'entrata (ignoriamo posizione reale se reload a metà)
-              const rect = section.getBoundingClientRect();
-              baselineTop = rect.top; // baseline fissata
-              active = true;
-              lastDraw = -1;
-              // Assicura stato iniziale non disegnato
-              path.style.strokeDashoffset = length;
-              updateFrame();
-            }
-          } else if (ent.boundingClientRect.top > 0) {
-            // Se l'utente torna sopra completamente, resettiamo per consentire replay
-            active = false;
-            baselineTop = null;
-            lastDraw = -1;
-            path.style.strokeDashoffset = length;
-          }
-        });
-      }, { threshold: 0 });
-      io.observe(section);
+      function onScroll() { draw(); }
+      function onResize() { recalc(); draw(); }
 
-      window.addEventListener('resize', ()=>{ lastDraw = -1; }, { passive:true });
+      recalc();
+      draw();
+      window.addEventListener('scroll', onScroll, { passive:true });
+      window.addEventListener('resize', onResize, { passive:true });
 
-      // Fallback: se per qualche ragione non entra mai in viewport (es. salto ancora più giù),
-      // dopo 3s mostriamo comunque il path non disegnato (così non resta opaco 0 nascosto)
-      setTimeout(()=>{ if (!active) path.classList.add('path-ready'); },3000);
+      // Debug facoltativo: aggiungi ?debugShape all'URL
+      if (location.search.includes('debugShape')) {
+        console.log('[ShapeDebug]', { len, sectionTop, sectionHeight });
+      }
     } catch(e){ /* silent */ }
   }
 })();
