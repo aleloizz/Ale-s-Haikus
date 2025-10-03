@@ -67,65 +67,93 @@
     }
   });
 
-  // SVG scroll drawing effect (progress legato alla sola sezione intro)
+  // SVG scroll drawing effect (Opzione B: sempre inizia da zero anche se reload a metà)
   const path = document.getElementById('forma-path');
   const section = document.querySelector('.scroll-section');
   if (path && section) {
     try {
       const length = path.getTotalLength();
-      // Evita problemi se il path ha lunghezza 0 (SVG non caricato correttamente)
-      if (!length || length === 0 || !isFinite(length)) {
+      if (!length || !isFinite(length) || length === 0) {
         path.classList.add('force-visible');
         return;
       }
-      // Imposta dash iniziale prima di mostrare gradualmente
+
+      // Setup iniziale (sempre completamente "non disegnato")
       path.style.strokeDasharray = length + ' ' + length;
       path.style.strokeDashoffset = length;
-      path.getBoundingClientRect(); // force layout
+      path.getBoundingClientRect(); // layout sync
       requestAnimationFrame(()=> path.classList.add('path-ready'));
-      // Fallback: se entro 1.2s non si è mosso nulla, mostra comunque
-      setTimeout(()=>{
-        if (parseFloat(getComputedStyle(path).strokeDashoffset) === length) {
-          path.classList.add('path-ready');
-        }
-      },1200);
 
-      const clamp = (v,min,max)=> v < min ? min : (v > max ? max : v);
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        path.style.strokeDashoffset = 0;
+        path.style.strokeDasharray = 'none';
+        return;
+      }
 
-      let lastPct = -1; // evita reflow inutili
-      const computeProgress = () => {
+      const START_BUFFER = 120; // px prima che il tratto inizi a disegnarsi
+      const clamp = (v,min,max)=> v<min?min:(v>max?max:v);
+
+      // Cattura la posizione iniziale della sezione quando attiviamo l'animazione
+      let baselineTop = null;
+      let active = false;
+      let lastDraw = -1;
+
+      function computePct() {
+        if (baselineTop === null) return 0; // finché non attivato
         const rect = section.getBoundingClientRect();
-        const viewportH = window.innerHeight || document.documentElement.clientHeight;
-        // Quando il top della sezione raggiunge 0 inizia (rect.top)
-        // La sezione è più alta del viewport: progress avanza fino a quando il bottom esce verso l'alto
-        const totalScrollable = rect.height - viewportH; // spazio utile interno
-        // offset interno scroll = distanza percorsa dall'inizio "visivo" della sezione
-        const internalOffset = clamp(-rect.top, 0, totalScrollable <= 0 ? 1 : totalScrollable);
-        const pct = totalScrollable > 0 ? internalOffset / totalScrollable : 1;
-        return clamp(pct,0,1);
-      };
+        const vpH = window.innerHeight || document.documentElement.clientHeight;
+        const totalScrollable = rect.height - vpH;
+        if (totalScrollable <= 0) return 1;
+        // offset relativo (quanto la sezione si è spostata rispetto alla baseline)
+        let relative = baselineTop - rect.top - START_BUFFER;
+        if (relative < 0) relative = 0;
+        const raw = relative / (totalScrollable - START_BUFFER);
+        const pct = clamp(raw,0,1);
+        return pct;
+      }
 
-      const update = () => {
-        const pct = computeProgress();
-        if (pct === lastPct) return;
-        lastPct = pct;
+      function updateFrame() {
+        if (!active) return;
+        const pct = computePct();
         const draw = length * pct;
-        path.style.strokeDashoffset = length - draw;
-        // Manteniamo strokeDasharray per evitare flash su reload; opzionale rimozione a fine.
-        // if (pct >= 0.999) path.style.strokeDasharray = 'none';
-      };
-
-      // Ottimizza con rAF durante scroll
-      let ticking = false;
-      const onScroll = () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(()=>{update(); ticking = false;});
+        if (draw !== lastDraw) {
+            path.style.strokeDashoffset = length - draw;
+            lastDraw = draw;
         }
-      };
-      window.addEventListener('scroll', onScroll, { passive:true });
-      window.addEventListener('resize', ()=>{ lastPct = -1; update(); }, { passive:true });
-      update();
-    } catch(e){ /* ignore */ }
+        requestAnimationFrame(updateFrame);
+      }
+
+      // IntersectionObserver per avviare SEMPRE da zero
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(ent=>{
+          if (ent.isIntersecting) {
+            if (!active) {
+              // Congela baseline al momento dell'entrata (ignoriamo posizione reale se reload a metà)
+              const rect = section.getBoundingClientRect();
+              baselineTop = rect.top; // baseline fissata
+              active = true;
+              lastDraw = -1;
+              // Assicura stato iniziale non disegnato
+              path.style.strokeDashoffset = length;
+              updateFrame();
+            }
+          } else if (ent.boundingClientRect.top > 0) {
+            // Se l'utente torna sopra completamente, resettiamo per consentire replay
+            active = false;
+            baselineTop = null;
+            lastDraw = -1;
+            path.style.strokeDashoffset = length;
+          }
+        });
+      }, { threshold: 0 });
+      io.observe(section);
+
+      window.addEventListener('resize', ()=>{ lastDraw = -1; }, { passive:true });
+
+      // Fallback: se per qualche ragione non entra mai in viewport (es. salto ancora più giù),
+      // dopo 3s mostriamo comunque il path non disegnato (così non resta opaco 0 nascosto)
+      setTimeout(()=>{ if (!active) path.classList.add('path-ready'); },3000);
+    } catch(e){ /* silent */ }
   }
 })();
