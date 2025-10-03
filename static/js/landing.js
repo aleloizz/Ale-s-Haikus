@@ -75,7 +75,6 @@
       const len = path.getTotalLength();
       if (!len || !isFinite(len)) {
         path.classList.add('force-visible');
-        console.warn('[SVGDraw] Path length non valido – forzo visibilità immediata');
         return;
       }
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -84,40 +83,36 @@
       path.style.strokeDashoffset = len;
       path.getBoundingClientRect();
       requestAnimationFrame(()=> path.classList.add('path-ready'));
-      console.log('[SVGDraw] Inizializzazione completata', { length: len });
 
       if (prefersReduced) {
         path.style.strokeDashoffset = 0;
         path.style.strokeDasharray = 'none';
-        console.log('[SVGDraw] prefers-reduced-motion attivo: disegno completato immediatamente');
         return;
       }
 
       // Parametri regolabili
-      const START_BUFFER = 80;   // px di scroll interni prima che inizi a disegnare
-      const END_BUFFER   = 40;   // px finali “morti” per rallentare completamento
-      const EASING = (p)=> Math.pow(p,0.95); // leggera spinta iniziale
+      const START_BUFFER = 80;   // px prima che inizi
+      const END_BUFFER   = 40;   // px finali “morti”
+      const SPEED_MULT   = 1.20; // >1 = più lento (richiede più scroll)
+      const EASING = (p)=> Math.pow(p,1.05); // rallenta l'inizio (expo leggero)
 
       let sectionTop = 0;
       let sectionHeight = 0;
       let drawable = 0;
-      let started = false;
-      let finished = false;
 
       function recalc() {
         sectionTop = section.offsetTop;
         sectionHeight = section.offsetHeight;
         const vpH = window.innerHeight || document.documentElement.clientHeight;
         drawable = sectionHeight - vpH - START_BUFFER - END_BUFFER;
-        console.log('[SVGDraw] Recalc', { sectionTop, sectionHeight, drawable, vpH });
       }
 
       function computeProgress() {
         const scrollY = window.scrollY || window.pageYOffset;
         let rel = scrollY - sectionTop - START_BUFFER;
         if (rel < 0) rel = 0;
-        if (drawable <= 0) return 1; // se la sezione non è abbastanza alta disegna tutto
-        let pct = rel / drawable;
+        if (drawable <= 0) return 1;
+        let pct = rel / (drawable * SPEED_MULT);
         if (pct > 1) pct = 1; else if (pct < 0) pct = 0;
         return EASING(pct);
       }
@@ -126,17 +121,6 @@
         const pct = computeProgress();
         const drawLen = len * pct;
         path.style.strokeDashoffset = len - drawLen;
-        if (!started && pct > 0) {
-          started = true;
-          console.log('[SVGDraw] Animazione avviata', { pct, drawLen });
-        }
-        if (!finished && pct >= 1) {
-          finished = true;
-          console.log('[SVGDraw] Animazione completata', { pct });
-        }
-        if (pct >= 1) {
-          // opzionale togli dash: path.style.strokeDasharray = 'none';
-        }
       }
 
       function onScroll() { draw(); }
@@ -146,11 +130,6 @@
       draw();
       window.addEventListener('scroll', onScroll, { passive:true });
       window.addEventListener('resize', onResize, { passive:true });
-
-      // Debug facoltativo: aggiungi ?debugShape all'URL
-      if (location.search.includes('debugShape')) {
-        console.log('[ShapeDebug]', { len, sectionTop, sectionHeight });
-      }
     } catch(e){ /* silent */ }
   }
 })();
