@@ -73,7 +73,7 @@
     .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:pulse 2.2s infinite}
     @keyframes pulse{to{box-shadow:0 0 0 14px rgba(255,255,255,0);transform:scale(.9)}}
     /* Scroll intro sticky section (reintrodotto gradient + spazio extra per animazione) */
-    .scroll-section{position:relative;z-index:50;min-height:220vh;/* spazio per far progredire il disegno */background: linear-gradient(to bottom, #1e142c, #ffffff00);background-attachment:fixed;}
+    .scroll-section{position:relative;z-index:50;min-height:220vh;/* spazio per far progredire il disegno */background: linear-gradient(to bottom, #1e142c, #ffffff00);backdrop-filter: blur(5px) saturate(120%);background-attachment:fixed;}
     @media (max-width:800px){.scroll-section{min-height:190vh;background-attachment:scroll}}
     .scroll-section::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,0.25),rgba(255,255,255,0) 55%);mix-blend-mode:overlay;pointer-events:none}
     .sticky-wrapper{position:sticky;top:0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;padding:0 1rem;background:transparent}
@@ -100,7 +100,7 @@
     .seo-card{padding:1.4rem 1.25rem 1.6rem;border-radius:1rem;background:#fff;box-shadow:0 6px 18px -6px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:.55rem;opacity:0;transform:translateY(26px);will-change:opacity,transform}
     .seo-card h3{margin:0;font-size:1rem;font-weight:600;color:#403655}
     .seo-card p{margin:0;font-size:.85rem;line-height:1.45;color:#595063}
-    footer{background:#1e142c;color:#fff;text-align:center;padding:2.25rem 1rem 2.75rem;margin-top:0;font-size:.8rem;line-height:1.4;position:relative}
+    footer{background:#1e142c;color:#fff;text-align:center;padding:0.5rem 1rem 2.75rem;margin-top:0;font-size:.8rem;line-height:1.4;position:relative}
     footer a{color:#d4b8ff}
     .footer-links{display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap;margin:.85rem 0 1.15rem;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
     .lazy-illustration{max-width:720px;margin:2.2rem auto 0;border-radius:1.25rem;box-shadow:0 18px 38px -18px rgba(0,0,0,.25),0 4px 16px -4px rgba(0,0,0,.12);opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.16,.8,.32,1),transform .9s cubic-bezier(.16,.8,.32,1)}
