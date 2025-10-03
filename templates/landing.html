@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="index, follow">
-    <title>Ale's Haikus | Benvenuto :)</title>
+    <title>Ale's Haikus | Benvenuto!</title>
     <meta name="description" content="Scrivi e analizza haiku online: analizzatore metrico avanzato per poesie brevi, tanka, sonetti e versi liberi. Crea, ottimizza e condividi le tue poesie.">
     <meta name="keywords" content="haiku online, analizzatore metrica, poesie brevi, scrivere haiku, conta sillabe poesia, tanka, sonetto, poesia italiana, poesia giapponese, bacheca poesie, wiki poetica, analizzatore haiku, limerick, versi liberi, poesia digitale">
     <link rel="canonical" href="https://www.aleshaikus.me/landing">
@@ -45,8 +45,8 @@
     *{box-sizing:border-box;margin:0;padding:0}
         html,body{min-height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
         /* Background della landing applicato via classe per evitare parsing problemi con Jinja dentro CSS */
-    .landing-bg{background:#ce5869 url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
-    body.loading{background:#ce5869!important}
+    .landing-bg{background:#1e142c url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
+    body.loading{background:#1e142c!important}
     a{text-decoration:none;color:inherit}
     img{max-width:100%;height:auto;display:block}
     .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
@@ -72,6 +72,13 @@
     .scroll-indicator{margin-top:2.25rem;opacity:.85;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;font-weight:500}
     .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:pulse 2.2s infinite}
     @keyframes pulse{to{box-shadow:0 0 0 14px rgba(255,255,255,0);transform:scale(.9)}}
+    /* Scroll intro sticky section */
+    .scroll-section{position:relative;z-index:50}
+    .sticky-wrapper{position:sticky;top:0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;padding:0 1rem;background:transparent}
+    #fixed-text h1{font-family:'Inter',sans-serif;font-weight:600;color:#fff;text-transform:uppercase;text-align:center;font-size:clamp(2.2rem,6vw,3.8rem);letter-spacing:.08em;padding:0;margin:0 0 1.25rem;text-shadow:0 4px 18px rgba(0,0,0,.45)}
+    #forma-svg{width:min(540px,82vw);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 4px 16px rgba(0,0,0,.55))}
+    #forma-path{stroke-linecap:round;stroke-linejoin:round}
+    @media (prefers-reduced-motion:reduce){#forma-path{stroke-dasharray:none!important;stroke-dashoffset:0!important}}
     /* Sezione features senza fascia bianca: glass leggero */
     .features{position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem;background:rgba(255, 255, 255, 0);backdrop-filter:blur(5px) saturate(120%);-webkit-backdrop-filter:blur(5px) saturate(120%);}
     .features-grid{--min:250px;display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--min),1fr));gap:1.75rem;max-width:1140px;margin:0 auto}
@@ -148,7 +155,16 @@
     <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=0.1"></script>
 </head>
 <body class="loading landing-bg">
-    
+        <!-- Scroll SVG intro section (sticky) -->
+        <section class="scroll-section" aria-label="Intro animata forma">
+            <div class="sticky-wrapper">
+                <div id="fixed-text"><h1>Dove la poesia prende</h1></div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -40 140 60" id="forma-svg" role="img" aria-labelledby="formaTitle">
+                    <title id="formaTitle">Scritta animata forma</title>
+                    <path id="forma-path" fill="none" stroke="white" stroke-width="0.8" d="M4.40 0L4.40-35.35L24.55-35.35L24.55-32.75L7.40-32.75L7.40-19L22.90-19L22.90-16.40L7.40-16.40L7.40 0L4.40 0ZM38.85 0.50L38.85 0.50Q33.25 0.50 30.25-2.88Q27.25-6.25 27.25-12.55L27.25-12.55Q27.25-18.85 30.25-22.20Q33.25-25.55 38.85-25.55L38.85-25.55Q42.60-25.55 45.18-24.05Q47.75-22.55 49.10-19.65Q50.45-16.75 50.45-12.55L50.45-12.55Q50.45-6.25 47.45-2.88Q44.45 0.50 38.85 0.50ZM38.85-2.05L38.85-2.05Q43.05-2.05 45.33-4.75Q47.60-7.45 47.60-12.55L47.60-12.55Q47.60-17.65 45.33-20.33Q43.05-23 38.85-23L38.85-23Q34.65-23 32.38-20.33Q30.10-17.65 30.10-12.55L30.10-12.55Q30.10-7.45 32.38-4.75Q34.65-2.05 38.85-2.05ZM60-14.90L60 0L57.15 0L57.15-25.05L60-25.05L60-20.45Q60.75-22.50 62.42-23.78Q64.10-25.05 66.55-25.05L66.55-25.05L68.95-25.05L68.95-22.55L66.50-22.55Q63.40-22.55 61.70-20.58Q60-18.60 60-14.90L60-14.90ZM73.35 0L73.35-25.05L76.10-25.05L76.10-21.05Q77.30-23.15 79.33-24.35Q81.35-25.55 84.25-25.55L84.25-25.55Q86.90-25.55 88.93-24.25Q90.95-22.95 91.70-20.05L91.70-20.05L91.95-20.05Q93.35-23 95.33-24.28Q97.30-25.55 100.45-25.55L100.45-25.55Q102.40-25.55 103.95-24.93Q105.50-24.30 106.55-23.08Q107.60-21.85 108.15-19.98Q108.70-18.10 108.70-15.60L108.70-15.60L108.70 0L105.85 0L105.90-15.45Q105.90-19.80 104.30-21.40Q102.70-23 99.40-23L99.40-23Q96.25-23 94.35-21.05Q92.45-19.10 92.45-14.65L92.45-14.65L92.45 0L89.60 0L89.70-15.45Q89.75-18.40 88.98-20.05Q88.20-21.70 86.75-22.35Q85.30-23 83.25-23L83.25-23Q79.95-23 78.08-21.10Q76.20-19.20 76.20-14.75L76.20-14.75L76.20 0L73.35 0ZM138.45-2.60L138.45 0L136.10 0Q134.55 0 133.65-0.98Q132.75-1.95 132.75-4.80L132.75-4.80L133.10-4.80Q131.85-2.05 129.35-0.78Q126.85 0.50 123.75 0.50L123.75 0.50Q121.05 0.50 119.17-0.38Q117.30-1.25 116.32-2.95Q115.35-4.65 115.35-7.05L115.35-7.05Q115.35-8.75 115.95-10.10Q116.55-11.45 117.72-12.38Q118.90-13.30 120.63-13.78Q122.35-14.25 124.55-14.25L124.55-14.25L132.75-14.25L132.75-17Q132.75-20 131.10-21.53Q129.45-23.05 126.15-23.05L126.15-23.05Q123.15-23.05 121.47-21.78Q119.80-20.50 119.50-18.45L119.50-18.45L116.55-18.45Q116.80-20.65 117.95-22.25Q119.10-23.85 121.20-24.70Q123.30-25.55 126.30-25.55L126.30-25.55Q128.60-25.55 130.35-24.98Q132.10-24.40 133.25-23.25Q134.40-22.10 135-20.45Q135.60-18.80 135.60-16.60L135.60-16.60L135.60-2.60L138.45-2.60ZM118.35-7.10L118.35-7.10Q118.30-4.70 119.82-3.38Q121.35-2.05 124.25-2.05L124.25-2.05Q128.25-2.05 130.50-3.93Q132.75-5.80 132.75-9.20L132.75-9.20L132.75-11.75L124.60-11.75Q121.60-11.75 120.02-10.50Q118.45-9.25 118.35-7.10Z" />
+                </svg>
+            </div>
+        </section>
     <main id="contenuto">
         <!-- HERO -->
         <section class="hero" aria-labelledby="hero-title">
