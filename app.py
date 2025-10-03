@@ -99,9 +99,19 @@ def create_app(config_name=None):
     
     @app.before_request
     def enforce_https_and_www():
-        """Forza HTTPS e www in produzione"""
-        if not app.debug and request.headers.get('X-Forwarded-Proto') != 'https':
-            return redirect(request.url.replace('http://', 'https://'), code=301)
+        """Forza HTTPS (solo in produzione reale) evitando loop in test/local."""
+        # Evita su test client / strumenti locali e se già HTTPS
+        if app.testing:
+            return None
+        if app.debug:
+            return None
+        proto = request.headers.get('X-Forwarded-Proto', 'http')
+        if proto != 'https':
+            # Evita redirect infinito se host è localhost/heroku local
+            target = request.url.replace('http://', 'https://', 1)
+            if target == request.url:
+                return None
+            return redirect(target, code=301)
     
     @app.after_request
     def add_security_headers(response):
