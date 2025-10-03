@@ -73,12 +73,22 @@
   if (path && section) {
     try {
       const length = path.getTotalLength();
-  // Imposta dash iniziale prima di rendere visibile il path
-  path.style.strokeDasharray = length + ' ' + length;
-  path.style.strokeDashoffset = length;
-  path.getBoundingClientRect(); // force layout
-  path.style.visibility = 'visible';
-  path.style.opacity = '1';
+      // Evita problemi se il path ha lunghezza 0 (SVG non caricato correttamente)
+      if (!length || length === 0 || !isFinite(length)) {
+        path.classList.add('force-visible');
+        return;
+      }
+      // Imposta dash iniziale prima di mostrare gradualmente
+      path.style.strokeDasharray = length + ' ' + length;
+      path.style.strokeDashoffset = length;
+      path.getBoundingClientRect(); // force layout
+      requestAnimationFrame(()=> path.classList.add('path-ready'));
+      // Fallback: se entro 1.2s non si è mosso nulla, mostra comunque
+      setTimeout(()=>{
+        if (parseFloat(getComputedStyle(path).strokeDashoffset) === length) {
+          path.classList.add('path-ready');
+        }
+      },1200);
 
       const clamp = (v,min,max)=> v < min ? min : (v > max ? max : v);
 
@@ -101,11 +111,8 @@
         lastPct = pct;
         const draw = length * pct;
         path.style.strokeDashoffset = length - draw;
-        if (pct >= 0.999) {
-          path.style.strokeDasharray = 'none';
-        } else if (path.style.strokeDasharray === 'none') {
-          path.style.strokeDasharray = length + ' ' + length;
-        }
+        // Manteniamo strokeDasharray per evitare flash su reload; opzionale rimozione a fine.
+        // if (pct >= 0.999) path.style.strokeDasharray = 'none';
       };
 
       // Ottimizza con rAF durante scroll

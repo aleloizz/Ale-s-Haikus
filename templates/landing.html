@@ -79,9 +79,11 @@
     .sticky-wrapper{position:sticky;top:0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;padding:0 1rem;background:transparent}
     #fixed-text h1{font-family:'Inter',sans-serif;font-weight:600;color:#fff;text-transform:uppercase;text-align:center;font-size:clamp(2.2rem,6vw,3.8rem);letter-spacing:.08em;padding:0;margin:0 0 1.25rem;text-shadow:0 4px 18px rgba(0,0,0,.45)}
     #forma-svg{width:min(540px,82vw);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 4px 16px rgba(0,0,0,.55))}
-    /* Path SVG inizialmente nascosto per evitare flash completato */
-    #forma-path{stroke-linecap:round;stroke-linejoin:round;visibility:hidden;opacity:0;transition:opacity .35s ease}
-    @media (prefers-reduced-motion:reduce){ #forma-path{visibility:visible!important;opacity:1!important}}
+    /* Path SVG: partenza nascosta solo via opacity (no visibility per evitare mancato render in alcuni browser) */
+    #forma-path{stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .45s ease}
+    #forma-path.path-ready{opacity:1}
+    #forma-path.force-visible{opacity:1;stroke-dasharray:none!important;stroke-dashoffset:0!important}
+    @media (prefers-reduced-motion:reduce){ #forma-path{opacity:1!important;stroke-dasharray:none!important;stroke-dashoffset:0!important}}
     @media (prefers-reduced-motion:reduce){  #forma-path{stroke-dasharray:none!important;stroke-dashoffset:0!important}}
     /* Sezione features senza fascia bianca: glass leggero */
     .features{position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem;background:rgba(255, 255, 255, 0);backdrop-filter:blur(5px) saturate(120%);-webkit-backdrop-filter:blur(5px) saturate(120%);}
