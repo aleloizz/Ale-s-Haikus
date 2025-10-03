@@ -73,9 +73,12 @@
   if (path && section) {
     try {
       const length = path.getTotalLength();
-      path.style.strokeDasharray = length + ' ' + length;
-      path.style.strokeDashoffset = length;
-      path.getBoundingClientRect(); // force layout
+  // Imposta dash iniziale prima di rendere visibile il path
+  path.style.strokeDasharray = length + ' ' + length;
+  path.style.strokeDashoffset = length;
+  path.getBoundingClientRect(); // force layout
+  path.style.visibility = 'visible';
+  path.style.opacity = '1';
 
       const clamp = (v,min,max)=> v < min ? min : (v > max ? max : v);
 
