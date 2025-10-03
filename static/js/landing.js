@@ -1,4 +1,4 @@
-/* landing.js - v0.2 */
+/* landing.js - v0.21 (cleanup: removed unused lazy illustration logic) */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,27 +23,7 @@
     toReveal.forEach(el=>el.classList.add('reveal'));
   }
 
-  // Lazy illustration handling
-  const illus = document.querySelector('.lazy-illustration');
-  if (illus && supportsIO) {
-    const img = illus.querySelector('img');
-    const obs = new IntersectionObserver((entries)=>{
-      entries.forEach(ent=>{
-        if(ent.isIntersecting){
-          if (img && img.loading !== 'eager') {
-            img.decoding = 'async';
-            // Already has src; just ensure onload transition
-            img.addEventListener('load', ()=>illus.classList.add('loaded'), { once:true });
-            if (img.complete) illus.classList.add('loaded');
-          }
-          obs.disconnect();
-        }
-      });
-    }, { rootMargin:'150px 0px' });
-    obs.observe(illus);
-  } else if (illus) {
-    illus.classList.add('loaded');
-  }
+  // (Removed) Lazy illustration handling: no .lazy-illustration element present in current template
 
   // CTA basic analytics (placeholder)
   document.addEventListener('click', (e)=>{
@@ -53,19 +33,7 @@
     console.log('[CTA]', a.getAttribute('data-cta'));
   }, { passive:true });
 
-  // Progressive Anime.js usage (only if loaded & motion not reduced)
-  window.addEventListener('load', ()=>{
-    if (prefersReduced) return;
-    if (window.anime) {
-      try {
-        window.anime({
-          targets: '.feature-card.reveal',
-            translateY: [18,0], opacity: [0,1], delay: window.anime.stagger(55), duration: 820,
-            easing: 'cubicBezier(.16,.8,.32,1)'
-        });
-      } catch(err){/* silent */}
-    }
-  });
+  // (Removed) Anime.js animations – no longer used
 
   // SVG scroll drawing effect (semplificato: progress legato alla porzione della sezione visibile, sempre da zero)
   const path = document.getElementById('forma-path');
@@ -93,7 +61,7 @@
       // Parametri regolabili
       const START_BUFFER = 80;   // px prima che inizi
       const END_BUFFER   = 40;   // px finali “morti”
-      const SPEED_MULT   = 1.20; // >1 = più lento (richiede più scroll)
+      const SPEED_MULT   = 1.50; // >1 = più lento (richiede più scroll)
       const EASING = (p)=> Math.pow(p,1.05); // rallenta l'inizio (expo leggero)
 
       let sectionTop = 0;
