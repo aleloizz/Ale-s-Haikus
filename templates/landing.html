@@ -31,10 +31,8 @@
     <!-- Preconnect / Performance Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
 
     <!-- Preload nuovo background landing -->
     <link rel="preload" as="image" href="{{ url_for('static', filename='images/landingBg.webp') }}">
@@ -103,10 +101,14 @@
     footer{background:#1e142c;color:#fff;text-align:center;padding:0.5rem 1rem 2.75rem;margin-top:0;font-size:.8rem;line-height:1.4;position:relative}
     footer a{color:#d4b8ff}
     .footer-links{display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap;margin:.85rem 0 1.15rem;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
-    .lazy-illustration{max-width:720px;margin:2.2rem auto 0;border-radius:1.25rem;box-shadow:0 18px 38px -18px rgba(0,0,0,.25),0 4px 16px -4px rgba(0,0,0,.12);opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.16,.8,.32,1),transform .9s cubic-bezier(.16,.8,.32,1)}
-    .lazy-illustration.loaded{opacity:1;transform:translateY(0)}
     @media (max-width:640px){.hero-inner{gap:1rem}.cta-wrap{flex-direction:column}.nav-list{gap:.4rem}.nav-list a{font-size:.85rem;padding:.4rem .7rem}.feature-card{min-height:unset}.footer-links{flex-direction:column;gap:.4rem}}
-    @media (prefers-reduced-motion:reduce){.feature-card,.seo-card,.lazy-illustration{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}.btn{transition:none}}
+    @media (prefers-reduced-motion:reduce){.feature-card,.seo-card{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}.btn{transition:none}}
+    /* CTA Rotating Words (integrated after main action buttons) */
+    .cta-rotator{position:relative;width:100%;height:2.2em;overflow:hidden;text-align:center;font-weight:600;font-size:clamp(1.55rem,3.4vw,2.3rem);line-height:1;margin-top:.35rem;letter-spacing:.06em;color:#ffffff;}
+    .cta-rotator-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;animation:ctaFlip 6.2s ease-in-out infinite;}
+    .cta-rotator-list li{height:2.2em;display:flex;align-items:center;justify-content:center;text-transform:uppercase;}
+    @keyframes ctaFlip{0%,14%{transform:translateY(0)}18%,32%{transform:translateY(-2.2em)}36%,50%{transform:translateY(-4.4em)}54%,68%{transform:translateY(-6.6em)}72%,100%{transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.cta-rotator-list{animation:none}}
     </style>
 
     <!-- Preload & Load Non-critical CSS (Landing specific) -->
@@ -155,15 +157,15 @@
     }
     </script>
 
-    <!-- Anime.js per animazioni (hash SRI corretto per 3.2.1 da cdnjs) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha512-z4OUqw38qNLpn1libAN9BsoDx6nbNFio5lA6CuTp9NlK83b89hgyCVq+N5FdBJptINztxn1Z3SaKSKUS5UP60Q==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <!-- (Rimosso Anime.js: non più necessario) -->
     <!-- JS Landing (defer) -->
-    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=0.21"></script>
+    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=0.22"></script>
 </head>
 <body class="loading landing-bg">
         <!-- Scroll SVG intro section (sticky) -->
         <section class="scroll-section" aria-label="Intro animata forma">
             <div class="sticky-wrapper">
+                <span class="scroll-indicator" aria-hidden="true"><span class="pulse-dot"></span> Scorri per scoprire</span>
                 <div id="fixed-text"><h1>Dove la poesia prende</h1></div>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -40 140 60" id="forma-svg" role="img" aria-labelledby="formaTitle">
                     <title id="formaTitle">Scritta animata forma</title>
@@ -199,8 +201,17 @@
                     <a class="btn btn-primary" href="{{ url_for('web.index') }}" title="Vai all'analizzatore" data-cta="analyze">Inizia Subito</a>
                     <a class="btn btn-accent" href="{{ url_for('web.bacheca') }}" title="Scopri la bacheca" data-cta="bacheca">Haiku della Community</a>
                     <a class="btn btn-gradient" href="{{ url_for('web.wiki') }}" title="Leggi la wiki poetica" data-cta="wiki">Impara le Forme</a>
+                    <!-- Animated rotating action words -->
+                    <div class="cta-rotator" aria-hidden="true">
+                        <ul class="cta-rotator-list">
+                            <li>Pubblica.</li>
+                            <li>Scrivi.</li>
+                            <li>Immagina.</li>
+                            <li>Ispirati.</li>
+                        </ul>
+                    </div>
                 </div>
-                <span class="scroll-indicator" aria-hidden="true"><span class="pulse-dot"></span> Scorri per scoprire</span>
+                
             </div>
         </section>
 
