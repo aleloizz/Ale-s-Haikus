@@ -67,30 +67,55 @@
     }
   });
 
-  // SVG scroll drawing effect
+  // SVG scroll drawing effect (progress legato alla sola sezione intro)
   const path = document.getElementById('forma-path');
-  if (path) {
+  const section = document.querySelector('.scroll-section');
+  if (path && section) {
     try {
       const length = path.getTotalLength();
       path.style.strokeDasharray = length + ' ' + length;
       path.style.strokeDashoffset = length;
       path.getBoundingClientRect(); // force layout
-      const onScroll = () => {
-        const doc = document.documentElement;
-        const scrollTop = doc.scrollTop || document.body.scrollTop;
-        const scrollHeight = doc.scrollHeight - doc.clientHeight;
-        const pct = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+
+      const clamp = (v,min,max)=> v < min ? min : (v > max ? max : v);
+
+      let lastPct = -1; // evita reflow inutili
+      const computeProgress = () => {
+        const rect = section.getBoundingClientRect();
+        const viewportH = window.innerHeight || document.documentElement.clientHeight;
+        // Quando il top della sezione raggiunge 0 inizia (rect.top)
+        // La sezione è più alta del viewport: progress avanza fino a quando il bottom esce verso l'alto
+        const totalScrollable = rect.height - viewportH; // spazio utile interno
+        // offset interno scroll = distanza percorsa dall'inizio "visivo" della sezione
+        const internalOffset = clamp(-rect.top, 0, totalScrollable <= 0 ? 1 : totalScrollable);
+        const pct = totalScrollable > 0 ? internalOffset / totalScrollable : 1;
+        return clamp(pct,0,1);
+      };
+
+      const update = () => {
+        const pct = computeProgress();
+        if (pct === lastPct) return;
+        lastPct = pct;
         const draw = length * pct;
         path.style.strokeDashoffset = length - draw;
-        if (pct >= 0.995) {
+        if (pct >= 0.999) {
           path.style.strokeDasharray = 'none';
-        } else {
+        } else if (path.style.strokeDasharray === 'none') {
           path.style.strokeDasharray = length + ' ' + length;
         }
       };
+
+      // Ottimizza con rAF durante scroll
+      let ticking = false;
+      const onScroll = () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(()=>{update(); ticking = false;});
+        }
+      };
       window.addEventListener('scroll', onScroll, { passive:true });
-      // initial in case user reloads mid-scroll
-      onScroll();
+      window.addEventListener('resize', ()=>{ lastPct = -1; update(); }, { passive:true });
+      update();
     } catch(e){ /* ignore */ }
   }
 })();
