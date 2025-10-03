@@ -66,4 +66,31 @@
       } catch(err){/* silent */}
     }
   });
+
+  // SVG scroll drawing effect
+  const path = document.getElementById('forma-path');
+  if (path) {
+    try {
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = length + ' ' + length;
+      path.style.strokeDashoffset = length;
+      path.getBoundingClientRect(); // force layout
+      const onScroll = () => {
+        const doc = document.documentElement;
+        const scrollTop = doc.scrollTop || document.body.scrollTop;
+        const scrollHeight = doc.scrollHeight - doc.clientHeight;
+        const pct = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+        const draw = length * pct;
+        path.style.strokeDashoffset = length - draw;
+        if (pct >= 0.995) {
+          path.style.strokeDasharray = 'none';
+        } else {
+          path.style.strokeDasharray = length + ' ' + length;
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive:true });
+      // initial in case user reloads mid-scroll
+      onScroll();
+    } catch(e){ /* ignore */ }
+  }
 })();
