@@ -1,4 +1,4 @@
-/* landing.js - progressive enhancement & performance safe */
+/* landing.js - v0.2 */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
