@@ -75,6 +75,7 @@
       const len = path.getTotalLength();
       if (!len || !isFinite(len)) {
         path.classList.add('force-visible');
+        console.warn('[SVGDraw] Path length non valido – forzo visibilità immediata');
         return;
       }
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -83,10 +84,12 @@
       path.style.strokeDashoffset = len;
       path.getBoundingClientRect();
       requestAnimationFrame(()=> path.classList.add('path-ready'));
+      console.log('[SVGDraw] Inizializzazione completata', { length: len });
 
       if (prefersReduced) {
         path.style.strokeDashoffset = 0;
         path.style.strokeDasharray = 'none';
+        console.log('[SVGDraw] prefers-reduced-motion attivo: disegno completato immediatamente');
         return;
       }
 
@@ -98,12 +101,15 @@
       let sectionTop = 0;
       let sectionHeight = 0;
       let drawable = 0;
+      let started = false;
+      let finished = false;
 
       function recalc() {
         sectionTop = section.offsetTop;
         sectionHeight = section.offsetHeight;
         const vpH = window.innerHeight || document.documentElement.clientHeight;
         drawable = sectionHeight - vpH - START_BUFFER - END_BUFFER;
+        console.log('[SVGDraw] Recalc', { sectionTop, sectionHeight, drawable, vpH });
       }
 
       function computeProgress() {
@@ -120,6 +126,14 @@
         const pct = computeProgress();
         const drawLen = len * pct;
         path.style.strokeDashoffset = len - drawLen;
+        if (!started && pct > 0) {
+          started = true;
+          console.log('[SVGDraw] Animazione avviata', { pct, drawLen });
+        }
+        if (!finished && pct >= 1) {
+          finished = true;
+          console.log('[SVGDraw] Animazione completata', { pct });
+        }
         if (pct >= 1) {
           // opzionale togli dash: path.style.strokeDasharray = 'none';
         }
