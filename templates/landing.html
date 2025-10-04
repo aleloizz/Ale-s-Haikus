@@ -114,6 +114,22 @@
     .cta-rotator-list li{height:2.2em;display:flex;align-items:center;justify-content:center;text-transform:uppercase;}
     @keyframes ctaFlip{0%,14%{transform:translateY(0)}18%,32%{transform:translateY(-2.2em)}36%,50%{transform:translateY(-4.4em)}54%,68%{transform:translateY(-6.6em)}72%,100%{transform:translateY(0)}}
     @media (prefers-reduced-motion:reduce){.cta-rotator-list{animation:none}}
+
+        /* Mobile-only perf: riduci costo compositing/paint nella sezione LCP */
+        @media (max-width: 800px){
+            /* Semplifica la sezione sticky per evitare compositing costosi su mobile */
+            .scroll-section{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+            .scroll-section::before{display:none}
+            .sticky-wrapper{position:relative}
+            /* Alleggerisci l'H1 (LCP) rimuovendo shadow pesante */
+            #fixed-text h1{text-shadow:none;letter-spacing:.06em}
+            /* Evita drop-shadow SVG in cima alla pagina */
+            #forma-svg{filter:none}
+            /* Hero non critico per LCP: niente backdrop su mobile */
+            .hero{backdrop-filter:none;-webkit-backdrop-filter:none}
+            /* Deferisci il paint delle sezioni non critiche */
+            .hero,.features,.seo-block{content-visibility:auto;contain-intrinsic-size:1px 600px}
+        }
     </style>
 
     <!-- Preload & Load Non-critical CSS (Landing specific) -->
