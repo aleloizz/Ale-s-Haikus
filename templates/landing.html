@@ -90,7 +90,7 @@
     @media (prefers-reduced-motion:reduce){  #forma-path{stroke-dasharray:none!important;stroke-dashoffset:0!important}}
     /* Sezione features senza fascia bianca: glass leggero */
     .features{position:relative;padding:clamp(3.5rem,10vh,5.5rem) 1rem 3.5rem;background:rgba(255, 255, 255, 0);backdrop-filter:blur(5px) saturate(120%);-webkit-backdrop-filter:blur(5px) saturate(120%);}
-    .features-grid{--min:250px;display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--min),1fr));gap:1.75rem;max-width:1140px;margin:0 auto}
+    .features-grid{--min:250px;display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--min),1fr));gap:1.75rem;max-width:1140px;margin:0 auto;list-style:none;padding-left:0}
     .feature-card{position:relative;padding:1.4rem 1.35rem 1.6rem;border-radius:1.25rem;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.55);box-shadow:0 4px 26px -10px rgba(0,0,0,.1),0 2px 8px -2px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:.65rem;overflow:hidden;min-height:200px;opacity:0;transform:translateY(28px);will-change:transform,opacity}
     .feature-card h3{font-size:1.05rem;margin:0;font-weight:600;color:#4a3c62;display:flex;align-items:center;gap:.5rem}
     .feature-card p{margin:0;font-size:.9rem;line-height:1.45;color:#5e5e5e}
@@ -227,24 +227,24 @@
                 <h2 id="feat-title">Perché usare Ale's Haikus?</h2>
                 <p>Ottimizzato per la tua <em>creatività</em>. Esprimiti al meglio i tuoi pensieri, alla forma ci pensiamo noi.</p>
             </div>
-            <div class="features-grid" role="list">
-                <article class="feature-card" role="listitem">
+            <ul class="features-grid">
+                <li class="feature-card">
                     <h3><i class="bi bi-cpu"></i> Analisi metrica avanzata</h3>
                     <p>I nostri algoritmi gestiscono dittonghi, trittonghi, iati ed eccezioni per un conteggio sillabico affidabile.</p>
-                </article>
-                <article class="feature-card" role="listitem">
+                </li>
+                <li class="feature-card">
                     <h3><i class="bi bi-people"></i> Haiku's hub</h3>
                     <p>Pubblica e scopri le poesie della community, filtra per autore e tipologia e trova ispirazione nella nostra bacheca!</p>
-                </article>
-                <article class="feature-card" role="listitem">
+                </li>
+                <li class="feature-card">
                     <h3><i class="bi bi-journal-text"></i> Wiki integrata</h3>
                     <p>Scopri tutte le forme poetiche: haiku, tanka, sonetto, limerick, versi liberi e altro.</p>
-                </article>
-                <article class="feature-card" role="listitem">
+                </li>
+                <li class="feature-card">
                     <h3><i class="bi bi-rocket-takeoff"></i> Pronto per crescere</h3>
                     <p>Architettura modulare e community-friendly, per rischieste e feedback <a href="https://github.com/aleloizz" rel="noopener noreferrer">contattateci</a>.</p>
-                </article>
-            </div>
+                </li>
+            </ul>
         </section>
     </main>
 
