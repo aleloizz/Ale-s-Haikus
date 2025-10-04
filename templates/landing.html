@@ -45,7 +45,12 @@
         /* Background della landing applicato via classe per evitare parsing problemi con Jinja dentro CSS */
     .landing-bg{background:#1e142c url('/static/images/landingBg.webp') center center / cover no-repeat;background-attachment:scroll;}
     body.loading{background:#1e142c!important}
-    a{text-decoration:none;color:inherit}
+    /* Links: distinguishable beyond color */
+    a{color:inherit;text-decoration:underline;text-underline-offset:.15em;text-decoration-thickness:2px}
+    a:hover{text-decoration-thickness:3px}
+    a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+    /* Remove underline for button-like/nav links that already have non-color cues */
+    .btn,.nav-list a,.cta-wrap > a{ text-decoration:none }
     img{max-width:100%;height:auto;display:block}
     .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
     header{position:relative;z-index:10}
@@ -67,7 +72,7 @@
     .btn:hover{transform:translateY(-4px);box-shadow:0 12px 28px -8px rgba(0,0,0,.25),0 4px 10px rgba(0,0,0,.12)}
     .btn:active{transform:translateY(-1px)}
     .btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
-    .scroll-indicator{margin-top:2.25rem;opacity:.85;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;font-weight:500}
+    .scroll-indicator{margin-top:2.25rem;opacity:.85;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem;font-weight:500; color:#f1f1f1db}
     .pulse-dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:pulse 2.2s infinite}
     @keyframes pulse{to{box-shadow:0 0 0 14px rgba(255,255,255,0);transform:scale(.9)}}
     /* Scroll intro sticky section (reintrodotto gradient + spazio extra per animazione) */
@@ -237,7 +242,7 @@
                 </article>
                 <article class="feature-card" role="listitem">
                     <h3><i class="bi bi-rocket-takeoff"></i> Pronto per crescere</h3>
-                    <p>Architettura modulare e community-friendly, per rischieste e feedback <a href="https://github.com/aleloizz">contattateci</a>.</p>
+                    <p>Architettura modulare e community-friendly, per rischieste e feedback <a href="https://github.com/aleloizz" rel="noopener noreferrer">contattateci</a>.</p>
                 </article>
             </div>
         </section>
@@ -249,7 +254,7 @@
             <a href="{{ url_for('web.bacheca') }}">Bacheca</a>
             <a href="{{ url_for('web.wiki') }}">Wiki</a>
         </div>
-        <p>&copy; <span id="year"></span> Ale's Haikus - presentato con orgoglio da <a href="https://github.com/aleloizz">aleloizz</a><br><small>dedicato a tutti i sognatori</small></p>
+    <p>&copy; <span id="year"></span> Ale's Haikus - presentato con orgoglio da <a href="https://github.com/aleloizz" rel="noopener noreferrer">aleloizz</a><br><small>dedicato a tutti i sognatori</small></p>
     </footer>
 
     <script>
