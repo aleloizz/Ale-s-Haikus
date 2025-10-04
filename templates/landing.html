@@ -127,6 +127,8 @@
             #forma-svg{filter:none}
             /* Hero non critico per LCP: niente backdrop su mobile */
             .hero{backdrop-filter:none;-webkit-backdrop-filter:none}
+            /* Features non critiche per LCP: niente backdrop su mobile */
+            .features{backdrop-filter:none;-webkit-backdrop-filter:none}
             /* Deferisci il paint delle sezioni non critiche */
             .hero,.features,.seo-block{content-visibility:auto;contain-intrinsic-size:1px 600px}
 
@@ -207,28 +209,13 @@
             <div class="hero-inner">
                                 <div class="hero-heading-glitch" aria-labelledby="hero-title">
                                     <!-- Testo originale per SEO e screen reader -->
-                                    <h1 id="hero-title" class="sr-only">Scrivi, Analizza e Condividi Haiku & Poesie in Tempo Reale</h1>
-                                    <!-- Wrapper animazione -->
-                                    <!--div class="glitch-wrapper" aria-hidden="true">
-                                        <h1>Dove la poesia prende</h1>
-                                        <p data-scroll="in" class="glitch-original">forma</p>
-                                        <p class="reveal--2 words chars splitting glitch-anim" data-scroll="in" data-splitting
-                                             style="--word-total:1; --char-total:5;">
-                                            <span class="word" data-word="forma" style="--word-index:0;">
-                                                <span class="char" data-char="f" style="--char-index:0; --count:3; --char-0:'∆'; --char-1:'§'; --char-2:'≥'; --char-3:'µ'; --char-4:'∂'; --char-5:'ß'; --char-6:'©'; --char-7:'?'; --char-8:'√'; --char-9:'æ';">f</span>
-                                                <span class="char" data-char="o" style="--char-index:1; --count:4; --char-0:'•'; --char-1:'˚'; --char-2:'…'; --char-3:'/'; --char-4:'™'; --char-5:'¬'; --char-6:'æ'; --char-7:'÷'; --char-8:'≈'; --char-9:'ƒ';">o</span>
-                                                <span class="char" data-char="r" style="--char-index:2; --count:2; --char-0:'√'; --char-1:'≥'; --char-2:'≤'; --char-3:'?'; --char-4:'…'; --char-5:'å'; --char-6:'µ'; --char-7:'░'; --char-8:'§'; --char-9:'º';">r</span>
-                                                <span class="char" data-char="m" style="--char-index:3; --count:4; --char-0:'∆'; --char-1:'§'; --char-2:'ç'; --char-3:'∫'; --char-4:'µ'; --char-5:'™'; --char-6:'`'; --char-7:'§'; --char-8:'˙'; --char-9:'▓';">m</span>
-                                                <span class="char" data-char="a" style="--char-index:4; --count:3; --char-0:'<'; --char-1:'…'; --char-2:'–'; --char-3:'`'; --char-4:'¶'; --char-5:'ƒ'; --char-6:'•'; --char-7:'?'; --char-8:'˜'; --char-9:'˜';">a</span>
-                                            </span>
-                                        </p>
-                                    </div-->
+                                    <h1 id="hero-title" class="sr-only">Scrivi, Analizza e Condividi Haiku e molte altre Poesie in Tempo Reale</h1>
                                     <p class="hero-sub">Benvenuto su Ale's Haikus, lo <strong>strumento metrico intelligente</strong> per haiku, tanka, sonetti e molto altro. Questa web app conta le sillabe e verifica gli schemi rimici per tè, lasciandoti concentrare sul contenuto delle tue poesie.</p>
                                 </div>
                 <div class="cta-wrap" role="group" aria-label="Azioni principali">
                     <a class="btn btn-primary" href="{{ url_for('web.index') }}" title="Vai all'analizzatore" data-cta="analyze">Inizia Subito</a>
-                    <a class="btn btn-accent" href="{{ url_for('web.bacheca') }}" title="Scopri la bacheca" data-cta="bacheca">Haiku della Community</a>
-                    <a class="btn btn-gradient" href="{{ url_for('web.wiki') }}" title="Leggi la wiki poetica" data-cta="wiki">Impara le Forme</a>
+                    <a class="btn btn-accent" href="{{ url_for('web.bacheca') }}" title="Scopri la bacheca" data-cta="bacheca">Scopri Haiku's Hub</a>
+                    <a class="btn btn-gradient" href="{{ url_for('web.wiki') }}" title="Leggi la wiki poetica" data-cta="wiki">Impara le Forme poetiche</a>
                     <!-- Animated rotating action words -->
                     <div class="cta-rotator" aria-hidden="true">
                         <ul class="cta-rotator-list">
@@ -264,7 +251,7 @@
                 </li>
                 <li class="feature-card">
                     <h3><i class="bi bi-rocket-takeoff"></i> Pronto per crescere</h3>
-                    <p>Architettura modulare e community-friendly, per rischieste e feedback <a href="https://github.com/aleloizz" rel="noopener noreferrer">contattateci</a>.</p>
+                    <p>Architettura modulare e community-friendly, per rischieste e feedback <a href="mailto:a.loizzo15@studenti.uniba.it" rel="noopener noreferrer">contattateci</a>.</p>
                 </li>
             </ul>
         </section>
