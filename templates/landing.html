@@ -118,9 +118,9 @@
         /* Mobile-only perf: riduci costo compositing/paint nella sezione LCP */
         @media (max-width: 800px){
             /* Semplifica la sezione sticky per evitare compositing costosi su mobile */
-            .scroll-section{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+            .scroll-section{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;min-height:120vh}
             .scroll-section::before{display:none}
-            .sticky-wrapper{position:relative}
+            /*.sticky-wrapper{position:relative}*/
             /* Alleggerisci l'H1 (LCP) rimuovendo shadow pesante */
             #fixed-text h1{text-shadow:none;letter-spacing:.06em}
             /* Evita drop-shadow SVG in cima alla pagina */
@@ -137,6 +137,11 @@
             .nav-list a{display:inline-flex;align-items:center;justify-content:center;padding:.75rem 1rem;min-height:48px;min-width:48px;border-radius:.75rem}
             .footer-links{gap:.6rem}
             .footer-links a{display:inline-flex;align-items:center;justify-content:center;padding:.75rem 1rem;min-height:48px;min-width:48px;border-radius:.75rem}
+        }
+
+        /* Schermi molto bassi: accorcia ulteriormente la sezione */
+        @media (max-width: 800px) and (max-height: 700px){
+            .scroll-section{min-height:110vh}
         }
     </style>
 
