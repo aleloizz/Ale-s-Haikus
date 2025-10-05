@@ -1,4 +1,4 @@
-/* landing.js - v1.1 ottimizzazione animazione svg */
+/* landing.js - v1.2 aumento easing power */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -62,7 +62,7 @@
       // Parametri regolabili (mobile-friendly)
       const START_BUFFER = isMobile ? 0 : 80;   // usa tutto lo spazio su mobile
       const END_BUFFER   = isMobile ? 0 : 40;
-      let EASING_POWER   = isMobile ? 2.0 : 1.1; // >1 = più lento all'inizio mantenendo completamento
+      let EASING_POWER   = isMobile ? 2.6 : 1.1; // >1 = più lento all'inizio mantenendo completamento
       const EASING = (p)=> {
         // easing morbido + potenza per rallentare la progressione su mobile
         const eased = (1 - Math.cos(Math.PI * p)) / 2; // easeInOutSine
