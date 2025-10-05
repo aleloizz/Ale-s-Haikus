@@ -193,7 +193,7 @@
 
     <!-- (Rimosso Anime.js: non più necessario) -->
     <!-- JS Landing (defer) -->
-    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=1.1"></script>
+    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=1.2"></script>
 </head>
 <body class="loading landing-bg">
         <!-- Scroll SVG intro section (sticky) -->
@@ -221,15 +221,6 @@
                     <a class="btn btn-primary" href="{{ url_for('web.index') }}" title="Vai all'analizzatore" data-cta="analyze">Inizia Subito</a>
                     <a class="btn btn-accent" href="{{ url_for('web.bacheca') }}" title="Scopri la bacheca" data-cta="bacheca">Scopri Haiku's Hub</a>
                     <a class="btn btn-gradient" href="{{ url_for('web.wiki') }}" title="Leggi la wiki poetica" data-cta="wiki">Impara le Forme poetiche</a>
-                    <!-- Animated rotating action words -->
-                    <div class="cta-rotator" aria-hidden="true">
-                        <ul class="cta-rotator-list">
-                            <li>Ispirati.</li>
-                            <li>Immagina.</li>
-                            <li>Scrivi.</li>
-                            <li>Pubblica.</li>
-                        </ul>
-                    </div>
                 </div>
                 
             </div>
@@ -237,6 +228,15 @@
 
         <!-- FEATURE PRINCIPALI -->
         <section class="features" id="funzioni" aria-labelledby="feat-title">
+            <!-- Animated rotating action words -->
+            <div class="cta-rotator" aria-hidden="true">
+                <ul class="cta-rotator-list">
+                    <li>Ispirati.</li>
+                        <li>Immagina.</li>
+                        <li>Scrivi.</li>
+                    <li>Pubblica.</li>
+                </ul>
+            </div>
             <div class="section-head">
                 <h2 id="feat-title">Perché usare Ale's Haikus?</h2>
                 <p>Ottimizzato per la tua <em>creatività</em>. Esprimiti al meglio i tuoi pensieri, alla forma ci pensiamo noi.</p>
@@ -244,15 +244,15 @@
             <ul class="features-grid">
                 <li class="feature-card">
                     <h3><i class="bi bi-cpu"></i> Analisi metrica avanzata</h3>
-                    <p>I nostri algoritmi gestiscono dittonghi, trittonghi, iati ed eccezioni per un conteggio sillabico affidabile.</p>
+                    <p>I nostri algoritmi all'avanguardia gestiscono dittonghi, trittonghi, iati ed eccezioni per un conteggio sillabico affidabile.</p>
                 </li>
                 <li class="feature-card">
                     <h3><i class="bi bi-people"></i> Haiku's hub</h3>
-                    <p>Pubblica e scopri le poesie della community, filtra per autore e tipologia e trova ispirazione nella nostra bacheca!</p>
+                    <p><a href="{{ url_for('web.bacheca') }}">Pubblica e scopri le poesie della community</a>, filtra per autore e tipologia e trova ispirazione nella nostra bacheca!</p>
                 </li>
                 <li class="feature-card">
                     <h3><i class="bi bi-journal-text"></i> Wiki integrata</h3>
-                    <p>Scopri tutte le forme poetiche: haiku, tanka, sonetto, limerick, versi liberi e altro.</p>
+                    <p><a href="{{ url_for('web.wiki') }}">Scopri tutte le forme poetiche</a>: haiku, tanka, sonetto, limerick, versi liberi e altro.</p>
                 </li>
                 <li class="feature-card">
                     <h3><i class="bi bi-rocket-takeoff"></i> Pronto per crescere</h3>
