@@ -1,4 +1,4 @@
-/* landing.js - v1.2 aumento easing power */
+/* landing.js - v2.2 import share popup */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
