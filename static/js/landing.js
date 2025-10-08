@@ -115,17 +115,13 @@
     const modal = document.getElementById('sharePopup');
     const btn = document.getElementById('openShare');
     const closeBtn = document.getElementById('closeSharePopup');
-    const shareUrl = 'https://www.aleshaikus.me/landing';
-  const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
+    const shareUrl = ((window.location && window.location.origin) ? window.location.origin : 'https://www.aleshaikus.me') + '/landing';
+    const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
 
     function open(e){
       if (e && typeof e.preventDefault === 'function') e.preventDefault();
-      const isMobileLike = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.matchMedia('(max-width: 800px)').matches;
-      if (isMobileLike && navigator.share) {
-        navigator.share({ title: "Ale's Haikus", text: shareText, url: shareUrl }).catch(()=>{ show(); });
-      } else {
-        show();
-      }
+      // Per coerenza con la bacheca: apri sempre il popup custom
+      show();
     }
     function show(){ if(overlay){ overlay.style.display='block'; overlay.setAttribute('aria-hidden','false'); } if(modal){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modal.focus(); } }
     function hide(){ if(overlay){ overlay.style.display='none'; overlay.setAttribute('aria-hidden','true'); } if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); } }
@@ -140,15 +136,37 @@
         default: return shareUrl;
       }
     }
+    function showCopiedMessage(){
+      const msg = document.getElementById('shareExtra');
+      if(msg){
+        msg.textContent = 'Link copiato negli appunti!';
+        setTimeout(()=>{ msg.textContent = `Condivideremo: ${shareUrl}` }, 1800);
+      }
+    }
+    function fallbackCopy(){
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = shareUrl;
+        ta.setAttribute('readonly','');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showCopiedMessage();
+      }catch(_){ /* ignore */ }
+    }
     function handleClick(e){
       const item = e.target.closest('.icon');
       if(!item) return;
       const net = item.getAttribute('data-network');
       if (net === 'copy') {
-        navigator.clipboard?.writeText(shareUrl).then(()=>{
-          const msg = document.getElementById('shareExtra');
-          if(msg){ msg.textContent = 'Link copiato negli appunti!'; setTimeout(()=>{ msg.textContent = `Condivideremo: ${shareUrl}` }, 1800); }
-        });
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareUrl).then(showCopiedMessage).catch(fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
         return;
       }
       const url = buildUrl(net);
@@ -156,6 +174,11 @@
     }
 
     btn && btn.addEventListener('click', open);
+    // Delegation fallback in case direct binding fails for any reason
+    document.addEventListener('click', (e)=>{
+      const t = e.target.closest('#openShare');
+      if(t){ open(e); }
+    });
     overlay && overlay.addEventListener('click', hide);
     closeBtn && closeBtn.addEventListener('click', hide);
     modal && modal.addEventListener('click', handleClick);
