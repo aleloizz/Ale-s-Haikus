@@ -1,4 +1,4 @@
-/* landing.js - v2.2 import share popup */
+/* landing.js - v2.3 import share popup fix*/
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -116,17 +116,19 @@
     const btn = document.getElementById('openShare');
     const closeBtn = document.getElementById('closeSharePopup');
     const shareUrl = 'https://www.aleshaikus.me/landing';
-    const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
+  const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
 
-    function open(){
-      if (navigator.share) {
-        navigator.share({ title: "Ale's Haikus", text: shareText, url: shareUrl }).catch(()=>{/* fallback to modal */show()});
+    function open(e){
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
+      const isMobileLike = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.matchMedia('(max-width: 800px)').matches;
+      if (isMobileLike && navigator.share) {
+        navigator.share({ title: "Ale's Haikus", text: shareText, url: shareUrl }).catch(()=>{ show(); });
       } else {
         show();
       }
     }
-    function show(){ if(overlay) overlay.style.display='block'; if(modal){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modal.focus(); } }
-    function hide(){ if(overlay) overlay.style.display='none'; if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); } }
+    function show(){ if(overlay){ overlay.style.display='block'; overlay.setAttribute('aria-hidden','false'); } if(modal){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modal.focus(); } }
+    function hide(){ if(overlay){ overlay.style.display='none'; overlay.setAttribute('aria-hidden','true'); } if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); } }
     function buildUrl(net){
       const u = encodeURIComponent(shareUrl);
       const t = encodeURIComponent(shareText);
@@ -157,6 +159,16 @@
     overlay && overlay.addEventListener('click', hide);
     closeBtn && closeBtn.addEventListener('click', hide);
     modal && modal.addEventListener('click', handleClick);
+    // Keyboard support: Enter/Space on focused share item
+    modal && modal.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        const active = document.activeElement;
+        if(active && active.classList && active.classList.contains('icon')){
+          e.preventDefault();
+          handleClick({ target: active });
+        }
+      }
+    });
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hide(); });
   })();
 })();
