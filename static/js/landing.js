@@ -108,4 +108,55 @@
       window.addEventListener('resize', onResize, { passive:true });
     } catch(e){ /* silent */ }
   }
+
+  // Share Project (re-uses simplified modal pattern from bacheca)
+  (function(){
+    const overlay = document.getElementById('sharePopupOverlay');
+    const modal = document.getElementById('sharePopup');
+    const btn = document.getElementById('openShare');
+    const closeBtn = document.getElementById('closeSharePopup');
+    const shareUrl = 'https://www.aleshaikus.me/landing';
+    const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
+
+    function open(){
+      if (navigator.share) {
+        navigator.share({ title: "Ale's Haikus", text: shareText, url: shareUrl }).catch(()=>{/* fallback to modal */show()});
+      } else {
+        show();
+      }
+    }
+    function show(){ if(overlay) overlay.style.display='block'; if(modal){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modal.focus(); } }
+    function hide(){ if(overlay) overlay.style.display='none'; if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); } }
+    function buildUrl(net){
+      const u = encodeURIComponent(shareUrl);
+      const t = encodeURIComponent(shareText);
+      switch(net){
+        case 'facebook': return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+        case 'twitter': return `https://twitter.com/intent/tweet?url=${u}&text=${t}`;
+        case 'whatsapp': return `https://api.whatsapp.com/send?text=${t}%20${u}`;
+        case 'telegram': return `https://t.me/share/url?url=${u}&text=${t}`;
+        default: return shareUrl;
+      }
+    }
+    function handleClick(e){
+      const item = e.target.closest('.icon');
+      if(!item) return;
+      const net = item.getAttribute('data-network');
+      if (net === 'copy') {
+        navigator.clipboard?.writeText(shareUrl).then(()=>{
+          const msg = document.getElementById('shareExtra');
+          if(msg){ msg.textContent = 'Link copiato negli appunti!'; setTimeout(()=>{ msg.textContent = `Condivideremo: ${shareUrl}` }, 1800); }
+        });
+        return;
+      }
+      const url = buildUrl(net);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    btn && btn.addEventListener('click', open);
+    overlay && overlay.addEventListener('click', hide);
+    closeBtn && closeBtn.addEventListener('click', hide);
+    modal && modal.addEventListener('click', handleClick);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hide(); });
+  })();
 })();

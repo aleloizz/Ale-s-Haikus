@@ -151,6 +151,15 @@
         @media (max-width: 800px) and (max-height: 700px){
             .scroll-section{min-height:110vh}
         }
+
+    /* Share modal (riuso leggero stile bacheca) */
+    .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;z-index:2000}
+    .share-box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.2);padding:1rem 1rem 1.25rem;z-index:2001;display:none;min-width:min(92vw,420px)}
+    .share-box .share-header{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.75rem}
+    .share-box .wrapper{list-style:none;display:flex;gap:.75rem;flex-wrap:wrap;padding:0;margin:0}
+    .share-box .wrapper .icon{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem .8rem;border:1px solid #eee;border-radius:10px;cursor:pointer;color:#333;background:#fafafa}
+    .share-box .wrapper .icon:hover{background:#f2f2f2}
+    .share-box .small{color:#666}
     </style>
 
     <!-- Preload & Load Non-critical CSS (Landing specific) -->
@@ -270,6 +279,49 @@
             </ul>
         </section>
     </main>
+
+    <!-- Share Project CTA (prima del footer) -->
+    <section class="seo-block" aria-label="Condividi il progetto">
+        <div class="seo-inner" style="display:block; max-width:760px; text-align:center;">
+            <h2 style="color:#fff; margin-bottom:.5rem; font-size:1.4rem; font-weight:600;">Ti piace Ale's Haikus?</h2>
+            <p style="color:#e8e8e8; margin-bottom:1rem;">Condividi la landing con amici e community per far scoprire l'analizzatore.</p>
+            <button id="openShare" class="btn btn-gradient" type="button" aria-haspopup="dialog" aria-controls="sharePopup" data-cta="share-project">
+                Condividi il progetto
+            </button>
+        </div>
+    </section>
+
+    <!-- Share Popup Markup (riuso pattern bacheca) -->
+    <div id="sharePopupOverlay" class="share-overlay" aria-hidden="true"></div>
+    <div id="sharePopup" class="share-box" role="dialog" aria-label="Condividi" aria-hidden="true" tabindex="-1">
+        <div class="share-header">
+            <span class="fw-medium">Condividi su</span>
+            <button type="button" id="closeSharePopup" class="btn btn-sm btn-accent" aria-label="Chiudi" style="line-height:1;padding:4px 10px;border-radius:8px;">&times;</button>
+        </div>
+        <ul class="wrapper mb-0" role="list">
+            <li class="icon facebook" data-network="facebook" tabindex="0" role="button" aria-label="Condividi su Facebook">
+                <span class="tooltip">Facebook</span>
+                <span class="bi bi-facebook"></span>
+            </li>
+            <li class="icon x" data-network="twitter" tabindex="0" role="button" aria-label="Condividi su X">
+                <span class="tooltip">X</span>
+                <span class="bi bi-twitter-x"></span>
+            </li>
+            <li class="icon whatsapp" data-network="whatsapp" tabindex="0" role="button" aria-label="Condividi su WhatsApp">
+                <span class="tooltip">WhatsApp</span>
+                <span class="bi bi-whatsapp"></span>
+            </li>
+            <li class="icon telegram" data-network="telegram" tabindex="0" role="button" aria-label="Condividi su Telegram">
+                <span class="tooltip">Telegram</span>
+                <span class="bi bi-telegram"></span>
+            </li>
+            <li class="icon copy" data-network="copy" tabindex="0" role="button" aria-label="Copia link">
+                <span class="tooltip">Copia link</span>
+                <span class="bi bi-link-45deg"></span>
+            </li>
+        </ul>
+        <div id="shareExtra" class="w-100 mt-2 small text-muted">Condivideremo: https://www.aleshaikus.me/landing</div>
+    </div>
 
     <footer>
         <div class="footer-links" aria-label="Link utili">
