@@ -152,19 +152,12 @@
             .scroll-section{min-height:110vh}
         }
 
-    /* Share modal (riuso leggero stile bacheca) */
-    .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;z-index:2000}
-    .share-box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.2);padding:1rem 1rem 1.25rem;z-index:2001;display:none;min-width:min(92vw,420px)}
-    .share-box .share-header{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.75rem}
-    .share-box .wrapper{list-style:none;display:flex;gap:.75rem;flex-wrap:wrap;padding:0;margin:0}
-    .share-box .wrapper .icon{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem .8rem;border:1px solid #eee;border-radius:10px;cursor:pointer;color:#333;background:#fafafa}
-    .share-box .wrapper .icon:hover{background:#f2f2f2}
-    .share-box .small{color:#666}
+    /* Share styles spostati in static/css/landing.css */
     </style>
 
     <!-- Preload & Load Non-critical CSS (Landing specific) -->
-    <link rel="preload" href="{{ url_for('static', filename='css/landing.css') }}?v=0.4" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v=0.4"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/landing.css') }}?v=0.5" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v=0.5"></noscript>
     <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=1.4" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=1.4"></noscript>
 
@@ -238,6 +231,7 @@
                             <li>Immagina.</li>
                             <li>Scrivi.</li>
                             <li>Pubblica.</li>
+                            <li>Condividi.</li>
                         </ul>
                     </div>
                     <!-- Testo originale per SEO e screen reader -->
@@ -257,7 +251,7 @@
         <section class="features" id="funzioni" aria-labelledby="feat-title">
             <div class="section-head">
                 <h2 id="feat-title">Perché usare Ale's Haikus?</h2>
-                <p>Ottimizzato per la tua <em>creatività</em>. Esprimiti al meglio i tuoi pensieri, alla forma ci pensiamo noi.</p>
+                <p>Ottimizzato per la tua <em>creatività</em>. Esprimi al meglio i tuoi pensieri, alla forma ci pensiamo noi.</p>
             </div>
             <ul class="features-grid">
                 <li class="feature-card">
@@ -282,9 +276,9 @@
 
     <!-- Share Project CTA (prima del footer) -->
     <section class="seo-block" aria-label="Condividi il progetto">
-        <div class="seo-inner" style="display:block; max-width:760px; text-align:center;">
-            <h2 style="color:#fff; margin-bottom:.5rem; font-size:1.4rem; font-weight:600;">Ti piace Ale's Haikus?</h2>
-            <p style="color:#e8e8e8; margin-bottom:1rem;">Supporta il progetto condividendolo con i tuoi amici ed aiutaci a far crescere la community.</p>
+        <div class="seo-inner share-cta">
+            <h2>Ti piace Ale's Haikus?</h2>
+            <p>Supporta il progetto condividendolo con i tuoi amici ed aiutaci a far crescere la community.</p>
             <button id="openShare" class="btn btn-accent" type="button" aria-haspopup="dialog" aria-controls="sharePopup" data-cta="share-project">
                 <em>Supporta Ale's Haikus</em>
             </button>
@@ -296,7 +290,7 @@
     <div id="sharePopup" class="share-box" role="dialog" aria-label="Condividi" aria-hidden="true" tabindex="-1">
         <div class="share-header">
             <span class="fw-medium">Condividi su</span>
-            <button type="button" id="closeSharePopup" class="btn btn-sm btn-accent" aria-label="Chiudi" style="line-height:1;padding:4px 10px;border-radius:8px;">&times;</button>
+            <button type="button" id="closeSharePopup" class="btn btn-sm btn-accent share-close-btn" aria-label="Chiudi">&times;</button>
         </div>
         <ul class="wrapper mb-0" role="list">
             <li class="icon facebook" data-network="facebook" tabindex="0" role="button" aria-label="Condividi su Facebook">
