@@ -115,8 +115,46 @@
     const modal = document.getElementById('sharePopup');
     const btn = document.getElementById('openShare');
     const closeBtn = document.getElementById('closeSharePopup');
-    const shareUrl = ((window.location && window.location.origin) ? window.location.origin : 'https://www.aleshaikus.me') + '/landing';
+    const baseUrl = ((window.location && window.location.origin) ? window.location.origin : 'https://www.aleshaikus.me') + '/landing';
     const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
+
+    function getUtmUrl(source = 'instagram', medium = 'social'){
+      const url = new URL(baseUrl, window.location.origin);
+      url.searchParams.set('utm_source', source);
+      url.searchParams.set('utm_medium', medium);
+      url.searchParams.set('utm_campaign', 'landing_share');
+      return url.toString();
+    }
+    function copyToClipboard(text){
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise((resolve,reject)=>{
+        try{
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly','');
+          ta.style.position = 'absolute';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          ok ? resolve() : reject();
+        }catch(err){ reject(err); }
+      });
+    }
+    function downloadAsset(assetUrl, filename){
+      try{
+        const a = document.createElement('a');
+        a.href = assetUrl;
+        a.download = filename || '';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }catch(_){ /* ignore */ }
+    }
 
     function open(e){
       if (e && typeof e.preventDefault === 'function') e.preventDefault();
@@ -144,14 +182,14 @@
       }
     }
     function buildUrl(net){
-      const u = encodeURIComponent(shareUrl);
+      const u = encodeURIComponent(baseUrl);
       const t = encodeURIComponent(shareText);
       switch(net){
         case 'facebook': return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
         case 'twitter': return `https://twitter.com/intent/tweet?url=${u}&text=${t}`;
         case 'whatsapp': return `https://api.whatsapp.com/send?text=${t}%20${u}`;
         case 'telegram': return `https://t.me/share/url?url=${u}&text=${t}`;
-        default: return shareUrl;
+        default: return baseUrl;
       }
     }
     function showCopiedMessage(text){
@@ -161,47 +199,58 @@
         msg.style.display = 'block';
       }
     }
-    function fallbackCopy(){
-      try{
-        const ta = document.createElement('textarea');
-        ta.value = shareUrl;
-        ta.setAttribute('readonly','');
-        ta.style.position = 'absolute';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showCopiedMessage();
-      }catch(_){ /* ignore */ }
-    }
+    function fallbackCopy(){ copyToClipboard(baseUrl).then(()=>showCopiedMessage()).catch(()=>{}); }
     function handleClick(e){
       const item = e.target.closest('.icon');
       if(!item) return;
       const net = item.getAttribute('data-network');
       if (net === 'copy') {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareUrl).then(()=>showCopiedMessage(`Condivideremo: ${shareUrl}`)).catch(()=>{ fallbackCopy(); showCopiedMessage(`Condivideremo: ${shareUrl}`); });
-        } else {
-          fallbackCopy();
-          showCopiedMessage(`Condivideremo: ${shareUrl}`);
-        }
+        const url = getUtmUrl('copy', 'social');
+        copyToClipboard(url)
+          .then(()=>showCopiedMessage(`Link copiato: ${url}`))
+          .catch(()=>{ fallbackCopy(); showCopiedMessage(`Link copiato: ${url}`); });
         return;
       }
       if (net === 'instagram') {
-        // Mostra opzioni formato e copia link, come pattern bacheca
+        // Mostra opzioni formato e copia link con UTM generica per IG
         const ig = document.getElementById('instagramShareFormat');
         if (ig){ ig.style.display = 'block'; }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareUrl).then(()=>showCopiedMessage('Link copiato! Scegli un formato per Instagram.')).catch(()=>{ fallbackCopy(); showCopiedMessage('Link copiato! Scegli un formato per Instagram.'); });
-        } else {
-          fallbackCopy();
-          showCopiedMessage('Link copiato! Scegli un formato per Instagram.');
-        }
+        const igGeneric = getUtmUrl('instagram','social');
+        copyToClipboard(igGeneric)
+          .then(()=>showCopiedMessage('Link copiato! Ora scegli un formato per Instagram.'))
+          .catch(()=>{ fallbackCopy(); showCopiedMessage('Link copiato! Ora scegli un formato per Instagram.'); });
         return;
       }
       const url = buildUrl(net);
       window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // Bind Instagram format buttons: download template and copy UTM link specific to format
+    const igBox = document.getElementById('instagramShareFormat');
+    if (igBox && !igBox.dataset.bound){
+      igBox.addEventListener('click', (e)=>{
+        const btn = e.target.closest('[data-ig-format]');
+        if(!btn) return;
+        const fmt = btn.getAttribute('data-ig-format');
+        let asset = '';
+        let filename = '';
+        let medium = '';
+        if (fmt === 'story') {
+          asset = '/static/images/share/story-template.png';
+          filename = 'aleshaikus-story.png';
+          medium = 'story';
+        } else if (fmt === 'post') {
+          asset = '/static/images/share/post-template.png';
+          filename = 'aleshaikus-post.png';
+          medium = 'post';
+        } else { return; }
+
+        const urlWithUtm = getUtmUrl('instagram', medium);
+        copyToClipboard(urlWithUtm).catch(()=>{});
+        downloadAsset(asset, filename);
+        showCopiedMessage(`Immagine ${fmt === 'story' ? 'Storia 1080×1920' : 'Post 1080×1350'} scaricata. Apri Instagram e aggiungi lo sticker Link: è già copiato.`);
+      });
+      igBox.dataset.bound = '1';
     }
 
     btn && btn.addEventListener('click', open);
