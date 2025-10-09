@@ -124,9 +124,9 @@
       show();
     }
     function show(){
-      if(overlay){ overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false'); overlay.style.display=''; }
+      if(overlay){ overlay.removeAttribute('hidden'); overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false'); overlay.style.display=''; }
       if(modal){
-        modal.classList.add('active'); modal.setAttribute('aria-hidden','false'); modal.style.display=''; modal.focus();
+        modal.removeAttribute('hidden'); modal.classList.add('active'); modal.setAttribute('aria-hidden','false'); modal.style.display=''; modal.focus();
         const extra = document.getElementById('shareExtra');
         const ig = document.getElementById('instagramShareFormat');
         if (extra){ extra.style.display = 'none'; extra.textContent = ''; }
@@ -134,9 +134,9 @@
       }
     }
     function hide(){
-      if(overlay){ overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true'); overlay.style.display=''; }
+      if(overlay){ overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true'); overlay.style.display=''; overlay.setAttribute('hidden',''); }
       if(modal){
-        modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); modal.style.display='';
+        modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); modal.style.display=''; modal.setAttribute('hidden','');
         const ig = document.getElementById('instagramShareFormat');
         const extra = document.getElementById('shareExtra');
         if (ig){ ig.style.display = 'none'; }
