@@ -60,3 +60,19 @@
 @media (prefers-reduced-motion:reduce) {
   .glitch-anim [data-char]::after { animation:none!important; content:attr(data-char)!important; }
 }
+
+/* ================= Share CTA and Modal ================= */
+/* Share CTA wrapper inside the SEO block on landing */
+.share-cta { display:block; max-width:760px; text-align:center; margin-inline:auto; }
+.share-cta h2 { color:#fff; margin-bottom:.5rem; font-size:1.4rem; font-weight:600; }
+.share-cta p { color:#e8e8e8; margin-bottom:1rem; }
+
+/* Share modal (reuses lightweight bacheca pattern) */
+.share-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(2px); display:none; z-index:2000; }
+.share-box { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); background:#fff; border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.2); padding:1rem 1rem 1.25rem; z-index:2001; display:none; min-width:min(92vw,420px); }
+.share-box .share-header { display:flex; justify-content:space-between; align-items:center; gap:.5rem; margin-bottom:.75rem; }
+.share-box .wrapper { list-style:none; display:flex; gap:.75rem; flex-wrap:wrap; padding:0; margin:0; }
+.share-box .wrapper .icon { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem .8rem; border:1px solid #eee; border-radius:10px; cursor:pointer; color:#333; background:#fafafa; }
+.share-box .wrapper .icon:hover { background:#f2f2f2; }
+.share-box .small { color:#666; }
+.share-close-btn { line-height:1; padding:4px 10px; border-radius:8px; }
