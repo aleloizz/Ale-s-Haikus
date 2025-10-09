@@ -1,21 +1,72 @@
 {
-  "name": "Ale's Haikus",
+  "id": "/",
+  "name": "Ale's Haikus • Haiku Online & Analizzatore Metrico",
   "short_name": "Ale's Haikus",
+  "description": "Scrivi e analizza haiku, tanka, sonetti e tante altre poesie. Condividi le tue poesie e scopri la nostra community.",
+  "lang": "it-IT",
+  "dir": "ltr",
+  "start_url": "/landing?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait-primary",
+  "theme_color": "#faf7ff",
+  "background_color": "#faf7ff",
+  "categories": ["education", "productivity", "social"],
   "icons": [
     {
-      "src": "/web-app-manifest-192x192.png",
+      "src": "/static/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
-      "src": "/web-app-manifest-512x512.png",
+      "src": "/static/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "shortcuts": [
+    {
+      "name": "Analizzatore",
+      "short_name": "Analizzatore",
+      "url": "/?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=landing_share",
+      "icons": [
+        { "src": "/static/favicon-96x96.png", "sizes": "96x96", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Bacheca",
+      "short_name": "Bacheca",
+      "url": "/bacheca?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=landing_share",
+      "icons": [
+        { "src": "/static/favicon-96x96.png", "sizes": "96x96", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Wiki",
+      "short_name": "Wiki",
+      "url": "/wiki?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=landing_share",
+      "icons": [
+        { "src": "/static/favicon-96x96.png", "sizes": "96x96", "type": "image/png" }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/images/share/story-template.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Condividi il progetto - Storia Instagram"
+    },
+    {
+      "src": "/static/images/share/post-template.png",
+      "sizes": "1080x1350",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Condividi il progetto - Post Instagram"
+    }
+  ]
 }
