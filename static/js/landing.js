@@ -123,8 +123,26 @@
       // Per coerenza con la bacheca: apri sempre il popup custom
       show();
     }
-    function show(){ if(overlay){ overlay.style.display='block'; overlay.setAttribute('aria-hidden','false'); } if(modal){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modal.focus(); } }
-    function hide(){ if(overlay){ overlay.style.display='none'; overlay.setAttribute('aria-hidden','true'); } if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); } }
+    function show(){
+      if(overlay){ overlay.style.display='block'; overlay.setAttribute('aria-hidden','false'); }
+      if(modal){
+        modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modal.focus();
+        const extra = document.getElementById('shareExtra');
+        const ig = document.getElementById('instagramShareFormat');
+        if (extra){ extra.style.display = 'none'; extra.textContent = ''; }
+        if (ig){ ig.style.display = 'none'; }
+      }
+    }
+    function hide(){
+      if(overlay){ overlay.style.display='none'; overlay.setAttribute('aria-hidden','true'); }
+      if(modal){
+        modal.style.display='none'; modal.setAttribute('aria-hidden','true');
+        const ig = document.getElementById('instagramShareFormat');
+        const extra = document.getElementById('shareExtra');
+        if (ig){ ig.style.display = 'none'; }
+        if (extra){ extra.style.display = 'none'; }
+      }
+    }
     function buildUrl(net){
       const u = encodeURIComponent(shareUrl);
       const t = encodeURIComponent(shareText);
@@ -136,11 +154,11 @@
         default: return shareUrl;
       }
     }
-    function showCopiedMessage(){
+    function showCopiedMessage(text){
       const msg = document.getElementById('shareExtra');
       if(msg){
-        msg.textContent = 'Link copiato negli appunti!';
-        setTimeout(()=>{ msg.textContent = `Condivideremo: ${shareUrl}` }, 1800);
+        msg.textContent = text || 'Link copiato negli appunti!';
+        msg.style.display = 'block';
       }
     }
     function fallbackCopy(){
@@ -163,9 +181,22 @@
       const net = item.getAttribute('data-network');
       if (net === 'copy') {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareUrl).then(showCopiedMessage).catch(fallbackCopy);
+          navigator.clipboard.writeText(shareUrl).then(()=>showCopiedMessage(`Condivideremo: ${shareUrl}`)).catch(()=>{ fallbackCopy(); showCopiedMessage(`Condivideremo: ${shareUrl}`); });
         } else {
           fallbackCopy();
+          showCopiedMessage(`Condivideremo: ${shareUrl}`);
+        }
+        return;
+      }
+      if (net === 'instagram') {
+        // Mostra opzioni formato e copia link, come pattern bacheca
+        const ig = document.getElementById('instagramShareFormat');
+        if (ig){ ig.style.display = 'block'; }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareUrl).then(()=>showCopiedMessage('Link copiato! Scegli un formato per Instagram.')).catch(()=>{ fallbackCopy(); showCopiedMessage('Link copiato! Scegli un formato per Instagram.'); });
+        } else {
+          fallbackCopy();
+          showCopiedMessage('Link copiato! Scegli un formato per Instagram.');
         }
         return;
       }

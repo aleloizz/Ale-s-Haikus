@@ -43,7 +43,7 @@
   .hero-sub, .section-head p { text-wrap:pretty; }
 }
 
-/* ================= Glitch Heading (scoped) ================= */
+/* ================= Glitch Heading (scoped) CONTROLLARE SE SI PUò ELIMINARE ================= */
 /* Evitiamo reset globali: nessun override di body/p generico */
 .hero-heading-glitch { display:flex; flex-direction:column; align-items:center; gap:1.15rem; color: #ffffff; }
 .hero-heading-glitch .glitch-wrapper { position:relative; font-size:clamp(2.4rem,6.5vw,4.2rem); font-weight:700; line-height:1; font-family:'Inter',system-ui,sans-serif; letter-spacing:-.05em; color: #ffffff; }
