@@ -1,4 +1,4 @@
-/* landing.js - v2.4 import share popup fix*/
+/* landing.js - v2.6 import share popup fix*/
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -155,6 +155,21 @@
         document.body.removeChild(a);
       }catch(_){ /* ignore */ }
     }
+    async function attemptShareImage(assetUrl, filename, shareText){
+      try{
+        if (!navigator.share || !navigator.canShare) return false;
+        const res = await fetch(assetUrl, { credentials: 'same-origin' });
+        if (!res.ok) return false;
+        const blob = await res.blob();
+        const type = blob.type || 'image/png';
+        const file = new File([blob], filename || 'image.png', { type });
+        if (!navigator.canShare({ files: [file] })) return false;
+        await navigator.share({ files: [file], title: "Ale's Haikus", text: shareText || '' });
+        return true;
+      } catch(_){
+        return false;
+      }
+    }
 
     function open(e){
       if (e && typeof e.preventDefault === 'function') e.preventDefault();
@@ -228,7 +243,7 @@
     // Bind Instagram format buttons: download template and copy UTM link specific to format
     const igBox = document.getElementById('instagramShareFormat');
     if (igBox && !igBox.dataset.bound){
-      igBox.addEventListener('click', (e)=>{
+      igBox.addEventListener('click', async (e)=>{
         const btn = e.target.closest('[data-ig-format]');
         if(!btn) return;
         const fmt = btn.getAttribute('data-ig-format');
@@ -246,9 +261,15 @@
         } else { return; }
 
         const urlWithUtm = getUtmUrl('instagram', medium);
+        // Copia comunque il link (sticker link o descrizione)
         copyToClipboard(urlWithUtm).catch(()=>{});
-        downloadAsset(asset, filename);
-        showCopiedMessage(`Immagine ${fmt === 'story' ? 'Storia 1080×1920' : 'Post 1080×1350'} scaricata. Apri Instagram e aggiungi lo sticker Link: è già copiato.`);
+        const shared = await attemptShareImage(asset, filename, `Scopri Ale's Haikus → ${urlWithUtm}`);
+        if (shared){
+          showCopiedMessage('Condivisione aperta. Scegli Instagram e aggiungi lo sticker Link: è già copiato.');
+        } else {
+          downloadAsset(asset, filename);
+          showCopiedMessage(`Condivisione diretta non supportata. Immagine ${fmt === 'story' ? 'Storia 1080×1920' : 'Post 1080×1350'} scaricata. Apri Instagram e aggiungi lo sticker Link: è già copiato.`);
+        }
       });
       igBox.dataset.bound = '1';
     }
