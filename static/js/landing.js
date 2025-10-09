@@ -23,8 +23,6 @@
     toReveal.forEach(el=>el.classList.add('reveal'));
   }
 
-  // (Removed) Lazy illustration handling: no .lazy-illustration element present in current template
-
   // CTA basic analytics (placeholder)
   document.addEventListener('click', (e)=>{
     const a = e.target.closest('a[data-cta]');
@@ -32,8 +30,6 @@
     // Hook for future analytics (no network now to keep clean)
     console.log('[CTA]', a.getAttribute('data-cta'));
   }, { passive:true });
-
-  // (Removed) Anime.js animations – no longer used
 
   // SVG scroll drawing effect (progress legato alla porzione della sezione visibile)
   const path = document.getElementById('forma-path');
@@ -251,11 +247,11 @@
         let filename = '';
         let medium = '';
         if (fmt === 'story') {
-          asset = '/static/images/share/story-template.png';
+          asset = '/static/images/share/story-template.png'; /*modifica*/
           filename = 'aleshaikus-story.png';
           medium = 'story';
         } else if (fmt === 'post') {
-          asset = '/static/images/share/post-template.png';
+          asset = '/static/images/share/post-template.png'; /*modifica*/
           filename = 'aleshaikus-post.png';
           medium = 'post';
         } else { return; }
