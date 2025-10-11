@@ -1,4 +1,4 @@
-// pwa-install.js v1.4 (2025-10-11) - CTA visibile anche su iOS; click mostra hint quando il prompt non esiste
+// pwa-install.js v1.5 (2025-10-11) - Mostra il pulsante/CTA solo quando funzionante (no iOS, no pre-evento)
 (() => {
   'use strict';
 
@@ -78,8 +78,6 @@
   const hideCTAs = () => { getCTAButtons().forEach(el => { el.style.display = 'none'; }); };
   const showCTAs = () => { getCTAButtons().forEach(el => { el.style.display = ''; }); };
 
-  let pendingClick = false;
-
   const triggerInstall = async (btn) => {
     if (!STATE.deferredPrompt) return false;
     try {
@@ -110,15 +108,7 @@
 <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 <span>Installa app</span>
 `;
-    btn.addEventListener('click', () => {
-      if (!STATE.deferredPrompt) {
-        // iOS non ha beforeinstallprompt: mostra hint
-        if (isIosSafari()) { showIosHint(); return; }
-        // Android/desktop: memorizza intento fino all'arrivo dell'evento
-        pendingClick = true; return;
-      }
-      triggerInstall(btn);
-    });
+    btn.addEventListener('click', () => { if (!STATE.deferredPrompt) return; triggerInstall(btn); });
     document.body.appendChild(btn);
   };
 
@@ -144,6 +134,8 @@
   const wireInstallFlow = () => {
     if (isStandalone()) return; // Already installed
     loadDismissedUntil();
+    // Nascondi CTA fino a quando non è disponibile il prompt
+    hideCTAs();
 
     // Overrides via query params
     const q = getQueryOverride();
@@ -162,15 +154,9 @@
     });
 
     if (isIosSafari()) {
-      // Su iOS mostra subito il pulsante flottante e l'hint dopo un breve delay
-      buildInstallButton();
-      setTimeout(showIosHint, 2000);
-      showCTAs();
+      // iOS non ha beforeinstallprompt: non mostrare CTA/pulsante
       return;
     }
-
-    // Mostra subito il pulsante flottante anche prima dell'evento
-    buildInstallButton();
 
     // Mostra le CTA quando l'evento è disponibile
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -178,11 +164,6 @@
       STATE.deferredPrompt = e;
       buildInstallButton();
       showCTAs();
-      // If user already clicked before the event, prompt immediately
-      if (pendingClick) {
-        pendingClick = false;
-        triggerInstall();
-      }
     });
 
     window.addEventListener('appinstalled', () => {
