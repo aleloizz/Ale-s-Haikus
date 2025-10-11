@@ -1,4 +1,4 @@
-// pwa-install.js v1.1 (2025-10-11)
+// pwa-install.js v1.2 (2025-10-11) - CTA senza cooldown; hint iOS mantiene un proprio cooldown leggero
 (() => {
   'use strict';
 
@@ -85,13 +85,14 @@
       STATE.deferredPrompt.prompt();
       const res = await STATE.deferredPrompt.userChoice;
       STATE.deferredPrompt = null;
-      if (!res || res.outcome !== 'accepted') saveDismissed();
       if (btn) btn.removeAttribute('disabled');
-      hideCTAs();
-      return !!res && res.outcome === 'accepted';
+      // Se installata, nascondi CTA; se annullata, lasciale visibili e non impostare cooldown
+      const accepted = !!res && res.outcome === 'accepted';
+      if (accepted) hideCTAs();
+      return accepted;
     } catch {
       if (btn) btn.removeAttribute('disabled');
-      saveDismissed();
+      // Niente cooldown su errore/annullamento
       return false;
     }
   };
@@ -144,8 +145,6 @@
     getCTAButtons().forEach(el => {
       el.addEventListener('click', (e) => {
         e.preventDefault();
-        // Respect cooldown
-        if (STATE.dismissedUntil > now()) return;
         if (isIosSafari()) { showIosHint(); return; }
         if (STATE.deferredPrompt) { el.setAttribute('disabled', 'true'); triggerInstall(el); return; }
         // No prompt yet: remember the intent and prompt as soon as eligible
@@ -159,9 +158,8 @@
       return;
     }
 
-    // Only show CTAs when eligible
+    // Mostra le CTA quando l'evento è disponibile
     window.addEventListener('beforeinstallprompt', (e) => {
-      if (STATE.dismissedUntil > now()) return; // respect cooldown
       e.preventDefault();
       STATE.deferredPrompt = e;
       buildInstallButton();
