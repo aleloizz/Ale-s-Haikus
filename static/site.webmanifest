@@ -1,6 +1,6 @@
 {
   "id": "/",
-  "name": "Ale's Haikus • Haiku Online & Analizzatore Metrico",
+  "name": "Ale's Haikus • Analizzatore Metrico e Bacheca di Poesie",
   "short_name": "Ale's Haikus",
   "description": "Scrivi e analizza haiku, tanka, sonetti e tante altre poesie. Condividi le tue poesie e scopri la nostra community.",
   "lang": "it-IT",
@@ -10,14 +10,32 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait-primary",
-  "theme_color": "#faf7ff",
-  "background_color": "#faf7ff",
-  "categories": ["education", "productivity", "social"],
+  "theme_color": "#f88384",
+  "background_color": "#f88384",
+  "categories": ["education", "productivity", "social","entertainment", "lifestyle", "poesie", "haiku", "tanka", "sonetto", "scrittura", "comunità", "analizzatore metrico", "condivisione poesie", "creatività", "ispirazione", "letteratura", "arte", "cultura", "linguaggio", "scrittori", "poeti", "app di scrittura", "app di poesia", "creativity", "writing", "literature", "art", "culture", "language", "writers", "poets", "writing app", "poetry app", "community"],
   "icons": [
+    {
+      "src": "/static/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "/static/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/web-app-manifest-512x512.avif",
+      "sizes": "512x512",
+      "type": "image/avif",
       "purpose": "any maskable"
     },
     {
