@@ -1,4 +1,4 @@
-// pwa-install.js v1.3 (2025-10-11) - CTA sempre visibile, su mobile in basso a sinistra
+// pwa-install.js v1.4 (2025-10-11) - CTA visibile anche su iOS; click mostra hint quando il prompt non esiste
 (() => {
   'use strict';
 
@@ -111,7 +111,12 @@
 <span>Installa app</span>
 `;
     btn.addEventListener('click', () => {
-      if (!STATE.deferredPrompt) { pendingClick = true; return; }
+      if (!STATE.deferredPrompt) {
+        // iOS non ha beforeinstallprompt: mostra hint
+        if (isIosSafari()) { showIosHint(); return; }
+        // Android/desktop: memorizza intento fino all'arrivo dell'evento
+        pendingClick = true; return;
+      }
       triggerInstall(btn);
     });
     document.body.appendChild(btn);
@@ -157,6 +162,8 @@
     });
 
     if (isIosSafari()) {
+      // Su iOS mostra subito il pulsante flottante e l'hint dopo un breve delay
+      buildInstallButton();
       setTimeout(showIosHint, 2000);
       showCTAs();
       return;
