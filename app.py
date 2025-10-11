@@ -55,6 +55,17 @@ def create_app(config_name=None):
     @app.route('/sitemap.xml')
     def sitemap():
         return send_from_directory('static', 'sitemap.xml')
+
+    # Service Worker route (served from root scope)
+    @app.route('/sw.js')
+    def service_worker():
+        response = send_from_directory('static', 'sw.js')
+        # Ensure no caching so updates roll out
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.mimetype = 'application/javascript'
+        return response
     
     # Override della route built-in per static files con cache ottimizzata
     @app.route('/static/<path:filename>')
