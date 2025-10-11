@@ -21,18 +21,18 @@
     
     <title>Haiku's Hub | la bacheca dei poeti</title>
     
-    <!-- Favicons complete set -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=1.2">
-    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.png') }}?v=1.2">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=1.2">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=1.2">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=1.2">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=1.2">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.2">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}?v=1.2">
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=1.4">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=1.4">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=1.4">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}?v=1.4">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.png') }}?v=1.4">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='android-chrome-192x192.png') }}?v=1.4">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='android-chrome-512x512.png') }}?v=1.4">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=1.4">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.4">
     <meta name="msapplication-TileColor" content="#faf7ff">
-    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='ms-icon-144x144.png') }}?v=1.2">
-    <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.2">
+    <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.4">
 
     <!-- OTTIMIZZAZIONE SEZIONE HEAD in bacheca.html -->
 
@@ -773,22 +773,24 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         <div id="shareExtra" class="w-100 mt-2 small text-muted" style="display:none"></div>
     </div>
 
-    <!-- JavaScript Module loading ottimizzato -->
+        <!-- JavaScript Module loading ottimizzato -->
+<script id="bacheca-config" type="application/json">
+{
+    "currentPage": {{ (poesie.page if poesie and poesie.page else 1)|tojson }},
+    "totalPages": {{ (poesie.pages if poesie and poesie.pages else 1)|tojson }},
+    "itemsPerPage": {{ (poesie.per_page if poesie and poesie.per_page else 12)|tojson }},
+    "filters": {
+        "tipo": {{ (tipo_filtro or '')|tojson }},
+        "autore": {{ (autore_filtro or '')|tojson }},
+        "search": {{ (search_query or '')|tojson }}
+    },
+    "sortBy": {{ (sort_by or 'recent')|tojson }},
+    "baseUrl": {{ url_for('web.bacheca')|tojson }}
+}
+</script>
 <script>
 // Configurazione SICURA e IMMEDIATA
-window.BACHECA_CONFIG = {
-    currentPage: {{ poesie.page if poesie and poesie.page else 1 }},
-    totalPages: {{ poesie.pages if poesie and poesie.pages else 1 }},
-    itemsPerPage: {{ poesie.per_page if poesie and poesie.per_page else 12 }},
-    filters: {
-        tipo: {{ (tipo_filtro or '')|tojson|safe }},
-        autore: {{ (autore_filtro or '')|tojson|safe }},
-        search: {{ (search_query or '')|tojson|safe }},
-        
-    },
-    sortBy: {{ (sort_by or 'recent')|tojson|safe }},
-    baseUrl: {{ url_for('web.bacheca')|tojson|safe }}
-};
+window.BACHECA_CONFIG = JSON.parse(document.getElementById('bacheca-config').textContent);
 
 // Definisci SUBITO le funzioni globali per evitare errori
 window.goToSpecificPage = function() {
