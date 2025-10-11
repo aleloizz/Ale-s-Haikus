@@ -1,185 +1,180 @@
 (() => {
-  const STATE = {
-    deferredPrompt: null,
-    dismissedUntil: 0,
-    cooldownOverrideDays: null
-  };
+  'use strict';
 
+  // State & configuration
+  const STATE = { deferredPrompt: null, dismissedUntil: 0, cooldownOverrideDays: null };
   const STORAGE_KEY = 'pwaInstallDismissedUntil';
   const STORAGE_CFG_DAYS = 'pwaInstallCooldownDays';
-  const DEFAULT_COOLDOWN_DAYS = 7; // lowered default from 30 → 7
+  const DEFAULT_COOLDOWN_DAYS = 7;
 
-  function now() { return Date.now(); }
-
-  function loadDismissedUntil() {
-    try { STATE.dismissedUntil = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10); } catch {}
-  }
-
-  function getMetaCooldownDays() {
+  // Utils
+  const now = () => Date.now();
+  const loadDismissedUntil = () => {
+    try { STATE.dismissedUntil = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0; } catch {}
+  };
+  const getMetaCooldownDays = () => {
     const el = document.querySelector('meta[name="pwa-install-cooldown-days"]');
     if (!el) return null;
     const v = parseInt(el.getAttribute('content') || '', 10);
     return Number.isFinite(v) && v > 0 ? v : null;
-  }
-
-  function getQueryOverride() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('pwaInstallReset')) return { reset: true };
-    if (params.has('pwaCooldownDays')) {
-      const v = parseInt(params.get('pwaCooldownDays') || '', 10);
+  };
+  const getQueryOverride = () => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.has('pwaInstallReset')) return { reset: true };
+    if (p.has('pwaCooldownDays')) {
+      const v = parseInt(p.get('pwaCooldownDays') || '', 10);
       if (Number.isFinite(v) && v > 0) return { cooldownDays: v };
     }
     return {};
-  }
-
-  function getStoredCooldownDays() {
+  };
+  const getStoredCooldownDays = () => {
     try {
       const v = parseInt(localStorage.getItem(STORAGE_CFG_DAYS) || '', 10);
       return Number.isFinite(v) && v > 0 ? v : null;
     } catch { return null; }
-  }
-
-  function getCooldownDays() {
+  };
+  const getCooldownDays = () => {
     if (STATE.cooldownOverrideDays) return STATE.cooldownOverrideDays;
     const q = getQueryOverride();
     if (q.cooldownDays) return q.cooldownDays;
-    const meta = getMetaCooldownDays();
-    if (meta) return meta;
-    const stored = getStoredCooldownDays();
-    if (stored) return stored;
+    const m = getMetaCooldownDays();
+    if (m) return m;
+    const s = getStoredCooldownDays();
+    if (s) return s;
     return DEFAULT_COOLDOWN_DAYS;
-  }
-
-  function saveDismissed(days) {
+  };
+  const saveDismissed = (days) => {
     const d = Number.isFinite(days) && days > 0 ? days : getCooldownDays();
     const until = now() + d * 24 * 60 * 60 * 1000;
     try { localStorage.setItem(STORAGE_KEY, String(until)); } catch {}
     STATE.dismissedUntil = until;
-  }
-
-  function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  }
-
-  function isIosSafari() {
-    const ua = window.navigator.userAgent;
+  };
+  const isStandalone = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (navigator.standalone === true);
+  const isIosSafari = () => {
+    const ua = navigator.userAgent;
     const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-    return iOS && isSafari;
-  }
+    const safari = /^((?!chrome|android).)*safari/i.test(ua);
+    return iOS && safari;
+  };
 
-  function createStyles() {
+  // UI helpers
+  const createStyles = () => {
     if (document.getElementById('pwa-install-styles')) return;
     const style = document.createElement('style');
     style.id = 'pwa-install-styles';
     style.textContent = `
-      .pwa-install-btn{position:fixed;right:16px;bottom:16px;z-index:2147483000;background:#111;color:#fff;border:0;border-radius:999px;padding:10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.2);display:flex;gap:.5rem;align-items:center;font:600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial,sans-serif;cursor:pointer;opacity:.98;}
-      .pwa-install-btn:hover{opacity:1}
-      .pwa-install-btn .icon{width:18px;height:18px;display:inline-block}
-      .pwa-install-ios-hint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#111;color:#fff;border-radius:12px;padding:10px 12px;font:500 13px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Arial,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:2147483000}
-      @media (prefers-color-scheme: light){.pwa-install-btn,.pwa-install-ios-hint{background:#222;color:#fff}}
-      @media (prefers-reduced-motion: reduce){.pwa-install-btn,.pwa-install-ios-hint{transition:none}}
-    `;
+.pwa-install-btn{position:fixed;right:16px;bottom:16px;z-index:2147483000;background:#111;color:#fff;border:0;border-radius:999px;padding:10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.2);display:flex;gap:.5rem;align-items:center;font:600 14px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;cursor:pointer;opacity:.98}
+.pwa-install-btn:hover{opacity:1}
+.pwa-install-btn .icon{width:18px;height:18px;display:inline-block}
+.pwa-install-ios-hint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#111;color:#fff;border-radius:12px;padding:10px 12px;font:500 13px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:2147483000}
+@media (prefers-color-scheme: light){.pwa-install-btn,.pwa-install-ios-hint{background:#222;color:#fff}}
+@media (prefers-reduced-motion: reduce){.pwa-install-btn,.pwa-install-ios-hint{transition:none}}
+`;
     document.head.appendChild(style);
-  }
+  };
+  const getCTAButtons = () => Array.from(document.querySelectorAll('[data-pwa-install]'));
+  const hideCTAs = () => { getCTAButtons().forEach(el => { el.style.display = 'none'; }); };
+  const showCTAs = () => { getCTAButtons().forEach(el => { el.style.display = ''; }); };
 
-  function buildInstallButton() {
+  const triggerInstall = async (btn) => {
+    if (!STATE.deferredPrompt) return false;
+    try {
+      STATE.deferredPrompt.prompt();
+      const res = await STATE.deferredPrompt.userChoice;
+      STATE.deferredPrompt = null;
+      if (!res || res.outcome !== 'accepted') saveDismissed();
+      if (btn) btn.removeAttribute('disabled');
+      hideCTAs();
+      return !!res && res.outcome === 'accepted';
+    } catch {
+      if (btn) btn.removeAttribute('disabled');
+      saveDismissed();
+      return false;
+    }
+  };
+
+  const buildInstallButton = () => {
     createStyles();
+    if (document.getElementById('pwaInstallButton')) return;
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'pwa-install-btn';
     btn.id = 'pwaInstallButton';
     btn.setAttribute('aria-label', "Installa l'app");
     btn.innerHTML = `
-      <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>Installa app</span>
-    `;
-    btn.addEventListener('click', async () => {
-      if (!STATE.deferredPrompt) { btn.remove(); return; }
-      try {
-        STATE.deferredPrompt.prompt();
-        const { outcome } = await STATE.deferredPrompt.userChoice;
-        STATE.deferredPrompt = null;
-        if (outcome === 'accepted') {
-          btn.remove();
-        } else {
-          saveDismissed(30);
-          btn.remove();
-        }
-      } catch {
-        saveDismissed(30);
-        btn.remove();
-      }
-    });
+<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span>Installa app</span>
+`;
+    btn.addEventListener('click', () => { if (!STATE.deferredPrompt) { btn.remove(); return; } triggerInstall(btn); });
     document.body.appendChild(btn);
-  }
+  };
 
-  function showIosHint() {
-    // Don't nag repeatedly
+  const showIosHint = () => {
     if (STATE.dismissedUntil > now()) return;
     createStyles();
     const hint = document.createElement('div');
     hint.className = 'pwa-install-ios-hint';
-    hint.role = 'status';
-    hint.innerHTML = "Aggiungi alla schermata Home: tocca Condividi → 'Aggiungi a Home'.";
+    hint.setAttribute('role', 'status');
+    hint.textContent = "Aggiungi alla schermata Home: tocca Condividi → 'Aggiungi a Home'.";
     document.body.appendChild(hint);
-    setTimeout(() => { hint.remove(); }, 8000);
-    // Respect configured cool-down for iOS hint as well
+    setTimeout(() => { if (hint && hint.parentNode) hint.parentNode.removeChild(hint); }, 8000);
     saveDismissed();
-  }
+  };
 
-  async function registerServiceWorker() {
+  // SW registration
+  const registerServiceWorker = () => {
     if (!('serviceWorker' in navigator)) return;
-    try {
-      await navigator.serviceWorker.register('/sw.js');
-    } catch (e) {
-      // no-op
-    }
-  }
+    try { navigator.serviceWorker.register('/sw.js'); } catch {}
+  };
 
-  function wireInstallFlow() {
+  // Main flow
+  const wireInstallFlow = () => {
     if (isStandalone()) return; // Already installed
     loadDismissedUntil();
 
-    // Query overrides: reset and cooldown
+    // Overrides via query params
     const q = getQueryOverride();
-    if (q.reset) {
-      try { localStorage.removeItem(STORAGE_KEY); } catch {}
-      STATE.dismissedUntil = 0;
-    }
-    if (q.cooldownDays) {
-      STATE.cooldownOverrideDays = q.cooldownDays;
-      try { localStorage.setItem(STORAGE_CFG_DAYS, String(q.cooldownDays)); } catch {}
-    }
+    if (q.reset) { try { localStorage.removeItem(STORAGE_KEY); } catch {}; STATE.dismissedUntil = 0; }
+    if (q.cooldownDays) { STATE.cooldownOverrideDays = q.cooldownDays; try { localStorage.setItem(STORAGE_CFG_DAYS, String(q.cooldownDays)); } catch {} }
+
     if (isIosSafari()) {
-      // Delay a bit to avoid immediate pop-in
       setTimeout(showIosHint, 2000);
-      return; // No beforeinstallprompt on iOS
+      getCTAButtons().forEach(el => {
+        el.style.display = '';
+        el.addEventListener('click', (e) => { e.preventDefault(); showIosHint(); });
+      });
+      return;
     }
+
+    // Only show CTAs when eligible
     window.addEventListener('beforeinstallprompt', (e) => {
-      // Respect cool-down
-      if (STATE.dismissedUntil > now()) return;
+      if (STATE.dismissedUntil > now()) return; // respect cooldown
       e.preventDefault();
       STATE.deferredPrompt = e;
-      // Show our lightweight button
       buildInstallButton();
+      getCTAButtons().forEach(el => {
+        el.style.display = '';
+        el.addEventListener('click', (ev) => { ev.preventDefault(); el.setAttribute('disabled', 'true'); triggerInstall(el); });
+      });
     });
 
     window.addEventListener('appinstalled', () => {
       try { localStorage.removeItem(STORAGE_KEY); } catch {}
       const btn = document.getElementById('pwaInstallButton');
-      if (btn) btn.remove();
+      if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+      hideCTAs();
     });
-  }
+  };
 
   // Boot
   registerServiceWorker();
   wireInstallFlow();
 
-  // Small debug API for console use
+  // Debug API
   window.PWAInstall = {
     reset() { try { localStorage.removeItem(STORAGE_KEY); } catch {}; STATE.dismissedUntil = 0; },
     setCooldownDays(n) { if (Number.isFinite(n) && n > 0) { STATE.cooldownOverrideDays = n; try { localStorage.setItem(STORAGE_CFG_DAYS, String(n)); } catch {} } },
     getCooldownDays,
+    prompt: () => triggerInstall(),
   };
 })();
