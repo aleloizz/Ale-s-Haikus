@@ -1,3 +1,4 @@
+// pwa-install.js v1.1 (2025-10-11)
 (() => {
   'use strict';
 
@@ -76,6 +77,8 @@
   const hideCTAs = () => { getCTAButtons().forEach(el => { el.style.display = 'none'; }); };
   const showCTAs = () => { getCTAButtons().forEach(el => { el.style.display = ''; }); };
 
+  let pendingClick = false;
+
   const triggerInstall = async (btn) => {
     if (!STATE.deferredPrompt) return false;
     try {
@@ -137,12 +140,22 @@
     if (q.reset) { try { localStorage.removeItem(STORAGE_KEY); } catch {}; STATE.dismissedUntil = 0; }
     if (q.cooldownDays) { STATE.cooldownOverrideDays = q.cooldownDays; try { localStorage.setItem(STORAGE_CFG_DAYS, String(q.cooldownDays)); } catch {} }
 
+    // Always wire CTA buttons early so clicks before the event are handled
+    getCTAButtons().forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Respect cooldown
+        if (STATE.dismissedUntil > now()) return;
+        if (isIosSafari()) { showIosHint(); return; }
+        if (STATE.deferredPrompt) { el.setAttribute('disabled', 'true'); triggerInstall(el); return; }
+        // No prompt yet: remember the intent and prompt as soon as eligible
+        pendingClick = true;
+      });
+    });
+
     if (isIosSafari()) {
       setTimeout(showIosHint, 2000);
-      getCTAButtons().forEach(el => {
-        el.style.display = '';
-        el.addEventListener('click', (e) => { e.preventDefault(); showIosHint(); });
-      });
+      showCTAs();
       return;
     }
 
@@ -152,10 +165,12 @@
       e.preventDefault();
       STATE.deferredPrompt = e;
       buildInstallButton();
-      getCTAButtons().forEach(el => {
-        el.style.display = '';
-        el.addEventListener('click', (ev) => { ev.preventDefault(); el.setAttribute('disabled', 'true'); triggerInstall(el); });
-      });
+      showCTAs();
+      // If user already clicked before the event, prompt immediately
+      if (pendingClick) {
+        pendingClick = false;
+        triggerInstall();
+      }
     });
 
     window.addEventListener('appinstalled', () => {
