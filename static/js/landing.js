@@ -1,4 +1,4 @@
-/* landing.js - v2.6 import share popup fix*/
+/* landing.js - v2.7 aumento easing power */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -58,7 +58,7 @@
       // Parametri regolabili (mobile-friendly)
       const START_BUFFER = isMobile ? 0 : 80;   // usa tutto lo spazio su mobile
       const END_BUFFER   = isMobile ? 0 : 40;
-      let EASING_POWER   = isMobile ? 2.6 : 1.1; // >1 = più lento all'inizio mantenendo completamento
+      let EASING_POWER   = isMobile ? 2.6 : 4.6; // >1 = più lento all'inizio mantenendo completamento
       const EASING = (p)=> {
         // easing morbido + potenza per rallentare la progressione su mobile
         const eased = (1 - Math.cos(Math.PI * p)) / 2; // easeInOutSine
@@ -105,7 +105,7 @@
     } catch(e){ /* silent */ }
   }
 
-  // Share Project (re-uses simplified modal pattern from bacheca)
+  // Share Project popup
   (function(){
     const overlay = document.getElementById('sharePopupOverlay');
     const modal = document.getElementById('sharePopup');
