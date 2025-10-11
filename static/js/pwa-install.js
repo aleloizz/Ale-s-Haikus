@@ -1,4 +1,4 @@
-// pwa-install.js v1.2 (2025-10-11) - CTA senza cooldown; hint iOS mantiene un proprio cooldown leggero
+// pwa-install.js v1.3 (2025-10-11) - CTA sempre visibile, su mobile in basso a sinistra
 (() => {
   'use strict';
 
@@ -70,6 +70,7 @@
 .pwa-install-ios-hint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#111;color:#fff;border-radius:12px;padding:10px 12px;font:500 13px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:2147483000}
 @media (prefers-color-scheme: light){.pwa-install-btn,.pwa-install-ios-hint{background:#222;color:#fff}}
 @media (prefers-reduced-motion: reduce){.pwa-install-btn,.pwa-install-ios-hint{transition:none}}
+@media (max-width: 768px){.pwa-install-btn{left:calc(16px + env(safe-area-inset-left)); right:auto; bottom:calc(16px + env(safe-area-inset-bottom));}}
 `;
     document.head.appendChild(style);
   };
@@ -109,7 +110,10 @@
 <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 <span>Installa app</span>
 `;
-    btn.addEventListener('click', () => { if (!STATE.deferredPrompt) { btn.remove(); return; } triggerInstall(btn); });
+    btn.addEventListener('click', () => {
+      if (!STATE.deferredPrompt) { pendingClick = true; return; }
+      triggerInstall(btn);
+    });
     document.body.appendChild(btn);
   };
 
@@ -157,6 +161,9 @@
       showCTAs();
       return;
     }
+
+    // Mostra subito il pulsante flottante anche prima dell'evento
+    buildInstallButton();
 
     // Mostra le CTA quando l'evento è disponibile
     window.addEventListener('beforeinstallprompt', (e) => {
