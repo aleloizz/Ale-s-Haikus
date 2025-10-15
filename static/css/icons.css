@@ -1,14 +1,14 @@
-/* v 1.6 */
+/* v 1.7 */
 
 .bi {
   display: inline-block;
-  width: 1em;
-  height: 1em; /* added to ensure consistent box sizing */
-  fill: currentColor;
-  vertical-align: -0.125em;
+  line-height: 1;            
+  vertical-align: middle;  
 }
 
-/* Icone come Data URLs per evitare requests extra */
+/* per inline SVG keep color sync senza forzare la dimensione */
+svg.bi { fill: currentColor; }
+
 .bi-heart-fill::before {
   content: "";
   /* white heart for footer */
