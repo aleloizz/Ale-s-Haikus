@@ -94,7 +94,7 @@
     @keyframes pulse{to{box-shadow:0 0 0 14px rgba(255,255,255,0);transform:scale(.9)}}
     /* Scroll intro sticky section (reintrodotto gradient + spazio extra per animazione) */
     .scroll-section{position:relative;z-index:50;min-height:220vh;/* spazio per far progredire il disegno */background: linear-gradient(to bottom, #1e142c, #ffffff00);backdrop-filter: blur(5px) saturate(120%);background-attachment:fixed;}
-    @media (max-width:800px){.scroll-section{min-height:190vh;background-attachment:scroll}}
+    @media (max-width:800px){.scroll-section{min-height:210vh;background-attachment:scroll}}
     .scroll-section::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,0.25),rgba(255,255,255,0) 55%);mix-blend-mode:overlay;pointer-events:none}
     .sticky-wrapper{position:sticky;top:0;min-height:70vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;padding:0 1rem;background:transparent}
     #fixed-text h1{font-family:'Inter',sans-serif;font-weight:600;color:#fff;text-transform:uppercase;text-align:center;font-size:clamp(2.2rem,6vw,3.8rem);letter-spacing:.08em;padding:0;margin:0 0 1.25rem;text-shadow:0 4px 18px rgba(0,0,0,.45)}
@@ -218,7 +218,7 @@
     </script>
 
     <!-- JS Landing (defer) -->
-    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=2.7"></script>
+    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=2.8"></script>
     <script defer src="{{ url_for('static', filename='js/pwa-install.js') }}?v=1.5"></script>
 </head>
 <body class="loading landing-bg">
