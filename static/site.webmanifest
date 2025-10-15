@@ -10,7 +10,7 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait-primary",
-  "theme_color": "#f88384",
+  "theme_color": "#1e142c",
   "background_color": "#f88384",
   "categories": ["education", "productivity", "social","entertainment", "lifestyle", "poesie", "haiku", "tanka", "sonetto", "scrittura", "comunità", "analizzatore metrico", "condivisione poesie", "creatività", "ispirazione", "letteratura", "arte", "cultura", "linguaggio", "scrittori", "poeti", "app di scrittura", "app di poesia", "creativity", "writing", "literature", "art", "culture", "language", "writers", "poets", "writing app", "poetry app", "community"],
   "icons": [
