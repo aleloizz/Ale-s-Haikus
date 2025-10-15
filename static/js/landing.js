@@ -1,4 +1,4 @@
-/* landing.js - v2.8 ulteriore rallentamento, soprattutto su mobile */
+/* landing.js - v2.9 aggiornamento landing-template */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -247,13 +247,9 @@
         let filename = '';
         let medium = '';
         if (fmt === 'story') {
-          asset = '/static/images/share/story-template.png'; /*modifica*/
+          asset = '/static/images/share/landing-template.png';
           filename = 'aleshaikus-story.png';
           medium = 'story';
-        } else if (fmt === 'post') {
-          asset = '/static/images/share/post-template.png'; /*modifica*/
-          filename = 'aleshaikus-post.png';
-          medium = 'post';
         } else { return; }
 
         const urlWithUtm = getUtmUrl('instagram', medium);

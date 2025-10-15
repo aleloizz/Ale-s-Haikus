@@ -73,18 +73,11 @@
   ],
   "screenshots": [
     {
-      "src": "/static/images/share/story-template.png",
+      "src": "/static/images/share/landing-template.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Condividi il progetto - Storia Instagram"
-    },
-    {
-      "src": "/static/images/share/post-template.png",
-      "sizes": "1080x1350",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Condividi il progetto - Post Instagram"
     }
   ]
 }
