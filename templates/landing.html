@@ -129,7 +129,15 @@
     .cta-rotator{position:relative;width:100%;height:2.2em;overflow:hidden;text-align:center;font-weight:600;font-size:clamp(1.55rem,3.4vw,2.3rem);line-height:1;margin-top:.35rem;letter-spacing:.06em;color:#ffffff;}
     .cta-rotator-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;animation:ctaFlip 6s ease-in-out infinite;}
     .cta-rotator-list li{height:2.2em;display:flex;align-items:center;justify-content:center;text-transform:uppercase;}
-    @keyframes ctaFlip{0%,14%{transform:translateY(0)}18%,32%{transform:translateY(-2.2em)}36%,50%{transform:translateY(-4.4em)}54%,68%{transform:translateY(-6.6em)}72%,100%{transform:translateY(0)}}
+    /* Include all 5 items (0..4): last step shows "Condividi" before reset */
+    @keyframes ctaFlip{
+        0%,12%   { transform: translateY(0) }
+        16%,28%  { transform: translateY(-2.2em) }
+        32%,44%  { transform: translateY(-4.4em) }
+        48%,60%  { transform: translateY(-6.6em) }
+        64%,76%  { transform: translateY(-8.8em) }
+        80%,100% { transform: translateY(0) }
+    }
     @media (prefers-reduced-motion:reduce){.cta-rotator-list{animation:none}}
 
         /* Mobile-only perf: riduci costo compositing/paint nella sezione LCP */
@@ -280,7 +288,7 @@
                     <p><a href="{{ url_for('web.bacheca') }}">Pubblica e scopri le poesie della community</a>, filtra per autore e tipologia e trova ispirazione nella nostra bacheca!</p>
                 </li>
                 <li class="feature-card">
-                    <h3><i class="bi bi-journal-text"></i> Wiki integrata</h3>
+                    <h3><i class="bi bi-book"></i> Wiki integrata</h3>
                     <p><a href="{{ url_for('web.wiki') }}">Scopri tutte le forme poetiche</a>: haiku, tanka, sonetto, limerick, versi liberi e altro.</p>
                 </li>
                 <li class="feature-card">
