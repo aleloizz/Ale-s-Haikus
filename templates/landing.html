@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='android-chrome-192x192.png') }}?v=1.4">
     <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='android-chrome-512x512.png') }}?v=1.4">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=1.4">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.5">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.6">
     <meta name="msapplication-TileColor" content="#faf7ff">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.4">
 
@@ -226,7 +226,7 @@
     </script>
 
     <!-- JS Landing (defer) -->
-    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=2.8"></script>
+    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=2.9"></script>
     <script defer src="{{ url_for('static', filename='js/pwa-install.js') }}?v=1.5"></script>
 </head>
 <body class="loading landing-bg">
@@ -345,11 +345,7 @@
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-haiku btn-primary btn-sm" data-ig-format="story" aria-label="Crea immagine Storia 1080x1920">
                     <i class="bi bi-camera"></i>
-                    Storia 1080x1920
-                </button>
-                <button type="button" class="btn btn-haiku btn-secondary btn-sm" data-ig-format="post" aria-label="Crea immagine Post 1080x1350">
-                    <i class="bi bi-grid-1x2"></i>
-                    Post 1080x1350
+                    Storia
                 </button>
             </div>
             <div class="small text-muted mt-1">Seleziona il formato: apriremo la condivisione di sistema o scaricheremo l'immagine.</div>
