@@ -1,4 +1,4 @@
-/* landing.js - v2.7 aumento easing power */
+/* landing.js - v2.8 ulteriore rallentamento, soprattutto su mobile */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -55,10 +55,10 @@
         return;
       }
 
-      // Parametri regolabili (mobile-friendly)
-      const START_BUFFER = isMobile ? 0 : 80;   // usa tutto lo spazio su mobile
-      const END_BUFFER   = isMobile ? 0 : 40;
-      let EASING_POWER   = isMobile ? 2.6 : 4.6; // >1 = più lento all'inizio mantenendo completamento
+    // Parametri regolabili (mobile-friendly)
+  const START_BUFFER = isMobile ? 0 : 180;   // ritarda di più l'inizio su desktop
+  const END_BUFFER   = isMobile ? 0 : 90;    // termina un po' dopo su desktop
+  let EASING_POWER   = isMobile ? 4.2 : 6.5; // curva più lenta, soprattutto su mobile
       const EASING = (p)=> {
         // easing morbido + potenza per rallentare la progressione su mobile
         const eased = (1 - Math.cos(Math.PI * p)) / 2; // easeInOutSine
@@ -96,9 +96,9 @@
       function onScroll() { draw(); }
       function onResize() { recalc(); draw(); }
 
-      recalc();
-      // se lo spazio scrollabile è poco su mobile, aumenta leggermente la potenza per maggiore fluidità percepita
-      if (isMobile && drawable < 320) { EASING_POWER = 2.4; }
+    recalc();
+    // se lo spazio scrollabile è poco su mobile, aumenta la potenza per rallentare ulteriormente la progressione
+  if (isMobile && drawable < 320) { EASING_POWER = 4.8; }
       draw();
       window.addEventListener('scroll', onScroll, { passive:true });
       window.addEventListener('resize', onResize, { passive:true });
