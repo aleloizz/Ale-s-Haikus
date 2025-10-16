@@ -1,4 +1,4 @@
-/* landing.js - v2.9 aggiornamento landing-template */
+/* landing.js - v3.1 homepage set to root (share baseUrl fix) */
 (function(){
   const supportsIO = 'IntersectionObserver' in window;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -111,7 +111,7 @@
     const modal = document.getElementById('sharePopup');
     const btn = document.getElementById('openShare');
     const closeBtn = document.getElementById('closeSharePopup');
-    const baseUrl = ((window.location && window.location.origin) ? window.location.origin : 'https://www.aleshaikus.me') + '/landing';
+    const baseUrl = ((window.location && window.location.origin) ? window.location.origin : 'https://www.aleshaikus.me') + '/';
     const shareText = "Scopri Ale's Haikus: crea e condividi le tue migliori poesie!";
 
     function getUtmUrl(source = 'instagram', medium = 'social'){

@@ -8,7 +8,7 @@
     <title>Ale's Haikus | Benvenuto!</title>
     <meta name="description" content="Scrivi e analizza haiku online: analizzatore metrico avanzato per poesie brevi, tanka, sonetti e versi liberi. Crea, ottimizza e condividi le tue poesie.">
     <meta name="keywords" content="haiku online, analizzatore metrica, poesie brevi, scrivere haiku, conta sillabe poesia, tanka, sonetto, poesia italiana, poesia giapponese, bacheca poesie, wiki poetica, analizzatore haiku, limerick, versi liberi, poesia digitale">
-    <link rel="canonical" href="https://www.aleshaikus.me/landing">
+    <link rel="canonical" href="https://www.aleshaikus.me/">
     <meta name="theme-color" content="#1e142c">
 
     <!-- Open Graph / Twitter -->
@@ -22,7 +22,7 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Anteprima di Ale's Haikus con logo e sfondo sfumato.">
     <meta property="og:site_name" content="Ale's Haikus">
-    <meta property="og:url" content="https://www.aleshaikus.me/landing">
+    <meta property="og:url" content="https://www.aleshaikus.me/">
     <meta name="twitter:card" content="summary_large_image">
     <!-- iOS PWA Meta -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='android-chrome-192x192.png') }}?v=1.4">
     <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='android-chrome-512x512.png') }}?v=1.4">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=1.4">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.6">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.8">
     <meta name="msapplication-TileColor" content="#faf7ff">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.4">
 
@@ -202,7 +202,7 @@
       "@type": "WebPage",
       "name": "Ale's Haikus Landing",
       "description": "Landing page di ale's haikus,l'analizzatore metrico per haiku e poesie brevi online.",
-      "url": "https://www.aleshaikus.me/landing",
+    "url": "https://www.aleshaikus.me/",
       "publisher": {"@type": "Organization","name": "Ale's Haikus"},
       "mainEntity": {
         "@type": "SoftwareApplication",
@@ -226,7 +226,7 @@
     </script>
 
     <!-- JS Landing (defer) -->
-    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=2.9"></script>
+    <script defer src="{{ url_for('static', filename='js/landing.js') }}?v=3.1"></script>
     <script defer src="{{ url_for('static', filename='js/pwa-install.js') }}?v=1.5"></script>
 </head>
 <body class="loading landing-bg">
@@ -264,7 +264,7 @@
                     <p class="hero-sub">Benvenuto su Ale's Haikus, lo <strong>strumento metrico intelligente</strong> per haiku, tanka, sonetti e molto altro. Questa web app conta le sillabe e verifica gli schemi rimici per tè, lasciandoti concentrare sul contenuto delle tue poesie.</p>
                 </div>
                 <div class="cta-wrap" role="group" aria-label="Azioni principali">
-                    <a class="btn btn-primary" href="{{ url_for('web.index') }}" title="Vai all'analizzatore" data-cta="analyze">Inizia Subito</a>
+                    <a class="btn btn-primary" href="{{ url_for('web.analyzer') }}" title="Vai all'analizzatore" data-cta="analyze">Inizia Subito</a>
                     <a class="btn btn-accent" href="{{ url_for('web.bacheca') }}" title="Scopri la bacheca" data-cta="bacheca">Scopri Haiku's Hub</a>
                     <a class="btn btn-gradient" href="{{ url_for('web.wiki') }}" title="Leggi la wiki poetica" data-cta="wiki">Impara le Forme poetiche</a>
                 </div>
@@ -349,7 +349,7 @@
 
     <footer>
         <div class="footer-links" aria-label="Link utili">
-            <a href="{{ url_for('web.index') }}">Analizzatore</a>
+            <a href="{{ url_for('web.analyzer') }}">Analizzatore</a>
             <a href="{{ url_for('web.bacheca') }}">Bacheca</a>
             <a href="{{ url_for('web.wiki') }}">Wiki</a>
         </div>

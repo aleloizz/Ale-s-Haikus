@@ -33,7 +33,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='android-chrome-192x192.png') }}?v=1.4">
     <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='android-chrome-512x512.png') }}?v=1.4">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=1.4">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.6">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}?v=1.8">
     <meta name="msapplication-TileColor" content="#faf7ff">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.4">
     <meta name="theme-color" content="#1e142c">
@@ -163,7 +163,7 @@
         <main class="flex-grow-1 py-4">
             <section class="wiki-section">
                 <h2><i class="bi bi-book-half"></i> Forme poetiche implementate</h2>
-                <a href="{{ url_for('web.index') }}" class="btn btn-haiku btn-secondary mb-4">
+                <a href="{{ url_for('web.analyzer') }}" class="btn btn-haiku btn-secondary mb-4">
                     <i class="bi bi-arrow-left"></i> Torna alla Home
                 </a>
                 <ul class="wiki-list">

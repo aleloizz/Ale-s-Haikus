@@ -5,13 +5,13 @@
   "description": "Scrivi e analizza haiku, tanka, sonetti e tante altre poesie. Condividi le tue poesie e scopri la nostra community.",
   "lang": "it-IT",
   "dir": "ltr",
-  "start_url": "/landing?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait-primary",
   "theme_color": "#1e142c",
-  "background_color": "#f88384",
+  "background_color": "#1e142c",
   "categories": ["education", "productivity", "social","entertainment", "lifestyle", "poesie", "haiku", "tanka", "sonetto", "scrittura", "comunità", "analizzatore metrico", "condivisione poesie", "creatività", "ispirazione", "letteratura", "arte", "cultura", "linguaggio", "scrittori", "poeti", "app di scrittura", "app di poesia", "creativity", "writing", "literature", "art", "culture", "language", "writers", "poets", "writing app", "poetry app", "community"],
   "icons": [
     {
@@ -49,7 +49,7 @@
     {
       "name": "Analizzatore",
       "short_name": "Analizzatore",
-      "url": "/?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=landing_share",
+      "url": "/analizzatore?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=landing_share",
       "icons": [
         { "src": "/static/favicon-96x96.png", "sizes": "96x96", "type": "image/png" }
       ]
