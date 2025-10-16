@@ -1,4 +1,4 @@
-/* v 2.0 */
+/* v 2.1 */
 
 .bi {
   display: inline-block;
@@ -150,7 +150,17 @@ svg.bi { fill: currentColor; }
 .bi-x-circle::before{content:"";background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'%3e%3cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3e%3cpath d='M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1-.708-.708z'/%3e%3c/svg%3e");background-size:1em;background-repeat:no-repeat;display:inline-block;width:1em;height:1em}
 
 /* ====== ICONS USED IN landing.html (added) ====== */
-.bi-twitter-x::before{content:"";background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'%3e%3cpath d='M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z'/%3e%3c/svg%3e");background-size:1em;background-repeat:no-repeat;display:inline-block;width:1em;height:1em}
+.bi-twitter-x::before{
+  content:"";
+  /* Use mask so the icon color always follows currentColor (fix hover/brand states) */
+  -webkit-mask-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z'/%3e%3c/svg%3e");
+  mask-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z'/%3e%3c/svg%3e");
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-position:center; mask-position:center;
+  -webkit-mask-size:1em; mask-size:1em;
+  background-color: currentColor;
+  display:inline-block; width:1em; height:1em;
+}
 .bi-camera::before{content:"";background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'%3e%3crect x='2' y='5' width='12' height='9' rx='2' ry='2'/%3e%3crect x='5' y='3' width='3' height='2' rx='1' ry='1'/%3e%3ccircle cx='8' cy='9.5' r='3'/%3e%3c/svg%3e");background-size:1em;background-repeat:no-repeat;display:inline-block;width:1em;height:1em}
 .bi-grid-1x2::before{content:"";background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'%3e%3crect x='2' y='2' width='12' height='4' rx='1' ry='1'/%3e%3crect x='2' y='8' width='5' height='6' rx='1' ry='1'/%3e%3crect x='9' y='8' width='5' height='6' rx='1' ry='1'/%3e%3c/svg%3e");background-size:1em;background-repeat:no-repeat;display:inline-block;width:1em;height:1em}
 .bi-people::before{content:"";background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'%3e%3ccircle cx='5' cy='6' r='2'/%3e%3ccircle cx='11' cy='7' r='2'/%3e%3crect x='2' y='9.5' width='12' height='4' rx='2' ry='2'/%3e%3c/svg%3e");background-size:1em;background-repeat:no-repeat;display:inline-block;width:1em;height:1em}
