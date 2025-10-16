@@ -6,13 +6,18 @@ web_bp = Blueprint('web', __name__)
 
 @web_bp.route('/')
 def index():
-    """Pagina principale dell'applicazione"""
-    return render_template('index.html')
+    """Homepage: Landing page"""
+    return render_template('landing.html')
 
 @web_bp.route('/landing')
 def landing():
-    """Landing page SEO / performance ottimizzata (non linkata nella navbar)."""
-    return render_template('landing.html')
+    """Redirect a root per evitare duplicati SEO."""
+    return redirect(url_for('web.index'), code=301)
+
+@web_bp.route('/analizzatore')
+def analyzer():
+    """Pagina Analizzatore (ex index)."""
+    return render_template('index.html')
 
 @web_bp.route('/comingsoon')
 def comingsoon():
