@@ -28,15 +28,29 @@ def calculate_rhyme_status_for_verses(analyzed_scheme, expected_scheme, num_vers
     
     return status
 
-def validate_rhyme_pattern(analyzed_scheme, expected_scheme, analisi_rime=None):
+def validate_rhyme_pattern(analyzed_scheme, expected_scheme, analisi_rime=None, poem_type: str = None):
     """Valida se lo schema rime analizzato corrisponde a quello atteso"""
     if not expected_scheme:
         return True, []  # Se non c'è schema atteso, consideriamo valido
     
     # Converti schema atteso in stringa per confronto
     expected_string = ''.join(expected_scheme)
+    analyzed_string = analyzed_scheme or ""
+    poem_type = (poem_type or "").lower() if poem_type else None
+
+    # Tolleranza per sonetti: accetta ottave ABBA ABBA o ABAB ABAB e terzine con lettere tra C/D/E
+    if poem_type == 'sonetto' and len(analyzed_string) == 14:
+        prefix8 = analyzed_string[:8]
+        if prefix8 in ('ABBAABBA', 'ABABABAB'):
+            suffix6 = analyzed_string[8:14]
+            if suffix6 and set(suffix6) <= set('CDE') and 2 <= len(set(suffix6)) <= 3:
+                # Ogni lettera deve apparire almeno 2 volte nelle terzine
+                from collections import Counter
+                cnt = Counter(suffix6)
+                if all(v >= 2 for v in cnt.values()):
+                    return True, []
     
-    if analyzed_scheme == expected_string:
+    if analyzed_string == expected_string:
         return True, []
     
     # Genera errori specifici
@@ -152,12 +166,13 @@ def api_analizza():
         # Parametro tolleranza opzionale (default: False per precisione assoluta)
         use_tolerance = data.get('use_tolerance', False)
         
-        # Validazioni di base
-        if len(testo) > 500:
+        # Validazioni di base: consenti componimenti più lunghi (es. sonetto)
+        # Alza il limite a 2000 caratteri per evitare falsi negativi sui sonetti
+        if len(testo) > 2000:
             return jsonify({
                 'error': True,
                 'error_type': 'too_long',
-                'message': 'Il testo è troppo lungo (max 500 caratteri).'
+                'message': 'Il testo è troppo lungo (max 2000 caratteri).'
             }), 400
         
         # Verifica tag HTML
@@ -178,9 +193,12 @@ def api_analizza():
                 'error': True,
                 'message': f'Errore nell\'analisi: {analisi["errore"]}'
             }), 500
+
+        # Determina il tipo di poesia: se non fornito, usa quello riconosciuto dall'analizzatore
+        tipo_poesia_req = (data.get('type') or '').strip().lower()
+        tipo_poesia = tipo_poesia_req if tipo_poesia_req else analisi.get('tipo_riconosciuto', 'versi_liberi')
         
         # Ottieni il pattern aspettato per questo tipo di poesia
-        tipo_poesia = data.get('type', 'haiku').lower()
         pattern = get_syllable_pattern(tipo_poesia)
         
         # Verifica numero di versi
@@ -249,11 +267,12 @@ def api_analizza():
             scheme_for_frontend = expected_scheme
         
         # Valida se le rime rispettano il pattern atteso
-        rhyme_valid, rhyme_errors = validate_rhyme_pattern(
-            analisi['schema_rime'], 
-            expected_scheme, 
-            analisi.get('analisi_rime', {})
-        )
+            rhyme_valid, rhyme_errors = validate_rhyme_pattern(
+                analisi['schema_rime'], 
+                expected_scheme, 
+                analisi.get('analisi_rime', {}),
+                poem_type=tipo_poesia
+            )
         
         # Calcola lo stato delle rime per ogni verso (per i badge nel frontend)
         rhyme_status = calculate_rhyme_status_for_verses(analisi['schema_rime'], expected_scheme, len(analisi['versi']))

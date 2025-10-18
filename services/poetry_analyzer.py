@@ -141,10 +141,12 @@ def identifica_tipo_poesia(num_versi, sillabe_per_verso, schema_rime, use_tolera
         else:
             return 'versi_liberi'  # Usa nome compatibile con SCHEMI_POESIA
     
-    # Sonetto: 14 versi con schema specifico e sillabe simili a 11 (tolleranza opzionale)
+    # Sonetto: 14 versi con schema specifico e sillabe vicine a 11 (tolleranza opzionale)
     if num_versi == 14:
-        tolerance = 2 if use_tolerance else 0
-        if all(abs(s - 11) <= tolerance for s in sillabe_per_verso) and (schema_rime.startswith('ABAB') or schema_rime.startswith('ABBA')):
+        tolerance = 2 if use_tolerance else 1
+        within = sum(1 for s in sillabe_per_verso if abs(s - 11) <= tolerance)
+        # Considera sonetto se la maggioranza dei versi è endecasillabo e lo schema inizia con ABAB/ABBA
+        if within >= 12 and (schema_rime.startswith('ABAB') or schema_rime.startswith('ABBA')):
             return 'sonetto'
     
     # Distici
@@ -170,6 +172,30 @@ def verifica_metrica(tipo_poesia, num_versi, sillabe_per_verso, schema_rime, use
     # Per i versi liberi, sempre valido
     if tipo_poesia in ['verso libero', 'versi_liberi']:
         return True
+
+    # Regola speciale: Sonetto
+    # - 14 versi
+    # - sillabe tendenzialmente endecasillabi (tolleranza opzionale)
+    # - ottave iniziali ABBA ABBA (o variante ABAB ABAB); terzine accettano varianti comuni (CDC DCD, CDE CDE, CDE DCE, CDC EDE, ecc.)
+    if tipo_poesia == 'sonetto':
+        if len(sillabe_per_verso) != 14:
+            return False
+        tol = 2 if use_tolerance else 0
+        if use_tolerance:
+            within = sum(1 for s in sillabe_per_verso if abs(s - 11) <= tol)
+            if within < 12:
+                return False
+        else:
+            if any(s != 11 for s in sillabe_per_verso):
+                return False
+
+        if not schema_rime or len(schema_rime) != 14:
+            return False
+        prefix8 = schema_rime[:8]
+        if prefix8 in ('ABBAABBA', 'ABABABAB'):
+            # Non imponiamo schema rigido sulle terzine per includere le varianti comuni
+            return True
+        return False
     
     if tipo_poesia not in SCHEMI_POESIA:
         # Se il tipo non è negli schemi, ma è una variante riconosciuta, cerca il tipo base

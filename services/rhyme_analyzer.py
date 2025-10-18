@@ -1,4 +1,5 @@
 from config.constants import *
+import string
 
 def normalizza_per_rima(parola):
     """Normalizza una parola per l'analisi delle rime"""
@@ -6,11 +7,10 @@ def normalizza_per_rima(parola):
         return ""
     
     parola = parola.lower().strip()
-    
-    # Rimuovi punteggiatura
-    chars_to_remove = '.,!?;:"()-[]{}«»""''…'
-    for char in chars_to_remove:
-        parola = parola.replace(char, '')
+
+    # Rimuovi punteggiatura (ASCII) e alcune virgolette/tipografici comuni
+    chars_to_remove = set(string.punctuation) | set('«»“”‘’…')
+    parola = ''.join(ch for ch in parola if ch not in chars_to_remove)
     
     return parola
 
