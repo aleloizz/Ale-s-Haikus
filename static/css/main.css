@@ -1,6 +1,6 @@
 /* 
 ===== MAIN.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 1.41 - mobile tap highlight tweak + a11y
+Versione: 1.42 
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root { 
@@ -311,7 +311,7 @@ body::after {
 .btn-more {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 1);
   color: white;
   border-radius: 50px;
   padding: 10px 20px;
