@@ -159,6 +159,9 @@
 .share-box .wrapper .icon .bi-whatsapp::before { -webkit-mask-size: 1.15em; mask-size: 1.15em; }
 .share-box .wrapper .icon .bi-instagram::before { -webkit-mask-size: 1.05em; mask-size: 1.05em; }
 
+/* Bulletproof fallback: reduce Facebook icon box via font-size in modal */
+.share-box .wrapper .icon i.bi-facebook { font-size: 0.88em !important; }
+
 .share-box .wrapper .tooltip {
   position: absolute;
   top: 0;
