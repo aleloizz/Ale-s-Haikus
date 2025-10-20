@@ -1,4 +1,4 @@
-/* Landing Page - CSS v0.7 aggiunta var gradient */
+/* Landing Page - CSS v0.8 fix icone social */
 :root {
   --ease: cubic-bezier(.16,.8,.32,1);
   --gradient:linear-gradient(90deg,#ff5f77,#410b3d);
@@ -139,7 +139,7 @@
   margin: 10px;
   width: 50px;
   height: 50px;
-  font-size: 18px;
+  font-size: 18px; /* base glyph size */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -149,6 +149,9 @@
   transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   color:#222;
 }
+
+/* Normalize icon fonts within share modal wrapper (affects .bi elements) */
+.share-box .wrapper .icon i.bi { font-size: 1em; line-height: 1; }
 
 .share-box .wrapper .tooltip {
   position: absolute;
