@@ -151,7 +151,13 @@
 }
 
 /* Normalize icon fonts within share modal wrapper (affects .bi elements) */
-.share-box .wrapper .icon i.bi { font-size: 1em; line-height: 1; }
+.share-box .wrapper .icon i.bi { font-size: 1em; line-height: 1; display:inline-block; width:1em; height:1em; }
+
+/* Fine-tune social icon perceived sizes only inside the share modal */
+.share-box .wrapper .icon .bi-facebook::before { -webkit-mask-size: 0.9em; mask-size: 0.9em; }
+.share-box .wrapper .icon .bi-twitter-x::before { -webkit-mask-size: 1em; mask-size: 1em; }
+.share-box .wrapper .icon .bi-whatsapp::before { -webkit-mask-size: 1.15em; mask-size: 1.15em; }
+.share-box .wrapper .icon .bi-instagram::before { -webkit-mask-size: 1.05em; mask-size: 1.05em; }
 
 .share-box .wrapper .tooltip {
   position: absolute;
