@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
 
+# Evita la scansione di endpoint non destinati ai motori
+Disallow: /api/
+Disallow: /sw.js
+Disallow: /landing
+Disallow: /comingsoon
+
+# Indice delle sitemap
 Sitemap: https://www.aleshaikus.me/sitemap.xml
