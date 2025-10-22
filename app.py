@@ -3,7 +3,8 @@ Ale's Haikus - Webapp di analisi poetica
 Versione modulare per miglior manutenibilità
 """
 import os
-from flask import Flask, request, render_template, redirect, send_from_directory
+from flask import Flask, request, render_template, redirect, send_from_directory, url_for, make_response
+from datetime import datetime
 
 # Tentativo import Flask-Compress (opzionale per sviluppo)
 try:
@@ -53,8 +54,131 @@ def create_app(config_name=None):
     
     # Routes specifiche che rimangono nel main
     @app.route('/sitemap.xml')
-    def sitemap():
-        return send_from_directory('static', 'sitemap.xml')
+    def sitemap_index():
+        """Sitemap index che punta alle sottositemap statiche e dinamiche.
+        Conserva un profilo conservativo e non impatta altre route.
+        """
+        # Costruisce un sitemapindex minimale con due sotto-sitemaps
+        today = datetime.utcnow().date().isoformat()
+        base = request.url_root.rstrip('/')
+        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>{base + url_for('sitemap_static')}</loc>
+    <lastmod>{today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>{base + url_for('sitemap_poesie')}</loc>
+    <lastmod>{today}</lastmod>
+  </sitemap>
+</sitemapindex>"""
+        resp = make_response(xml)
+        resp.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        # Cache breve per permettere refresh quotidiano
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    @app.route('/sitemap-static.xml')
+    def sitemap_static():
+        """Sitemap con le pagine principali statiche (landing, analizzatore, bacheca, wiki)."""
+        today = datetime.utcnow().date().isoformat()
+        # Forza https negli URL assoluti
+        def abs_url(endpoint):
+            return url_for(endpoint, _external=True, _scheme='https')
+
+        entries = [
+            {
+                'loc': abs_url('web.index'),
+                'lastmod': today,
+                'changefreq': 'weekly',
+                'priority': '1.0'
+            },
+            {
+                'loc': abs_url('web.analyzer'),
+                'lastmod': today,
+                'changefreq': 'weekly',
+                'priority': '0.8'
+            },
+            {
+                'loc': abs_url('web.bacheca'),
+                'lastmod': today,
+                'changefreq': 'daily',
+                'priority': '0.8'
+            },
+            {
+                'loc': abs_url('web.wiki'),
+                'lastmod': today,
+                'changefreq': 'weekly',
+                'priority': '0.7'
+            },
+        ]
+
+        parts = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+            '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+            '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">'
+        ]
+        for e in entries:
+            parts.append('  <url>')
+            parts.append(f"    <loc>{e['loc']}</loc>")
+            parts.append(f"    <lastmod>{e['lastmod']}</lastmod>")
+            parts.append(f"    <changefreq>{e['changefreq']}</changefreq>")
+            parts.append(f"    <priority>{e['priority']}</priority>")
+            parts.append('  </url>')
+        parts.append('</urlset>')
+        xml = "\n".join(parts)
+
+        resp = make_response(xml)
+        resp.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    @app.route('/sitemap-poesie.xml')
+    def sitemap_poesie():
+        """Sitemap dinamica per le poesie pubblicate.
+        Limita a un massimo ragionevole per non appesantire la risposta.
+        """
+        # Import locale per evitare cicli e carichi all'avvio
+        from models.poem import Poem
+        # Limite conservativo (modificabile in futuro)
+        LIMIT = 5000
+        try:
+            poems = Poem.query.order_by(Poem.created_at.desc()).limit(LIMIT).all()
+        except Exception as e:
+            print(f"Errore caricamento poesie per sitemap: {e}")
+            poems = []
+
+        def poem_url(pid: int) -> str:
+            return url_for('web.dettaglio_poesia', poesia_id=pid, _external=True, _scheme='https')
+
+        def to_date(dt) -> str:
+            try:
+                return (dt or datetime.utcnow()).date().isoformat()
+            except Exception:
+                return datetime.utcnow().date().isoformat()
+
+        parts = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+            '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+            '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">'
+        ]
+        for p in poems:
+            parts.append('  <url>')
+            parts.append(f"    <loc>{poem_url(p.id)}</loc>")
+            parts.append(f"    <lastmod>{to_date(p.created_at)}</lastmod>")
+            parts.append("    <changefreq>weekly</changefreq>")
+            parts.append("    <priority>0.6</priority>")
+            parts.append('  </url>')
+        parts.append('</urlset>')
+        xml = "\n".join(parts)
+
+        resp = make_response(xml)
+        resp.headers['Content-Type'] = 'application/xml; charset=utf-8'
+        # Le poesie cambiano con frequenza, mantenere cache breve
+        resp.headers['Cache-Control'] = 'public, max-age=1800'
+        return resp
 
     # Service Worker route (served from root scope)
     @app.route('/sw.js')
@@ -65,6 +189,15 @@ def create_app(config_name=None):
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
         response.mimetype = 'application/javascript'
+        return response
+    
+    # robots.txt dalla root per i crawler
+    @app.route('/robots.txt')
+    def robots_txt():
+        response = send_from_directory('static', 'robots.txt')
+        # Cache moderata: 1 giorno
+        response.headers['Cache-Control'] = 'public, max-age=86400'
+        response.mimetype = 'text/plain'
         return response
     
     # Override della route built-in per static files con cache ottimizzata

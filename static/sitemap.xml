@@ -2,16 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    <!-- Homepage / Landing -->
     <url>
         <loc>https://www.aleshaikus.me/</loc>
-        <lastmod>2024-12-12</lastmod>
+        <lastmod>2025-10-22</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
+
+    <!-- Analizzatore -->
     <url>
         <loc>https://www.aleshaikus.me/analizzatore</loc>
-        <lastmod>2025-10-16</lastmod>
+        <lastmod>2025-10-22</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
+    </url>
+
+    <!-- Bacheca (contenuti che cambiano frequentemente) -->
+    <url>
+        <loc>https://www.aleshaikus.me/bacheca</loc>
+        <lastmod>2025-10-22</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Wiki -->
+    <url>
+        <loc>https://www.aleshaikus.me/wiki</loc>
+        <lastmod>2025-10-22</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
     </url>
 </urlset>
