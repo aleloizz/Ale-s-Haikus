@@ -153,17 +153,11 @@
 /* Normalize icon fonts within share modal wrapper (affects .bi elements) */
 .share-box .wrapper .icon i.bi { font-size: 1em; line-height: 1; display:inline-block; width:1em; height:1em; }
 
-/* Fine-tune social icon perceived sizes only inside the share modal */
-.share-box .wrapper .icon .bi-facebook::before {
-  -webkit-mask-size: 0.78em; mask-size: 0.78em;
-  width: 0.78em; height: 0.78em;
+/* Normalize ALL social icon sizes inside share modal */
+.share-box .wrapper .icon i.bi::before{
+  -webkit-mask-size: 1em; mask-size: 1em;
+  width: 1em; height: 1em;
 }
-.share-box .wrapper .icon .bi-twitter-x::before { -webkit-mask-size: 1em; mask-size: 1em; }
-.share-box .wrapper .icon .bi-whatsapp::before { -webkit-mask-size: 1.15em; mask-size: 1.15em; }
-.share-box .wrapper .icon .bi-instagram::before { -webkit-mask-size: 1.05em; mask-size: 1.05em; }
-
-/* Bulletproof fallback: reduce Facebook icon box via font-size in modal */
-.share-box .wrapper .icon i.bi-facebook { font-size: 0.76em !important; }
 
 .share-box .wrapper .tooltip {
   position: absolute;
