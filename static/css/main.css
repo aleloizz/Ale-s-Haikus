@@ -1,6 +1,6 @@
 /* 
 ===== MAIN.CSS - DYNAMIC CONTENT-BASED SIZING =====
-Versione: 1.42 
+Versione: 1.43 
 
 /* ===== VARIABILI CSS CONDIVISE ===== */
 :root { 
@@ -376,8 +376,10 @@ button:active {
 .haiku-nav .nav-link i{margin-right:.35rem}
 .haiku-nav .nav-link.active{background:rgba(255,255,255,0.15)!important;color:#fff!important}
 @media (max-width:576px){
-  .haiku-nav{gap:.5rem}
-  .haiku-nav .nav-link{padding:.3rem .6rem;font-size:.95rem}
+  /* Riduci l'impatto visivo della navbar su schermi piccoli */
+  .haiku-navbar{min-height:40px;padding:.15rem 0!important}
+  .haiku-nav{gap:.35rem .5rem}
+  .haiku-nav .nav-link{padding:.25rem .5rem;font-size:.9rem}
 }
 
 /* Mobile-only: rimuovi tap highlight WebKit e aggiungi feedback :active */

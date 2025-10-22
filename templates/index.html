@@ -224,12 +224,12 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3"></noscript>
         
         <!-- Async load non-critical CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}?v=1.42" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.42"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}?v=1.43" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.43"></noscript>
 
     <!-- Icons - load async (local subset) -->
-    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=2.3" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.3"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=2.8" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.8"></noscript>
     <!-- Fallback: Bootstrap Icons full set (lazy) to cover any missing classes -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
@@ -372,7 +372,9 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
                         <div class="d-flex w-100 justify-content-center">
                             <ul class="navbar-nav haiku-nav">
                                 <li class="nav-item">
-                                    <a class="nav-link text-white" href="{{ url_for('web.index') }}" title="Torna alla Landing">Home</a>
+                                    <a class="nav-link text-white" href="{{ url_for('web.index') }}" title="Torna alla Landing">
+                                        <i class="bi bi-house me-1"></i>Home
+                                    </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-white" href="{{ url_for('web.analyzer') }}" title="Analizzatore poetico">
