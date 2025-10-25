@@ -266,13 +266,13 @@ def api_analizza():
         else:
             scheme_for_frontend = expected_scheme
         
-        # Valida se le rime rispettano il pattern atteso
-            rhyme_valid, rhyme_errors = validate_rhyme_pattern(
-                analisi['schema_rime'], 
-                expected_scheme, 
-                analisi.get('analisi_rime', {}),
-                poem_type=tipo_poesia
-            )
+        # Valida se le rime rispettano il pattern atteso (se non c'è schema atteso, la funzione restituisce True, [])
+        rhyme_valid, rhyme_errors = validate_rhyme_pattern(
+            analisi['schema_rime'],
+            expected_scheme,
+            analisi.get('analisi_rime', {}),
+            poem_type=tipo_poesia
+        )
         
         # Calcola lo stato delle rime per ogni verso (per i badge nel frontend)
         rhyme_status = calculate_rhyme_status_for_verses(analisi['schema_rime'], expected_scheme, len(analisi['versi']))
