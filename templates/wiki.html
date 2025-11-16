@@ -17,6 +17,9 @@
     <meta property="og:image:alt" content="Anteprima di Ale's Haikus con logo e sfondo sfumato.">
     <meta property="og:site_name" content="Ale's Haikus">
     <meta property="og:url" content="https://www.aleshaikus.me/wiki">
+    <link rel="canonical" href="{{ url_for('web.wiki', _external=True, _scheme='https') }}">
+    <link rel="alternate" hreflang="it" href="{{ url_for('web.wiki', _external=True, _scheme='https') }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url_for('web.wiki', _external=True, _scheme='https') }}">
     <meta name="twitter:card" content="summary_large_image">
     <!-- iOS PWA Meta -->
     <meta name="apple-mobile-web-app-capable" content="yes">

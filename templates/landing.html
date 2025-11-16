@@ -24,6 +24,28 @@
     <meta property="og:site_name" content="Ale's Haikus">
     <meta property="og:url" content="https://www.aleshaikus.me/">
     <meta name="twitter:card" content="summary_large_image">
+        <!-- JSON-LD: Organization + WebSite -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Ale's Haikus",
+            "url": "{{ url_for('web.index', _external=true, _scheme='https') }}",
+            "logo": "{{ url_for('static', filename='android-chrome-512x512.png', _external=true, _scheme='https') }}",
+            "sameAs": [
+                "https://github.com/aleloizz/Ale-s-Haikus"
+            ]
+        }
+        </script>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Ale's Haikus",
+            "url": "{{ url_for('web.index', _external=true, _scheme='https') }}",
+            "inLanguage": "it"
+        }
+        </script>
     <!-- iOS PWA Meta -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
