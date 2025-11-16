@@ -34,6 +34,7 @@
   // SVG scroll drawing effect (progress legato alla porzione della sezione visibile)
   const path = document.getElementById('forma-path');
   const section = document.querySelector('.scroll-section');
+  const arrow = document.getElementById('scrollArrow');
   if (path && section) {
     try {
       const len = path.getTotalLength();
@@ -91,6 +92,14 @@
         const pct = computeProgress();
         const drawLen = len * pct;
         path.style.strokeDashoffset = len - drawLen;
+        // Nasconde la freccia se l'utente ha iniziato a scorrere o l'animazione è partita
+        if (arrow) {
+          if (pct > 0.025 || (window.scrollY || window.pageYOffset) > 40) {
+            arrow.classList.add('hidden');
+          } else {
+            arrow.classList.remove('hidden');
+          }
+        }
       }
 
       function onScroll() { draw(); }
@@ -102,6 +111,10 @@
       draw();
       window.addEventListener('scroll', onScroll, { passive:true });
       window.addEventListener('resize', onResize, { passive:true });
+      // Aggiornamento iniziale stato freccia
+      if (arrow && (window.scrollY || window.pageYOffset) > 40) {
+        arrow.classList.add('hidden');
+      }
     } catch(e){ /* silent */ }
   }
 
