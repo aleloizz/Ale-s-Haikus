@@ -51,6 +51,14 @@ def create_app(config_name=None):
     # Crea le tabelle del database
     with app.app_context():
         db.create_all()
+
+    # Expose optional site verification tokens to templates (Bing/DDG via Bing, Google)
+    @app.context_processor
+    def inject_verification_meta():
+        return dict(
+            #BING_SITE_VERIFICATION=os.environ.get('BING_SITE_VERIFICATION'),
+            GOOGLE_SITE_VERIFICATION=os.environ.get('GOOGLE_SITE_VERIFICATION')
+        )
     
     # Routes specifiche che rimangono nel main
     @app.route('/sitemap.xml')

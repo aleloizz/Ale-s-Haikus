@@ -10,6 +10,12 @@
     <meta name="keywords" content="haiku online, analizzatore metrica, poesie brevi, scrivere haiku, conta sillabe poesia, tanka, sonetto, poesia italiana, poesia giapponese, bacheca poesie, wiki poetica, analizzatore haiku, limerick, versi liberi, poesia digitale">
     <link rel="canonical" href="https://www.aleshaikus.me/">
     <meta name="theme-color" content="#1e142c">
+    {% if BING_SITE_VERIFICATION %}
+    <meta name="msvalidate.01" content="{{ BING_SITE_VERIFICATION }}">
+    {% endif %}
+    {% if GOOGLE_SITE_VERIFICATION %}
+    <meta name="google-site-verification" content="{{ GOOGLE_SITE_VERIFICATION }}">
+    {% endif %}
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website">

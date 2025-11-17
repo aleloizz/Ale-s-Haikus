@@ -4,6 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1e142c">
+        {% if BING_SITE_VERIFICATION %}
+        <meta name="msvalidate.01" content="{{ BING_SITE_VERIFICATION }}">
+        {% endif %}
+        {% if GOOGLE_SITE_VERIFICATION %}
+        <meta name="google-site-verification" content="{{ GOOGLE_SITE_VERIFICATION }}">
+        {% endif %}
         <meta name="robots" content="index, follow">
         <meta name="description" content="Crea e verifica haiku, tanka e tante altre forme poetiche con questo avanzato analizzatore metrico. Lasciati ispirare e libera il poeta che è in tè.">
     <meta property="og:type" content="website">
