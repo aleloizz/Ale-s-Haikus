@@ -247,7 +247,7 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
         </style>
 
     <!-- Preload main module early to avoid ESM fetch latency in LCP chain -->
-    <link rel="modulepreload" href="{{ url_for('static', filename='js/main.js') }}?v=1.3.8">
+    <link rel="modulepreload" href="{{ static_file('js/main.js') }}">
 
         <!-- Fonts - optimized loading with font-display: swap and preload -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -709,8 +709,8 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
                             const loadApp = () => {
                                 if (appLoaded) return;
                                 appLoaded = true;
-                                // Cache bust: keep in sync with APP_VERSION inside main.js
-                                return import("{{ url_for('static', filename='js/main.js') }}?v=1.3.8");
+                                // Cache bust via mtime-based version query
+                                return import("{{ static_file('js/main.js') }}");
                             };
                             // Carica non appena il DOM è pronto (non blocca LCP e assicura i listener)
                             if (document.readyState === 'loading') {

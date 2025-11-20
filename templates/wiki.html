@@ -217,65 +217,79 @@
                 </a>
                 <ul class="wiki-list">
                     <li>
-                        <strong>Haiku</strong>: breve poesia giapponese di 3 versi (5-7-5).
+                        <strong>Haiku</strong>: breve poesia giapponese di 3 versi (5-7-5). In italiano il conteggio considera fenomeni come <em>dittonghi</em>, <em>trittonghi</em> e <em>iati</em>.
                         <a href="https://it.wikipedia.org/wiki/Haiku" target="_blank" rel="noopener">Wikipedia</a>
-                        • <a href="{{ url_for('web.analyzer') }}" title="Contatore sillabe haiku">conta sillabe haiku</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=haiku&nation=giapponesi" title="Contatore sillabe haiku">conta sillabe haiku</a>
                     </li>
                     <li>
-                        <strong>Tanka</strong>: poesia giapponese di 5 versi (5-7-5-7-7).
+                        <strong>Tanka</strong>: poesia giapponese di 5 versi (5-7-5-7-7), estende l'haiku con due versi conclusivi di riflessione.
                         <a href="https://it.wikipedia.org/wiki/Tanka" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=tanka&nation=giapponesi" title="Analizzatore metrica tanka">crea un tanka</a>
                     </li>
                     <li>
                         <strong>Katauta</strong>: poesia giapponese di 3 versi (5-7-7).
                         <a href="https://en.wikipedia.org/wiki/Katauta" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=katauta&nation=giapponesi" title="Analizzatore katauta">crea un katauta</a>
                     </li>
                     <li>
                         <strong>Choka</strong>: poesia giapponese di 9 versi (5-7-5-7-5-7-5-7-7).
                         <a href="https://en.wikipedia.org/wiki/Choka" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=choka&nation=giapponesi" title="Analizzatore choka">crea un choka</a>
                     </li>
                     <li>
                         <strong>Sedoka</strong>: poesia giapponese di 6 versi (5-7-7-5-7-7).
                         <a href="https://en.wikipedia.org/wiki/Sedoka" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=sedoka&nation=giapponesi" title="Analizzatore sedoka">crea un sedoka</a>
                     </li>
                     <li>
-                        <strong>Sonetto</strong>: 14 endecasillabi, schema ABBA ABBA CDC DCD.
+                        <strong>Sonetto</strong>: 14 endecasillabi; schema classico ABBA ABBA CDC DCD (con varianti). Focus su accenti e sinalefe.
                         <a href="https://it.wikipedia.org/wiki/Sonetto" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=sonetto&nation=italiane" title="Analizzatore sonetto">crea un sonetto</a>
                     </li>
                     <li>
                         <strong>Quartina</strong>: 4 endecasillabi, schema ABAB.
                         <a href="https://it.wikipedia.org/wiki/Quartina" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=quartina&nation=italiane" title="Analizzatore quartina">crea una quartina</a>
                     </li>
                     <li>
-                        <strong>Stornello</strong>: 3 versi (5, 11, 11 sillabe), schema ABA.
+                        <strong>Stornello</strong>: 3 versi (5, 11, 11 sillabe), schema rimico ABA.
                         <a href="https://it.wikipedia.org/wiki/Stornello" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=stornello&nation=italiane" title="Analizzatore stornello">crea uno stornello</a>
                     </li>
                     <li>
-                        <strong>Ottava rima</strong>: 8 endecasillabi, schema ABABABCC.
+                        <strong>Ottava rima</strong>: 8 endecasillabi, schema rimico ABABABCC.
                         <a href="https://it.wikipedia.org/wiki/Ottava_rima" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=ottava_rima&nation=italiane" title="Analizzatore ottava rima">crea un'ottava rima</a>
                     </li>
                     <li>
-                        <strong>Terzina dantesca</strong>: 3 endecasillabi, schema ABA (rima incatenata).
+                        <strong>Terzina dantesca</strong>: 3 endecasillabi, schema rimico ABA (rima incatenata).
                         <a href="https://it.wikipedia.org/wiki/Terzina" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=terzina_dantesca&nation=italiane" title="Analizzatore terzina dantesca">crea una terzina</a>
                     </li>
                     <li>
-                        <strong>Versi liberi</strong>: poesia senza vincoli metrici o rimici.
+                        <strong>Versi liberi</strong>: poesia senza vincoli metrici o rimici; ideale per esprimere liberamente ritmo e immagini.
                         <a href="https://it.wikipedia.org/wiki/Verso_libero" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=versi_liberi&nation=italiane" title="Analizzatore versi liberi">dai sfogo alla fantasia!</a>
                     </li>
                     <li>
-                        <strong>Limerick</strong>: poesia inglese di 5 versi (8-8-5-5-8), schema AABBA.
+                        <strong>Limerick</strong>: poesia inglese di 5 versi (8-8-5-5-8) con schema AABBA, tono giocoso e finale a sorpresa.
                         <a href="https://en.wikipedia.org/wiki/Limerick_(poetry)" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=limerick&nation=inglesi" title="Analizzatore limerick">crea un limerick</a>
                     </li>
                     <li>
                         <strong>Ballad</strong>: strofa di 4 versi, schema ABCB.
                         <a href="https://en.wikipedia.org/wiki/Ballad" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=ballad&nation=inglesi" title="Analizzatore ballad">crea una ballad</a>
                     </li>
                     <li>
-                        <strong>Clerihew</strong>: poesia umoristica di 4 versi, schema AABB.
+                        <strong>Clerihew</strong>: poesia tipicamente umoristica di 4 versi, schema rimico AABB.
                         <a href="https://en.wikipedia.org/wiki/Clerihew" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=clerihew&nation=inglesi" title="Analizzatore clerihew">crea un clerihew</a>
                     </li>
                     <li>
                         <strong>Cinquain</strong>: poesia di 5 versi con schema di sillabe 2-4-6-8-2.
                         <a href="https://en.wikipedia.org/wiki/Cinquain" target="_blank" rel="noopener">Wikipedia</a>
+                        • <a href="{{ url_for('web.analyzer') }}?type=cinquain&nation=inglesi" title="Analizzatore cinquain">crea un cinquain</a>
                     </li>
                 </ul>
             </section>

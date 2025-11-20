@@ -5,6 +5,7 @@ Versione modulare per miglior manutenibilità
 import os
 from flask import Flask, request, render_template, redirect, send_from_directory, url_for, make_response
 from datetime import datetime
+import os
 
 # Tentativo import Flask-Compress (opzionale per sviluppo)
 try:
@@ -59,6 +60,19 @@ def create_app(config_name=None):
             #BING_SITE_VERIFICATION=os.environ.get('BING_SITE_VERIFICATION'),
             GOOGLE_SITE_VERIFICATION=os.environ.get('GOOGLE_SITE_VERIFICATION')
         )
+
+    # Helper per cache-busting basato su mtime del file statico
+    @app.context_processor
+    def utility_processor():
+        def static_file(filename: str) -> str:
+            try:
+                file_path = os.path.join(app.static_folder, filename)
+                mtime = int(os.path.getmtime(file_path))
+            except Exception:
+                # Fallback: timestamp corrente per evitare hard cache in caso di errori
+                mtime = int(datetime.utcnow().timestamp())
+            return url_for('static', filename=filename, v=mtime)
+        return dict(static_file=static_file)
     
     # Routes specifiche che rimangono nel main
     @app.route('/sitemap.xml')

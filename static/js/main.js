@@ -272,6 +272,31 @@ function initializeApplication(elements) {
     } finally {
         isRestoringState = false;
         console.log('✅ Inizializzazione completata');
+        // URL preselection (?type=haiku&nation=giapponesi)
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const requestedType = params.get('type');
+            const requestedNation = params.get('nation');
+            if (requestedType) {
+                // Se la nazione non è specificata, prova a dedurla cercando il tipo tra gli insiemi
+                let nationForType = requestedNation;
+                if (!nationForType) {
+                    for (const nKey of Object.keys(poemTypes)) {
+                        if (poemTypes[nKey].some(pt => pt.value === requestedType)) {
+                            nationForType = nKey; break;
+                        }
+                    }
+                }
+                if (nationForType && poemTypes[nationForType]) {
+                    poemNation.value = nationForType;
+                    populatePoemTypes(nationForType, poemTypeSelect, (t)=>updatePatternDisplay(t, patternDisplay), false);
+                }
+                if ([...poemTypeSelect.options].some(o => o.value === requestedType)) {
+                    poemTypeSelect.value = requestedType;
+                    updatePatternDisplay(requestedType, patternDisplay);
+                }
+            }
+        } catch(e){ console.warn('Preselection URL fallita:', e); }
     }
 }
 
