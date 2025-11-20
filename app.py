@@ -24,18 +24,25 @@ from services.syllable_analyzer import conta_sillabe
 
 def create_app(config_name=None):
     """Factory function per creare l'app Flask"""
-    
-    # Determina l'ambiente
+
+    # Determina l'ambiente (preferisci APP_CONFIG se presente)
     if config_name is None:
-        config_name = os.environ.get('FLASK_ENV', 'production')
+        config_name = os.environ.get('APP_CONFIG') or os.environ.get('FLASK_ENV') or 'production'
+        # Se valore non riconosciuto, NON cadere su dev: usa produzione
         if config_name not in config:
-            config_name = 'default'
+            config_name = 'production'
     
     # Crea l'app con static folder abilitato ma useremo la nostra route per override
     app = Flask(__name__, static_folder='static', template_folder='templates')
     
     # Carica la configurazione
     app.config.from_object(config[config_name])
+
+    # Fail-fast in produzione se manca SECRET_KEY o è evidente un placeholder
+    if config_name == 'production':
+        sk = app.config.get('SECRET_KEY')
+        if not sk or sk.startswith('dev-secret-key'):
+            raise RuntimeError('SECRET_KEY non impostata correttamente per ambiente di produzione: definire variabile d\'ambiente SECRET_KEY.')
     
     # Inizializza le estensioni
     db.init_app(app)

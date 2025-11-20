@@ -17,9 +17,9 @@ echo "Backup created at ../repo-backup.bundle"
 
 # Remove sensitive paths
 git filter-repo --invert-paths \
-  --path aleshaikus/Ale-s-Haikus/instance/poems.db \
-  --path aleshaikus/Ale-s-Haikus/latest.dump \
-  --path aleshaikus/Ale-s-Haikus/backup/ \
+  --path instance/poems.db \
+  --path latest.dump \
+  --path backup/ \
   --force
 
 echo "History rewritten. Run 'git push --force --all' and 'git push --force --tags' to update remote."
