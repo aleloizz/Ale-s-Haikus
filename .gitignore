@@ -1,0 +1,38 @@
+# .gitignore for Ale-s-Haikus
+# Ignore instance DB and dumps
+instance/*.db
+*.dump
+latest.dump
+
+# Ignore backups and generated artifacts
+backup/
+
+# Environment files and secrets
+.env
+*.env
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Virtualenvs
+venv/
+env/
+
+# Editor and OS files
+.DS_Store
+*.swp
+*.swo
+
+# IDE
+.idea/
+
+# Bytecode / logs / coverage
+*.pyo
+*.log
+.coverage
+htmlcov/
+
+# Node
+node_modules/
