@@ -45,5 +45,7 @@ config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
     'testing': TestingConfig,
-    'default': DevelopmentConfig
+    # Per sicurezza, il default punta alla produzione così da evitare
+    # avvio accidentale con DEBUG attivo in ambienti non configurati.
+    'default': ProductionConfig
 }
