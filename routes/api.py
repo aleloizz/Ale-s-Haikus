@@ -1,17 +1,33 @@
 from flask import Blueprint, request, jsonify, session, current_app
+from functools import wraps
 
-try:
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
-    from flask_limiter.util import current_limit
-    LIMITER_IMPORTED = True
-except ImportError:
-    LIMITER_IMPORTED = False
+from utils.text_processing import sanitize_user_text
 from services.poetry_analyzer import analizza_poesia_completa
 from models.poem import Poem, db
 from config.constants import SCHEMI_POESIA
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+
+def require_json(f):
+    """Decorator semplice per richiedere richieste JSON ben formate.
+
+    Evita ambiguità di parsing e ritorna 400 se il Content-Type non è
+    application/json o se il corpo non è JSON valido.
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not request.is_json:
+            return jsonify({'error': True, 'message': 'Content-Type application/json richiesto'}), 400
+        try:
+            # Forza parsing una volta sola; la view potrà usare request.get_json(silent=True)
+            request.get_json(force=False, silent=False)
+        except Exception:
+            return jsonify({'error': True, 'message': 'JSON non valido nel corpo della richiesta'}), 400
+        return f(*args, **kwargs)
+
+    return wrapper
 
 def calculate_rhyme_status_for_verses(analyzed_scheme, expected_scheme, num_verses):
     """Calcola lo stato delle rime per ogni verso (valid/invalid)"""
@@ -159,10 +175,11 @@ def convert_rhyme_scheme_to_frontend(schema_string, tipo_poesia):
     return groups if groups else [schema]
 
 @api_bp.route('/analyze', methods=['POST'])
+@require_json
 def api_analizza():
     """API endpoint per analizzare una poesia"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         
         if not data or 'text' not in data:
             return jsonify({'error': True, 'message': 'Testo non fornito'}), 400
@@ -346,10 +363,11 @@ def get_target_sillabe(tipo_poesia, indice_verso):
     return None  # Nessun target specifico (per versi liberi o fuori dal pattern)
 
 @api_bp.route('/poems', methods=['POST'])
+@require_json
 def api_create_poem():
     """API endpoint per creare una poesia (alias per pubblica)"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
 
         # Validazione dati richiesti
         required_fields = ['title', 'text', 'author']
@@ -357,10 +375,10 @@ def api_create_poem():
             if not data or field not in data or not data[field].strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
 
-        # Rimappa i campi per compatibilità con api_pubblica
-        data['titolo'] = data['title']
-        data['testo'] = data['text']
-        data['autore'] = data['author']
+        # Rimappa i campi per compatibilità con api_pubblica e sanitizza input utente
+        data['titolo'] = sanitize_user_text(data['title'])
+        data['testo'] = sanitize_user_text(data['text'])
+        data['autore'] = sanitize_user_text(data['author'])
 
         # Parametri opzionali
         use_tolerance = data.get('use_tolerance', False)
@@ -419,13 +437,15 @@ def api_create_poem():
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': f'Errore durante la pubblicazione: {str(e)}'}), 500
+        # Non esporre dettagli interni dell'eccezione all'esterno
+        return jsonify({'error': True, 'message': 'Errore interno durante la pubblicazione.'}), 500
 
 @api_bp.route('/pubblica', methods=['POST'])
+@require_json
 def api_pubblica():
     """API endpoint per pubblicare una poesia nella bacheca"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
 
         # Validazione dati richiesti
         required_fields = ['titolo', 'testo', 'autore']
@@ -433,9 +453,9 @@ def api_pubblica():
             if not data or field not in data or not data[field].strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
 
-        titolo = data['titolo'].strip()
-        testo = data['testo'].strip()
-        autore = data['autore'].strip()
+        titolo = sanitize_user_text(data['titolo'].strip())
+        testo = sanitize_user_text(data['testo'].strip())
+        autore = sanitize_user_text(data['autore'].strip())
 
         # Parametri opzionali
         use_tolerance = data.get('use_tolerance', False)
@@ -488,7 +508,7 @@ def api_pubblica():
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': f'Errore durante la pubblicazione: {str(e)}'}), 500
+        return jsonify({'error': True, 'message': 'Errore interno durante la pubblicazione.'}), 500
 
 @api_bp.route('/bacheca', methods=['GET'])
 def api_bacheca():
@@ -536,7 +556,7 @@ def api_bacheca():
         })
         
     except Exception as e:
-        return jsonify({'error': f'Errore nel recupero delle poesie: {str(e)}'}), 500
+        return jsonify({'error': True, 'message': 'Errore interno nel recupero delle poesie.'}), 500
 
 @api_bp.route('/poesia/<int:poesia_id>', methods=['GET'])
 def api_poesia_dettaglio(poesia_id):
@@ -546,7 +566,7 @@ def api_poesia_dettaglio(poesia_id):
         return jsonify(poesia.to_dict())
         
     except Exception as e:
-        return jsonify({'error': f'Errore nel recupero della poesia: {str(e)}'}), 500
+        return jsonify({'error': True, 'message': 'Errore interno nel recupero della poesia.'}), 500
 
 @api_bp.route('/poems/<int:poem_id>/like', methods=['POST'])
 def api_like_poem(poem_id):
@@ -583,7 +603,7 @@ def api_like_poem(poem_id):
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': f'Errore nel dare like: {str(e)}'
+            'error': 'Errore interno nel dare like.'
         }), 500
 
 @api_bp.route('/poems/<int:poem_id>/unlike', methods=['POST'])
@@ -610,7 +630,7 @@ def api_unlike_poem(poem_id):
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': f'Errore nel rimuovere like: {str(e)}'
+            'error': 'Errore interno nel rimuovere like.'
         }), 500
         
 @api_bp.route('/poems/<int:poem_id>/like/status', methods=['GET'])
@@ -625,7 +645,7 @@ def api_like_status(poem_id):
             'likes': poem.likes or 0
         })
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': 'Errore interno nel recupero stato like.'}), 500
 
     
 
@@ -656,4 +676,4 @@ def api_stats():
         })
         
     except Exception as e:
-        return jsonify({'error': f'Errore nel recupero statistiche: {str(e)}'}), 500
+        return jsonify({'error': True, 'message': 'Errore interno nel recupero delle statistiche.'}), 500

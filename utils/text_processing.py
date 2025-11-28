@@ -1,11 +1,35 @@
 import string
 from config.constants import VOCALI, VOCALI_FORTI, VOCALI_DEBOLI, PREFISSI_COMUNI
 
+try:
+    import bleach
+    BLEACH_AVAILABLE = True
+except ImportError:
+    BLEACH_AVAILABLE = False
+
 def pulisci_testo(testo):
     """Pulisce il testo mantenendo apostrofi e caratteri essenziali"""
     caratteri_da_mantenere = string.ascii_letters + "àèéìíîòóùú' "
     testo_pulito = ''.join(c if c in caratteri_da_mantenere else ' ' for c in testo.lower())
     return ' '.join(testo_pulito.split())
+
+
+def sanitize_user_text(value: str) -> str:
+        """Sanitizza input utente per ridurre il rischio XSS.
+
+        - Se bleach è disponibile, rimuove qualsiasi tag HTML e attributo
+            mantenendo solo testo semplice.
+        - In fallback (senza bleach) restituisce il valore originale per non
+            rompere la logica, confidando nell'escaping predefinito di Jinja.
+        """
+        if not isinstance(value, str):
+                return value
+
+        if BLEACH_AVAILABLE:
+                # Nessun tag consentito: vogliamo solo testo.
+                return bleach.clean(value, tags=[], attributes={}, strip=True)
+
+        return value
 
 def gestisci_apostrofi(parola):
     """Gestisce parole con apostrofi dividendole correttamente"""
