@@ -22,6 +22,15 @@ from routes.api import api_bp
 from routes.web import web_bp
 from services.syllable_analyzer import conta_sillabe
 
+try:
+    from flask_limiter import Limiter
+    from flask_limiter.util import get_remote_address
+    LIMITER_AVAILABLE = True
+except ImportError:
+    Limiter = None
+    get_remote_address = None
+    LIMITER_AVAILABLE = False
+
 def create_app(config_name=None):
     """Factory function per creare l'app Flask"""
 
@@ -46,6 +55,15 @@ def create_app(config_name=None):
     
     # Inizializza le estensioni
     db.init_app(app)
+    if LIMITER_AVAILABLE:
+        # Rate limiting per-IP con storage in memoria (Heroku: 1 dyno -> ok)
+        limiter = Limiter(
+            get_remote_address,
+            app=app,
+            default_limits=["200 per hour"],
+            storage_uri="memory://",
+        )
+        print("✅ Rate limiting attivato")
     
     # Inizializza compressione se disponibile
     if COMPRESS_AVAILABLE:

@@ -1,4 +1,12 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
+
+try:
+    from flask_limiter import Limiter
+    from flask_limiter.util import get_remote_address
+    from flask_limiter.util import current_limit
+    LIMITER_IMPORTED = True
+except ImportError:
+    LIMITER_IMPORTED = False
 from services.poetry_analyzer import analizza_poesia_completa
 from models.poem import Poem, db
 from config.constants import SCHEMI_POESIA
