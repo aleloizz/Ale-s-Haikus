@@ -43,8 +43,15 @@ class Poem(db.Model):
         }
     
     @classmethod
-    def create_from_analysis(cls, title, content, author, analysis):
-        """Crea un nuovo poem dai risultati dell'analisi"""
+    def create_from_analysis(cls, title, content, author, analysis, poem_type_override: str | None = None):
+        """Crea un nuovo poem dai risultati dell'analisi.
+
+        poem_type_override consente di forzare la tipologia selezionata
+        dall'utente quando disponibile (es. katauta), altrimenti usa quella
+        riconosciuta dall'analizzatore.
+        """
+        tipo_riconosciuto = analysis.get('tipo_riconosciuto', 'libero')
+        poem_type_final = (poem_type_override or tipo_riconosciuto) or 'libero'
         return cls(
             title=title,
             content=content,
@@ -52,6 +59,6 @@ class Poem(db.Model):
             verse_count=analysis.get('num_versi', 0),
             syllable_counts=','.join(map(str, analysis.get('sillabe_per_verso', []))),
             rhyme_scheme=analysis.get('schema_rime', ''),
-            poem_type=analysis.get('tipo_riconosciuto', 'libero'),
+            poem_type=poem_type_final,
             is_valid=analysis.get('rispetta_metrica', False)
         )

@@ -431,7 +431,13 @@ def api_create_poem():
             }), 400
 
         # Crea e salva la poesia
-        poesia = Poem.create_from_analysis(data['titolo'], data['testo'], data['autore'], analisi)
+        poesia = Poem.create_from_analysis(
+            data['titolo'],
+            data['testo'],
+            data['autore'],
+            analisi,
+            poem_type_override=selected_type
+        )
 
         db.session.add(poesia)
         db.session.commit()
@@ -509,7 +515,13 @@ def api_pubblica():
             }), 400
 
         # Crea e salva la poesia
-        poesia = Poem.create_from_analysis(titolo, testo, autore, analisi)
+        poesia = Poem.create_from_analysis(
+            titolo,
+            testo,
+            autore,
+            analisi,
+            poem_type_override=selected_type
+        )
 
         db.session.add(poesia)
         db.session.commit()
