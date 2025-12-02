@@ -369,14 +369,22 @@ def api_create_poem():
     try:
         data = request.get_json() or {}
 
-        # Validazione dati richiesti
-        required_fields = ['title', 'text', 'author']
+        # Validazione dati richiesti (titolo opzionale: generiamo un placeholder se assente)
+        required_fields = ['text', 'author']
         for field in required_fields:
-            if not data or field not in data or not data[field].strip():
+            if not data or field not in data or not str(data[field]).strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
 
         # Rimappa i campi per compatibilità con api_pubblica e sanitizza input utente
-        data['titolo'] = sanitize_user_text(data['title'])
+        # Titolo opzionale: se assente/vuoto, usa placeholder dinamico "<tipo> senza titolo"
+        raw_title = str(data.get('title') or '').strip()
+        if raw_title:
+            data['titolo'] = sanitize_user_text(raw_title)
+        else:
+            # Tipo selezionato dall'utente o riconosciuto dall'analisi
+            selected_type = (data.get('poem_type') or '').strip().lower() or None
+            placeholder_type = selected_type or (analisi.get('tipo_riconosciuto', 'poesia') or 'poesia')
+            data['titolo'] = sanitize_user_text(f"{placeholder_type} senza titolo")
         data['testo'] = sanitize_user_text(data['text'])
         data['autore'] = sanitize_user_text(data['author'])
 
@@ -447,13 +455,20 @@ def api_pubblica():
     try:
         data = request.get_json() or {}
 
-        # Validazione dati richiesti
-        required_fields = ['titolo', 'testo', 'autore']
+        # Validazione dati richiesti (titolo opzionale: generiamo un placeholder se assente)
+        required_fields = ['testo', 'autore']
         for field in required_fields:
-            if not data or field not in data or not data[field].strip():
+            if not data or field not in data or not str(data[field]).strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
 
-        titolo = sanitize_user_text(data['titolo'].strip())
+        # Titolo opzionale: placeholder dinamico se assente/vuoto
+        titolo_raw = str(data.get('titolo') or '').strip()
+        if titolo_raw:
+            titolo = sanitize_user_text(titolo_raw)
+        else:
+            selected_type = (data.get('poem_type') or data.get('tipo') or '').strip().lower() or None
+            placeholder_type = selected_type or (analisi.get('tipo_riconosciuto', 'poesia') or 'poesia')
+            titolo = sanitize_user_text(f"{placeholder_type} senza titolo")
         testo = sanitize_user_text(data['testo'].strip())
         autore = sanitize_user_text(data['autore'].strip())
 
