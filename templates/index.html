@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="it">
     <head>
+                <!-- Google Analytics 4 - Cookieless, no consent required -->
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQL8KLCQND"></script>
+                <script>
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+
+                    gtag('consent', 'default', {
+                        'ad_storage': 'denied',
+                        'analytics_storage': 'denied',
+                        'personalization_storage': 'denied',
+                        'functionality_storage': 'denied',
+                        'security_storage': 'granted'
+                    });
+
+                    gtag('js', new Date());
+                    gtag('config', 'G-EQL8KLCQND', {
+                        'anonymize_ip': true,
+                        'allow_google_signals': false,
+                        'allow_ad_personalization_signals': false,
+                        'transport_type': 'beacon'
+                    });
+                </script>
+
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1e142c">
@@ -46,29 +69,6 @@
     <meta name="msapplication-TileColor" content="#faf7ff">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}?v=1.4">
         <meta name="theme-color" content="#1e142c">
-
-        <!-- Google Analytics 4 - Cookieless, no consent required -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQL8KLCQND"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-
-            gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'analytics_storage': 'denied',
-                'personalization_storage': 'denied',
-                'functionality_storage': 'denied',
-                'security_storage': 'granted'
-            });
-
-            gtag('js', new Date());
-            gtag('config', 'G-EQL8KLCQND', {
-                'anonymize_ip': true,
-                'allow_google_signals': false,
-                'allow_ad_personalization_signals': false,
-                'transport_type': 'beacon'
-            });
-        </script>
 
         <script>document.documentElement.classList.add('js');</script>
     <!-- Critical Above-the-fold CSS - Inline per zero blocking -->

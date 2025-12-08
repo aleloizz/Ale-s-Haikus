@@ -1,7 +1,32 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <!-- ====== META BASE / SEO ====== -->
+        <!-- Google Analytics 4 - Cookieless, no consent required -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQL8KLCQND"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+
+            // Default: no storage (no cookies, no local storage)
+            gtag('consent', 'default', {
+                'ad_storage': 'denied',
+                'analytics_storage': 'denied',
+                'personalization_storage': 'denied',
+                'functionality_storage': 'denied',
+                'security_storage': 'granted'
+            });
+
+            // Basic config in cookieless mode
+            gtag('js', new Date());
+            gtag('config', 'G-EQL8KLCQND', {
+                'anonymize_ip': true,
+                'allow_google_signals': false,
+                'allow_ad_personalization_signals': false,
+                'transport_type': 'beacon'
+            });
+        </script>
+
+        <!-- ====== META BASE / SEO ====== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="index, follow">
