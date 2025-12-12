@@ -419,5 +419,36 @@
     // Rimozione stato loading appena possibile
     window.addEventListener('DOMContentLoaded',()=>{document.body.classList.remove('loading');});
     </script>
+        <script>
+        (function(){
+            function sendEvent(name, params){
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', name, Object.assign({
+                        page_location: location.href,
+                        page_title: document.title,
+                        transport_type: 'beacon'
+                    }, params || {}));
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', function(){
+                // Track primary CTA clicks (elements with data-cta)
+                document.querySelectorAll('[data-cta]').forEach(function(el){
+                    el.addEventListener('click', function(){
+                        var cta = el.getAttribute('data-cta') || (el.textContent || '').trim();
+                        sendEvent('cta_click', { cta: cta });
+                    }, { passive: true });
+                });
+
+                // Track share network selections (elements with data-network)
+                document.querySelectorAll('[data-network]').forEach(function(el){
+                    el.addEventListener('click', function(){
+                        var network = el.getAttribute('data-network');
+                        sendEvent('share_click', { method: network, content_type: 'page' });
+                    }, { passive: true });
+                });
+            });
+        })();
+        </script>
 </body>
 </html>
