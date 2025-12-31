@@ -8,6 +8,20 @@ import { patterns, requiresRhymeAnalysis } from './patterns.js';
 import { publishPoem } from './publish.js';
 import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError, renderStructureErrorResults } from './validation.js?v=1.3.8';
 
+function trackGa4Event(name, params) {
+    try {
+        if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+            window.gtag('event', name, Object.assign({
+                page_location: window.location?.href,
+                page_title: document?.title,
+                transport_type: 'beacon'
+            }, params || {}));
+        }
+    } catch (_) {
+        // no-op: analytics must never break UX
+    }
+}
+
 /**
  * Gestisce la sottomissione del form di analisi poetica
  * @param {Event} e - Evento di submit
@@ -17,6 +31,21 @@ export async function handleFormSubmit(e, elements) {
     e.preventDefault();
     
     const { poemText, poemTypeSelect, publishCheckbox } = elements;
+
+    // GA4: track click/attempt on the primary analyze/verify button (no PII).
+    const rawText = poemText?.value || '';
+    const trimmedText = rawText.trim();
+    const versesCount = trimmedText
+        ? trimmedText.split(/\r?\n/).map(l => l.trim()).filter(Boolean).length
+        : 0;
+    trackGa4Event('analyze_click', {
+        poem_type: poemTypeSelect?.value || 'unknown',
+        poem_nation: document.getElementById('poemNation')?.value || 'unknown',
+        publish_enabled: !!publishCheckbox?.checked,
+        use_tolerance: !!document.getElementById('useTolerance')?.checked,
+        has_text: !!trimmedText,
+        verses_count: versesCount
+    });
     
     // Vibrazione breve come feedback (se supportato)
     if (window.navigator.vibrate) {
