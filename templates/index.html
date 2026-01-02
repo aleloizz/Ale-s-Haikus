@@ -525,8 +525,7 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
                                                 style="min-height: 150px; 
                                                     resize: none; 
                                                     transition: all 0.3s ease;
-                                                    backdrop-filter: blur(8px);">
-                                            </textarea>
+                                                    backdrop-filter: blur(8px);"></textarea>
 
                                             <div class="mt-2 d-flex align-items-center gap-2">
                                               <input type="checkbox"
@@ -565,18 +564,16 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
                                                 <i class="bi bi-info-circle"></i>
                                             </button>
                                         </div>
-                                    </div>
-                                </div>
-                                            <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-haiku btn-secondary" id="copyBtn">
-                                                    <i class="bi bi-clipboard"></i> Copia
-                                                </button>
-                                                <button type="button" class="btn btn-haiku btn-primary" id="submitBtn" disabled>
-                                                    <i class="bi bi-check-circle"></i> <span id="submitBtnText">Verifica</span>
-                                                </button>
-                                            </div>
+
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button type="button" class="btn btn-haiku btn-secondary" id="copyBtn">
+                                                <i class="bi bi-clipboard"></i> Copia
+                                            </button>
+                                            <button type="button" class="btn btn-haiku btn-primary" id="submitBtn" disabled>
+                                                <i class="bi bi-check-circle"></i> <span id="submitBtnText">Verifica</span>
+                                            </button>
                                         </div>
-                                        <input type="hidden" name="poemType" id="hiddenPoemType" value="haiku">
+                                    <input type="hidden" name="poemType" id="hiddenPoemType" value="haiku">
                                     </form>
 
                                     <!-- Risultati -->
