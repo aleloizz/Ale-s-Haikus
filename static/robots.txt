@@ -1,11 +1,27 @@
 User-agent: *
 Allow: /
 
+# Nota: direttive non standard tipo "Content-signal:" rendono il file non valido
+# per molti validator (es. "Unknown directive"). Usa invece regole User-agent.
+
 # Evita la scansione di endpoint non destinati ai motori
 Disallow: /api/
 Disallow: /sw.js
 Disallow: /landing
 Disallow: /comingsoon
+
+# Limita alcuni crawler usati per training/estrazione (direttive standard)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
 
 # Indice delle sitemap
 Sitemap: https://www.aleshaikus.me/sitemap.xml

@@ -242,8 +242,8 @@ def create_app(config_name=None):
     @app.route('/robots.txt')
     def robots_txt():
         response = send_from_directory('static', 'robots.txt')
-        # Cache moderata: 1 giorno
-        response.headers['Cache-Control'] = 'public, max-age=86400'
+        # Cache breve: facilita aggiornamenti e riduce rischi di contenuto "stale"
+        response.headers['Cache-Control'] = 'public, max-age=300'
         response.mimetype = 'text/plain'
         return response
     
