@@ -4,7 +4,8 @@ Versione modulare per miglior manutenibilità
 """
 import os
 from flask import Flask, request, render_template, redirect, send_from_directory, url_for, make_response
-from datetime import datetime
+from datetime import datetime, timedelta
+from email.utils import format_datetime
 import os
 
 # Tentativo import Flask-Compress (opzionale per sviluppo)
@@ -247,10 +248,15 @@ def create_app(config_name=None):
         response.mimetype = 'text/plain'
         return response
     
+    def _http_expires_one_year_from_now() -> str:
+        """Restituisce una data Expires HTTP (RFC 1123) a +1 anno da ora (UTC)."""
+        return format_datetime(datetime.utcnow() + timedelta(days=365), usegmt=True)
+
     # Override della route built-in per static files con cache ottimizzata
     @app.route('/static/<path:filename>')
     def static_files(filename):
         response = send_from_directory(app.static_folder, filename)
+        expires_one_year = _http_expires_one_year_from_now()
         
         # Configurazione cache per diversi tipi di file
         if filename.endswith(('.css', '.js')):
@@ -262,7 +268,7 @@ def create_app(config_name=None):
             response.add_etag()
             # Header espliciti per sovrascrivere proxy
             response.headers['Cache-Control'] = 'public, max-age=31536000'
-            response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
+            response.headers['Expires'] = expires_one_year
         elif filename.endswith(('.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg')):
             # Immagini e icone: cache per 1 anno
             response.cache_control.max_age = 31536000  # 1 anno
@@ -270,7 +276,7 @@ def create_app(config_name=None):
             response.cache_control.immutable = True
             # Header espliciti
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-            response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
+            response.headers['Expires'] = expires_one_year
         elif filename.endswith(('.woff', '.woff2', '.ttf', '.otf')):
             # Font: cache per 1 anno
             response.cache_control.max_age = 31536000  # 1 anno
@@ -316,15 +322,16 @@ def create_app(config_name=None):
         path = request.path
         if path.startswith('/static/'):
             filename = path.split('/')[-1]
+            expires_one_year = _http_expires_one_year_from_now()
             
             if any(filename.endswith(ext) for ext in ['.css', '.js']):
                 # CSS e JS: cache per 1 anno
                 response.headers['Cache-Control'] = 'public, max-age=31536000'
-                response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
+                response.headers['Expires'] = expires_one_year
             elif any(filename.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg']):
                 # Immagini: cache per 1 anno con immutable
                 response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-                response.headers['Expires'] = 'Thu, 01 Dec 2025 16:00:00 GMT'
+                response.headers['Expires'] = expires_one_year
             elif any(filename.endswith(ext) for ext in ['.woff', '.woff2', '.ttf', '.otf']):
                 # Font: cache per 1 anno con immutable
                 response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'

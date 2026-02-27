@@ -29,6 +29,22 @@ def require_json(f):
 
     return wrapper
 
+
+def format_poem_type_label(raw_type: str | None, default: str = 'poesia') -> str:
+    """Normalizza una tipologia per uso testuale/UI (non per logica interna).
+
+    - converte underscore in spazi (es. versi_liberi -> versi liberi)
+    - elimina caratteri invisibili comuni zero-width/BOM
+    - collassa whitespace multiplo
+    - applica fallback se il risultato è vuoto
+    """
+    value = str(raw_type or '')
+    for ch in ('\u200b', '\u200c', '\u200d', '\u2060', '\ufeff', '\u00a0'):
+        value = value.replace(ch, ' ')
+    value = value.replace('_', ' ')
+    value = ' '.join(value.split())
+    return value or default
+
 def calculate_rhyme_status_for_verses(analyzed_scheme, expected_scheme, num_verses):
     """Calcola lo stato delle rime per ogni verso (valid/invalid)"""
     if not expected_scheme:
@@ -376,22 +392,22 @@ def api_create_poem():
             if not data or field not in data or not str(data[field]).strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
 
+        # Tipo selezionato opzionale (serve anche per placeholder titolo)
+        selected_type = (data.get('poem_type') or '').strip().lower() or None
+
         # Rimappa i campi per compatibilità con api_pubblica e sanitizza input utente
         # Titolo opzionale: se assente/vuoto, usa placeholder dinamico "<tipo> senza titolo"
         raw_title = str(data.get('title') or '').strip()
         if raw_title:
             data['titolo'] = sanitize_user_text(raw_title)
         else:
-            # Tipo selezionato dall'utente o riconosciuto dall'analisi
-            selected_type = (data.get('poem_type') or '').strip().lower() or None
-            placeholder_type = selected_type or (analisi.get('tipo_riconosciuto', 'poesia') or 'poesia')
+            placeholder_type = format_poem_type_label(selected_type, default='poesia')
             data['titolo'] = sanitize_user_text(f"{placeholder_type} senza titolo")
         data['testo'] = sanitize_user_text(data['text'])
         data['autore'] = sanitize_user_text(data['author'])
 
         # Parametri opzionali
         use_tolerance = data.get('use_tolerance', False)
-        selected_type = (data.get('poem_type') or '').strip().lower() or None
 
         # Analizza la poesia (passando parametro tolleranza)
         analisi = analizza_poesia_completa(data['testo'], use_tolerance=use_tolerance)
@@ -425,7 +441,11 @@ def api_create_poem():
                 'success': False,
                 'message': 'Pubblicazione non consentita: la poesia non rispetta i vincoli metrici della tipologia scelta.',
                 'details': [
-                    f"Tipo selezionato: {selected_type}" if selected_type else f"Tipo riconosciuto: {analisi.get('tipo_riconosciuto', 'sconosciuto')}",
+                    (
+                        f"Tipo selezionato: {format_poem_type_label(selected_type, default='sconosciuto')}"
+                        if selected_type
+                        else f"Tipo riconosciuto: {format_poem_type_label(analisi.get('tipo_riconosciuto'), default='sconosciuto')}"
+                    ),
                     f"Tolleranza attiva: {'sì' if use_tolerance else 'no'}",
                 ] + ([f"Pattern atteso: {expected_info}"] if expected_info else []),
                 'analisi': analisi
@@ -468,20 +488,21 @@ def api_pubblica():
             if not data or field not in data or not str(data[field]).strip():
                 return jsonify({'error': f'Campo {field} mancante o vuoto'}), 400
 
+        # Tipo selezionato opzionale (serve anche per placeholder titolo)
+        selected_type = (data.get('poem_type') or data.get('tipo') or '').strip().lower() or None
+
         # Titolo opzionale: placeholder dinamico se assente/vuoto
         titolo_raw = str(data.get('titolo') or '').strip()
         if titolo_raw:
             titolo = sanitize_user_text(titolo_raw)
         else:
-            selected_type = (data.get('poem_type') or data.get('tipo') or '').strip().lower() or None
-            placeholder_type = selected_type or (analisi.get('tipo_riconosciuto', 'poesia') or 'poesia')
+            placeholder_type = format_poem_type_label(selected_type, default='poesia')
             titolo = sanitize_user_text(f"{placeholder_type} senza titolo")
         testo = sanitize_user_text(data['testo'].strip())
         autore = sanitize_user_text(data['autore'].strip())
 
         # Parametri opzionali
         use_tolerance = data.get('use_tolerance', False)
-        selected_type = (data.get('poem_type') or data.get('tipo') or '').strip().lower() or None
 
         # Analizza la poesia con eventuale tolleranza
         analisi = analizza_poesia_completa(testo, use_tolerance=use_tolerance)
@@ -509,7 +530,11 @@ def api_pubblica():
                 'success': False,
                 'message': 'Pubblicazione non consentita: la poesia non rispetta i vincoli metrici della tipologia scelta.',
                 'details': [
-                    f"Tipo selezionato: {selected_type}" if selected_type else f"Tipo riconosciuto: {analisi.get('tipo_riconosciuto', 'sconosciuto')}",
+                    (
+                        f"Tipo selezionato: {format_poem_type_label(selected_type, default='sconosciuto')}"
+                        if selected_type
+                        else f"Tipo riconosciuto: {format_poem_type_label(analisi.get('tipo_riconosciuto'), default='sconosciuto')}"
+                    ),
                     f"Tolleranza attiva: {'sì' if use_tolerance else 'no'}",
                 ] + ([f"Pattern atteso: {expected_info}"] if expected_info else []),
                 'analisi': analisi
