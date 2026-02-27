@@ -117,6 +117,10 @@ SCHEMI_POESIA = {
         "sillabe": [2, 4, 6, 8, 2],
         "rima": []
     },
+    "sestina": {
+        "sillabe": [11] * 6,
+        "rima": []
+    },
     "distico": {
         "sillabe": [11, 11],
         "rima": ["AA"]

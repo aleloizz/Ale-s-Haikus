@@ -348,6 +348,7 @@ def get_syllable_pattern(tipo_poesia):
         'ballad': [8, 6, 8, 6],
         'clerihew': [8, 8, 8, 8],
         'cinquain': [2, 4, 6, 8, 2],
+        'sestina': [11] * 6,
         'versi_liberi': []
     }
     return patterns.get(tipo_poesia, [])
