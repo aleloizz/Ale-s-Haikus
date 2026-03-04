@@ -660,7 +660,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         
                         {% for page_num in range(start_page, end_page + 1) %}
                         <li class="page-item {% if page_num == poesie.page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('web.bacheca', page=page_num, tipo=tipo_filtro, autore=autore_filtro) }}">
+                            <a class="page-link" href="{{ url_for('web.bacheca', page=page_num, tipo=tipo_filtro, autore=autore_filtro) }}" {% if page_num == poesie.page %}aria-current="page"{% endif %}>
                                 {{ page_num }}
                             </a>
                         </li>

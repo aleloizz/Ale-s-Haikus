@@ -63,6 +63,7 @@ class BachecaManager {
      */
     init() {
         this.cacheElements();
+        this.syncPaginationState();
         this.initializeEventListeners();
         this.initializeToasts();
     this.initializeSharePopup();
@@ -1430,14 +1431,43 @@ class BachecaManager {
      */
     setupCurrentPageIndicators() {
         // Evidenzia pagina corrente nei controlli di paginazione
-        document.querySelectorAll('.pagination .page-item').forEach(item => {
+        document.querySelectorAll('.bacheca-pagination .page-item').forEach(item => {
             const link = item.querySelector('.page-link');
-            if (link && parseInt(link.textContent) === this.currentPage) {
+            const pageNum = link ? parseInt(link.textContent.trim(), 10) : NaN;
+            if (Number.isFinite(pageNum) && pageNum === this.currentPage) {
                 item.classList.add('active');
+                item.setAttribute('aria-current', 'page');
             } else {
                 item.classList.remove('active');
+                item.removeAttribute('aria-current');
             }
         });
+    }
+
+    /**
+     * Sincronizza lo stato paginazione dalla pagina corrente (URL/config/UI)
+     */
+    syncPaginationState() {
+        let pageFromUrl = null;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            pageFromUrl = parseInt(params.get('page') || '', 10);
+        } catch (e) {
+            pageFromUrl = null;
+        }
+
+        const pageFromConfig = parseInt(window.BACHECA_CONFIG?.currentPage || '', 10);
+        const pageFromInput = parseInt(this.elements.goToPage?.value || '', 10);
+        const totalFromConfig = parseInt(window.BACHECA_CONFIG?.totalPages || '', 10);
+        const totalFromInputMax = parseInt(this.elements.goToPage?.max || '', 10);
+
+        const detectedPage = [pageFromUrl, pageFromConfig, pageFromInput]
+            .find((value) => Number.isFinite(value) && value > 0);
+        const detectedTotal = [totalFromConfig, totalFromInputMax]
+            .find((value) => Number.isFinite(value) && value > 0);
+
+        this.currentPage = detectedPage || 1;
+        this.totalPages = detectedTotal || 1;
     }
 
     /**
