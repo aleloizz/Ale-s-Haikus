@@ -4,7 +4,7 @@ Versione modulare per miglior manutenibilità
 """
 import os
 from flask import Flask, request, render_template, redirect, send_from_directory, url_for, make_response
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
 import os
 
@@ -250,7 +250,7 @@ def create_app(config_name=None):
     
     def _http_expires_one_year_from_now() -> str:
         """Restituisce una data Expires HTTP (RFC 1123) a +1 anno da ora (UTC)."""
-        return format_datetime(datetime.utcnow() + timedelta(days=365), usegmt=True)
+        return format_datetime(datetime.now(timezone.utc) + timedelta(days=365), usegmt=True)
 
     # Override della route built-in per static files con cache ottimizzata
     @app.route('/static/<path:filename>')
