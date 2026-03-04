@@ -860,6 +860,113 @@ Versione: 3.77 - ottimizzazioni grafiche
     margin-right: 0.5rem;
 }
 
+/* ===== BACHECA PAGINATION ===== */
+.bacheca-pagination-wrap {
+    margin-top: 2.5rem;
+}
+
+.bacheca-pagination-header {
+    gap: 0.75rem;
+}
+
+.bacheca-pagination-meta {
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.bacheca-pagination-jump {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+    padding: 0.25rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.bacheca-pagination-jump .form-control {
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--text-dark);
+    min-height: 32px;
+    box-shadow: none;
+}
+
+.bacheca-pagination-jump .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(212, 184, 255, 0.25) !important;
+}
+
+.bacheca-pagination-jump .btn {
+    border-radius: 999px !important;
+}
+
+.bacheca-pagination {
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.bacheca-pagination .page-item {
+    margin: 0;
+}
+
+.bacheca-pagination .page-link {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.25s ease;
+}
+
+.bacheca-pagination .page-link:hover {
+    background: rgba(212, 184, 255, 0.55);
+    border-color: rgba(212, 184, 255, 0.9);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(149, 117, 205, 0.25);
+}
+
+.bacheca-pagination .page-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(212, 184, 255, 0.35);
+}
+
+.bacheca-pagination .page-item.active .page-link {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(149, 117, 205, 0.35);
+}
+
+.bacheca-pagination .page-item.disabled .page-link {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .bacheca-pagination-header {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .bacheca-pagination-meta {
+        text-align: center;
+    }
+
+    .bacheca-pagination-jump {
+        align-self: center;
+    }
+}
+
 /* ===== RESPONSIVE DESIGN CONTENT-ADAPTIVE ===== */
 
 /* Mobile: Stack verticale */

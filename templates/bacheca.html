@@ -614,13 +614,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 
                 <!-- Paginazione avanzata -->
                 {% if poesie and poesie.pages > 1 %}
-                <nav aria-label="Paginazione poesie" class="mt-5">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="text-white-50 small">
+                <nav aria-label="Paginazione poesie" class="mt-5 bacheca-pagination-wrap">
+                    <div class="d-flex justify-content-between align-items-center mb-3 bacheca-pagination-header">
+                        <div class="text-white-50 small bacheca-pagination-meta">
                             Pagina {{ poesie.page }} di {{ poesie.pages }} 
                             ({{ poesie.total }} poesie totali)
                         </div>
-                        <div class="btn-group" role="group">
+                        <div class="btn-group bacheca-pagination-jump" role="group" aria-label="Vai a pagina specifica">
                             <input type="number" id="goToPage" class="form-control form-control-sm" 
                                    style="width: 80px;" min="1" max="{{ poesie.pages }}" 
                                    value="{{ poesie.page }}" placeholder="Pagina">
@@ -630,7 +630,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         </div>
                     </div>
                     
-                    <ul class="pagination justify-content-center">
+                    <ul class="pagination justify-content-center bacheca-pagination" role="list">
                         <!-- Primo e precedente -->
                         {% if poesie.page > 1 %}
                         <li class="page-item">
