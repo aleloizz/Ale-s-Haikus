@@ -877,9 +877,9 @@ Versione: 3.77 - ottimizzazioni grafiche
 .bacheca-pagination-jump {
     background: rgba(255, 255, 255, 0.14);
     border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 999px;
-    padding: 0.25rem;
-    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 0.5rem;
+    backdrop-filter: blur(10px);    
     -webkit-backdrop-filter: blur(10px);
 }
 
@@ -901,11 +901,17 @@ Versione: 3.77 - ottimizzazioni grafiche
 }
 
 .bacheca-pagination {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     flex-wrap: wrap;
 }
 
 .bacheca-pagination .page-item {
+    display: inline-flex;
+    flex: 0 0 auto;
     margin: 0;
 }
 
