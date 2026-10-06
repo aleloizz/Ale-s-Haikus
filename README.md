@@ -299,7 +299,7 @@ I contributi sono benvenuti! Ecco come puoi aiutare:
 
 ## Licenza
 
-Tutti i diritti riservati.
+ancora da definire
 
 ---
 
