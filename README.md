@@ -229,7 +229,11 @@ APP_CONFIG=production gunicorn 'app:create_app()' \
 ```
 
 Il dettaglio delle modifiche per Docker/PostgreSQL è in
-[`docs/MIGRATION_STEP1.md`](docs/MIGRATION_STEP1.md).
+[`docs/MIGRATION_STEP1.md`](docs/MIGRATION_STEP1.md) e
+[`docs/MIGRATION_STEP2.md`](docs/MIGRATION_STEP2.md).
+
+Il `Dockerfile` è versionato nel repository; `docker-compose.yml`, `.env` e i
+segreti vivono nella cartella esterna `aleshaikus-deploy/`, accanto al clone.
 
 **Variabili d'ambiente richieste in produzione:**
 | Variabile | Descrizione |
@@ -263,7 +267,7 @@ Il dettaglio delle modifiche per Docker/PostgreSQL è in
 | **Font** | Inter (UI) + Playfair Display (accento) tramite Google Fonts |
 | **PWA** | Service Worker, Web App Manifest, meta tag iOS |
 | **Analytics** | Google Analytics 4 (gtag.js) |
-| **Hosting** | Heroku in dismissione → home server Docker/DietPi (Step 1 completato) |
+| **Hosting** | Heroku in dismissione → home server Docker/DietPi (Step 1-2 completati) |
 | **Compressione** | Flask-Compress (gzip automatico) |
 | **SEO** | Sitemap XML dinamici, JSON-LD, Open Graph, Twitter Cards, URL canonici |
 
@@ -277,10 +281,11 @@ Flask-SQLAlchemy==3.1.1   # ORM per database
 Flask-Compress==1.24      # Compressione gzip
 Flask-Limiter==4.1.1      # Rate limiting
 gunicorn==26.0.0          # Server WSGI per produzione
-psycopg2-binary==2.9.12   # Driver PostgreSQL
+psycopg2-binary==2.9.12   # Driver PostgreSQL (Docker usa psycopg2 compilato)
+redis==6.4.0              # Storage condiviso Flask-Limiter
 bleach==6.4.0             # Sanificazione HTML
 Jinja2==3.1.6             # Motore template
-Werkzeug==3.1.8           # Toolkit WSGI
+Werkzeug==3.1.9           # Toolkit WSGI
 ```
 
 ---

@@ -18,6 +18,7 @@ dist/
 .env.*
 !.env.example
 *.env
+secrets/
 
 # Python artifacts
 __pycache__/

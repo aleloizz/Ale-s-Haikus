@@ -61,7 +61,7 @@ fallback SQLite silenzioso, e chiudere le vulnerabilità P0/P1 dell'assessment
 |---|---|---|---|
 | `APP_CONFIG` | consigliata | `production` | `production`, `development`, `testing`. |
 | `SECRET_KEY` | sì in produzione | — | ≥ 32 caratteri casuali. |
-| `DATABASE_URL` | sì in produzione | — | `postgresql://...`; `postgres://` viene normalizzato. |
+| `DATABASE_URL` | sì in produzione | — | `postgresql+psycopg2://...`; `postgres://` viene normalizzato. |
 | `AUTO_CREATE_DB` | no | `false` in produzione | Solo bootstrap temporaneo. |
 | `TRUSTED_HOSTS` | sì in produzione | domini del sito + localhost | Lista separata da virgole. |
 | `CANONICAL_BASE_URL` | sì in produzione | `https://www.aleshaikus.me` | Deve essere `https://`. |
@@ -99,8 +99,9 @@ APP_CONFIG=production gunicorn 'app:create_app()' \
   `RATELIMIT_STORAGE_URI=redis://...` se si usano più worker.
 - `AUTO_CREATE_DB` va lasciato `false`; eseguire `flask --app app init-db` una
   volta (o una migrazione Alembic quando sarà introdotta).
-- `psycopg2-binary` è ancora in `requirements.txt`: valutare `psycopg2` con
-  libpq di sistema nel Dockerfile (finding I-01).
+- `psycopg2-binary` resta in `requirements.txt` per comodità locale; il
+  Dockerfile lo sostituisce con `psycopg2` compilato contro la libpq di runtime
+  (I-01).
 - `static.json` e `CNAME` sono residui Heroku/GitHub Pages: vanno rimossi o
   sostituiti nella fase di deployment.
 - Normalizzare le righe `poem_type` legacy già presenti in produzione (es.
@@ -114,7 +115,7 @@ APP_CONFIG=production gunicorn 'app:create_app()' \
 
 ```bash
 APP_CONFIG=testing python -m pytest -q
-# 36 passed
+# 41 passed
 ```
 
 I test coprono: payload XSS H-01, sanitizer fail-closed, escaping in bacheca e

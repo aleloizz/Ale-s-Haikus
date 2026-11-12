@@ -1,5 +1,5 @@
 from services.syllable_analyzer import conta_sillabe
-from services.rhyme_analyzer import analizza_rime, identifica_schema_poetico
+from services.rhyme_analyzer import analizza_rime
 from config.constants import POEM_TYPE_ALIASES, SCHEMI_POESIA
 
 def analizza_poesia_completa(testo, use_tolerance=False):
