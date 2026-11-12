@@ -3,6 +3,8 @@
  * @author Poetry Analyzer App
  */
 
+import { getCsrfToken } from './utils.js?v=1.4.0';
+
 /**
  * Pubblica una poesia sul server
  * @param {Object} formData - Dati del form di pubblicazione
@@ -24,7 +26,11 @@ export async function publishPoem(formData, isValid) {
         
         const publishResponse = await fetch('/api/poems', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             body: JSON.stringify({
                 text: formData.text,
                 poem_type: formData.poem_type,
@@ -107,40 +113,60 @@ export function showPublishError(message, details = null) {
         console.warn('⚠️ Toast container non trovato');
         return;
     }
-    
+
     const errorToast = document.createElement('div');
     errorToast.className = 'toast show';
     errorToast.setAttribute('role', 'alert');
-    
-    let detailsHtml = '';
-    if (details && details.length > 0) {
-        detailsHtml = `
-            <div class="mt-2">
-                <small class="text-muted">Dettagli:</small>
-                <ul class="mb-0 small">
-                    ${details.map(detail => `<li>${detail}</li>`).join('')}
-                </ul>
-            </div>
-        `;
+
+    const header = document.createElement('div');
+    header.className = 'toast-header bg-danger text-white';
+    const headerIcon = document.createElement('i');
+    headerIcon.className = 'bi bi-exclamation-triangle-fill me-2';
+    const headerTitle = document.createElement('strong');
+    headerTitle.className = 'me-auto';
+    headerTitle.textContent = 'Pubblicazione non consentita';
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'btn-close btn-close-white';
+    closeButton.setAttribute('data-bs-dismiss', 'toast');
+    header.append(headerIcon, headerTitle, closeButton);
+
+    const body = document.createElement('div');
+    body.className = 'toast-body';
+
+    const messageNode = document.createElement('p');
+    messageNode.className = 'mb-0';
+    messageNode.textContent = String(message || 'Errore nella pubblicazione');
+    body.appendChild(messageNode);
+
+    if (Array.isArray(details) && details.length > 0) {
+        const detailsWrapper = document.createElement('div');
+        detailsWrapper.className = 'mt-2';
+        const detailsLabel = document.createElement('small');
+        detailsLabel.className = 'text-muted';
+        detailsLabel.textContent = 'Dettagli:';
+        const list = document.createElement('ul');
+        list.className = 'mb-0 small';
+        details.forEach((detail) => {
+            const item = document.createElement('li');
+            item.textContent = String(detail);
+            list.appendChild(item);
+        });
+        detailsWrapper.append(detailsLabel, list);
+        body.appendChild(detailsWrapper);
     }
-    
-    errorToast.innerHTML = `
-        <div class="toast-header bg-danger text-white">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong class="me-auto">Pubblicazione non consentita</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body">
-            ${message}
-            ${detailsHtml}
-            <div class="mt-2">
-                <small class="text-muted">💡 Correggi la poesia e riprova!</small>
-            </div>
-        </div>
-    `;
-    
+
+    const hint = document.createElement('div');
+    hint.className = 'mt-2';
+    const hintText = document.createElement('small');
+    hintText.className = 'text-muted';
+    hintText.textContent = '💡 Correggi la poesia e riprova!';
+    hint.appendChild(hintText);
+    body.appendChild(hint);
+
+    errorToast.append(header, body);
     toastContainer.appendChild(errorToast);
-    
+
     // Rimuovi il toast dopo 8 secondi (più tempo per leggere i dettagli)
     setTimeout(() => {
         if (errorToast.parentNode) {

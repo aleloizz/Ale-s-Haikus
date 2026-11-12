@@ -3,10 +3,10 @@
  * @author Poetry Analyzer App
  */
 
-import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations } from './utils.js';
-import { patterns, requiresRhymeAnalysis } from './patterns.js';
-import { publishPoem } from './publish.js';
-import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError, renderStructureErrorResults } from './validation.js?v=1.3.8';
+import { sanitizeInput, analyzeRhymeStatus, applyStaggeredAnimations, getCsrfToken, escapeHtml } from './utils.js?v=1.4.0';
+import { patterns, requiresRhymeAnalysis } from './patterns.js?v=1.4.0';
+import { publishPoem } from './publish.js?v=1.3.9';
+import { validateCurrentInput, getBlockingStatus, renderIssues, markAnalysisCompleted, classifyError, renderStructureErrorResults } from './validation.js?v=1.3.9';
 
 function trackGa4Event(name, params) {
     try {
@@ -118,6 +118,7 @@ export async function handleFormSubmit(e, elements) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-Token': getCsrfToken(),
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
@@ -201,8 +202,12 @@ export function showResults(data) {
 
     // Gestione errori di struttura (numero versi errato)
     if (data.error && data.error_type) {
-        // Usa renderer centralizzato in validation.js per coerenza
-        renderStructureErrorResults(data);
+        if (data.error_type === 'too_few_verses' || data.error_type === 'too_many_verses') {
+            // Usa renderer centralizzato in validation.js per coerenza
+            renderStructureErrorResults(data);
+            return;
+        }
+        showErrorResults(data, resultTitle, resultMessage, resultContainer);
         return;
     }
 
@@ -232,13 +237,13 @@ function showVersiLiberiResults(data, resultTitle, resultMessage, syllableDetail
     Object.entries(rhymeMap).forEach(([rhyme, verses]) => {
         if (verses.length > 1 && rhyme) {
             contentHTML += `<div class="mb-2 verse-detail" style="background:rgba(160,132,232,0.07);border-left:3px solid #a084e8;">
-                <div class="small text-muted mb-1"><i class="bi bi-music-note-beamed"></i> Rima: <strong>${rhyme}</strong></div>
+                <div class="small text-muted mb-1"><i class="bi bi-music-note-beamed"></i> Rima: <strong>${escapeHtml(rhyme)}</strong></div>
                 ${verses.map(res => `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>Verso ${res.verse}:</strong> "${res.text}"
+                            <strong>Verso ${Number(res.verse)}:</strong> "${escapeHtml(res.text)}"
                         </div>
-                        <span class="badge bg-haiku-secondary">${res.syllables} sillabe</span>
+                        <span class="badge bg-haiku-secondary">${Number(res.syllables)} sillabe</span>
                     </div>
                 `).join('')}
             </div>`;
@@ -252,9 +257,9 @@ function showVersiLiberiResults(data, resultTitle, resultMessage, syllableDetail
             contentHTML += `<div class="mb-2 verse-detail">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <strong>Verso ${res.verse}:</strong> "${res.text}"
+                        <strong>Verso ${Number(res.verse)}:</strong> "${escapeHtml(res.text)}"
                     </div>
-                    <span class="badge bg-haiku-secondary">${res.syllables} sillabe</span>
+                    <span class="badge bg-haiku-secondary">${Number(res.syllables)} sillabe</span>
                 </div>
             </div>`;
         }
@@ -268,7 +273,7 @@ function showVersiLiberiResults(data, resultTitle, resultMessage, syllableDetail
  */
 function showErrorResults(data, resultTitle, resultMessage, resultContainer) {
     resultTitle.textContent = "Errore di Analisi";
-    resultMessage.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${data.message || "Si è verificato un errore durante l'analisi"}`;
+    resultMessage.textContent = data.message || "Si è verificato un errore durante l'analisi";
     resultContainer.querySelector('.alert').className = 'alert alert-danger';
 }
 
@@ -301,7 +306,7 @@ function showStructureErrorResults(data, resultTitle, resultMessage, syllableDet
         }
 
         resultTitle.textContent = title;
-        resultMessage.innerHTML = `${icon} ${data.message}`;
+        resultMessage.innerHTML = `${icon} ${escapeHtml(data.message)}`;
         const alertBox = resultContainer.querySelector('.alert');
         if (alertBox) alertBox.className = `alert ${alertClass}`;
 
@@ -325,7 +330,7 @@ function showStructureErrorResults(data, resultTitle, resultMessage, syllableDet
                 ${data.error_type === 'too_few_verses' ? 'Mancano' : 'Rimuovi'} ${diff} ${verseWord}!
             </div>
             <div class="pattern-info mt-2">
-                <span class="poem-type-badge">${poemTypeName}</span>
+                <span class="poem-type-badge">${escapeHtml(poemTypeName)}</span>
                 <span class="patternDisplay">${(safePattern || []).join('-')}</span>
             </div>
         `;
@@ -347,17 +352,17 @@ function showAnalysisResults(data, resultTitle, resultMessage, syllableDetails, 
     const patternStr = data.pattern ? data.pattern.join('-') : '';
 
     if (data.valid) {
-        resultTitle.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> ${poemTypeName} perfetto!`;
+        resultTitle.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> ${escapeHtml(poemTypeName)} perfetto!`;
         resultMessage.innerHTML = `
             <i class="bi bi-check-circle-fill"></i> Struttura corretta!
-            <div class="small mt-1">${patternStr}</div>
+            <div class="small mt-1">${escapeHtml(patternStr)}</div>
         `;
         resultContainer.querySelector('.alert').className = 'alert alert-success';
     } else {
-        resultTitle.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${poemTypeName} da correggere`;
+        resultTitle.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${escapeHtml(poemTypeName)} da correggere`;
         resultMessage.innerHTML = `
             <i class="bi bi-exclamation-triangle-fill"></i> Problemi nella metrica
-            <div class="small mt-1">${patternStr}</div>
+            <div class="small mt-1">${escapeHtml(patternStr)}</div>
         `;
         resultContainer.querySelector('.alert').className = 'alert alert-danger';
     }
@@ -367,8 +372,8 @@ function showAnalysisResults(data, resultTitle, resultMessage, syllableDetails, 
         <div class="mb-2 verse-detail ${res.correct ? '' : 'incorrect-verse'}">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <strong>Verso ${res.verse}:</strong> "${res.text}"
-                    ${res.error ? `<div class="text-danger small mt-1"><i class="bi bi-bug-fill"></i> ${res.error}</div>` : ''}
+                    <strong>Verso ${Number(res.verse)}:</strong> "${escapeHtml(res.text)}"
+                    ${res.error ? `<div class="text-danger small mt-1"><i class="bi bi-bug-fill"></i> ${escapeHtml(res.error)}</div>` : ''}
                 </div>
                 <span class="badge ${res.correct ? 'bg-success' : 'bg-danger'}">
                     ${res.syllables}/${res.target}
@@ -418,8 +423,8 @@ function renderRhymeAnalysis(data) {
             const groupHtml = group.split('').map((letter, letterIdx) => {
                 const status = rhymeStatus[verseCounter - 1];
                 const html = `
-                    <div class="rhyme-letter ${status}">
-                        <span class="letter">${letter}</span>
+                    <div class="rhyme-letter ${escapeHtml(status)}">
+                        <span class="letter">${escapeHtml(letter)}</span>
                         <span class="verse-indicator">${verseCounter}</span>
                     </div>
                 `;
@@ -444,7 +449,7 @@ function renderRhymeAnalysis(data) {
                     <small class="text-muted d-block mb-1">Schema atteso:</small>
                     <div class="d-flex flex-wrap gap-2 mb-3">
                         ${scheme.map(group => `
-                            <span class="badge bg-haiku-secondary">${group}</span>
+                            <span class="badge bg-haiku-secondary">${escapeHtml(group)}</span>
                         `).join('')}
                     </div>
                 </div>
@@ -456,7 +461,7 @@ function renderRhymeAnalysis(data) {
                 <div class="alert-glass d-flex gap-2 p-3 mt-3">
                     <i class="bi bi-exclamation-triangle fs-5"></i>
                     <div>
-                        ${errors.map(err => `<p class="mb-1 small">${err}</p>`).join('')}
+                        ${errors.map(err => `<p class="mb-1 small">${escapeHtml(err)}</p>`).join('')}
                     </div>
                 </div>
             ` : isValid ? `

@@ -1,5 +1,7 @@
 /* Validation and feedback module for index page
-versione 1.3.8 */
+versione 1.3.9 */
+
+import { escapeHtml } from './utils.js?v=1.4.0';
 
 const MESSAGES = {
   INPUT_EMPTY: { text: 'Inserisci almeno un verso prima di continuare.', blocks:{analyze:true, copy:true, publish:true}, severity:'warning' },
@@ -115,7 +117,12 @@ function renderIssues(issues){
       const div = document.createElement('div');
       div.className = `validation-msg validation-${issue.severity}`;
       div.setAttribute('data-code', issue.code);
-      div.innerHTML = `<span class=\"val-icon\">${iconFor(issue.severity)}</span> <span>${issue.message}</span>`;
+      const icon = document.createElement('span');
+      icon.className = 'val-icon';
+      icon.innerHTML = iconFor(issue.severity);
+      const message = document.createElement('span');
+      message.textContent = issue.message;
+      div.append(icon, message);
       frag.appendChild(div);
     });
     container.appendChild(frag);
@@ -240,7 +247,7 @@ export function renderStructureErrorResults(data){
   }
 
   resultTitle.textContent = title;
-  resultMessage.innerHTML = `${icon} ${data.message || ''}`;
+  resultMessage.innerHTML = `${icon} ${escapeHtml(data.message || '')}`;
   if (alertEl) alertEl.className = `alert ${alertClass}`;
 
   const safeRequired = Number.isFinite(data.required) ? data.required : 0;
@@ -263,8 +270,8 @@ export function renderStructureErrorResults(data){
       ${data.error_type === 'too_few_verses' ? 'Mancano' : 'Rimuovi'} ${diff} ${verseWord}!
     </div>
     <div class="pattern-info mt-2">
-      ${poemTypeName ? `<span class=\"poem-type-badge\">${poemTypeName}</span>` : ''}
-      <span class="patternDisplay">${pattern.join('-')}</span>
+      ${poemTypeName ? `<span class=\"poem-type-badge\">${escapeHtml(poemTypeName)}</span>` : ''}
+      <span class="patternDisplay">${escapeHtml(pattern.join('-'))}</span>
     </div>
   `;
 }

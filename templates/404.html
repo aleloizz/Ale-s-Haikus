@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="robots" content="noindex, follow">
+    <title>Pagina non trovata - Ale's Haikus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.41">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .error-page {
+            background: linear-gradient(135deg, #ffc99d 0%, #764ba2 100%);
+            color: white;
+        }
+        .haiku-text {
+            font-style: italic;
+            color: #6c757d;
+        }
+        .haiku-text p { line-height: 1.6; }
+    </style>
+</head>
+<body class="error-page">
+    <div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
+        <div class="text-center">
+            <h1 class="display-1 text-haiku">404</h1>
+            <h2 class="h4 text-muted mb-4">Pagina non trovata</h2>
+            <p class="mb-4">
+                La pagina che cerchi non esiste o è stata spostata.<br>
+                Controlla l'indirizzo oppure torna alla bacheca.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('web.index') }}" class="btn btn-haiku btn-primary">
+                    <i class="bi bi-house"></i> Torna alla Home
+                </a>
+                <a href="{{ url_for('web.bacheca') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-grid"></i> Vai alla Bacheca
+                </a>
+            </div>
+
+            <div class="mt-5 p-4 bg-light rounded">
+                <h5 class="text-muted mb-3">Un piccolo haiku per la strada:</h5>
+                <div class="haiku-text">
+                    <p class="mb-1">Pagina smarrita</p>
+                    <p class="mb-1">tra i versi del silenzio</p>
+                    <p class="mb-0">torna a casa presto</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -55,6 +55,30 @@ TRITTONGHI = {
     'iàu', 'ièu', 'iéu', 'uàu', 'uèu', 'uéu'
 }
 
+# Tipologie pubblicabili tramite API.
+# Derivate dagli schemi canonici, con normalizzazione degli alias legacy.
+POEM_TYPE_ALIASES = {
+    "verso libero": "versi_liberi",
+    "distico (rima baciata)": "distico",
+    "quartina (rima alternata)": "quartina",
+    "quartina (rima baciata)": "quartina",
+    "quartina (rima incrociata)": "quartina",
+    "ottava": "ottava_rima",
+    "sconosciuto": "versi_liberi",
+    "libero": "versi_liberi",
+}
+
+# Limiti applicativi condivisi da API, validazione e test.
+MAX_ANALYZE_CHARS = 2000
+MAX_POEM_CHARS = 5000
+MAX_POEM_LINES = 200
+MAX_TITLE_LENGTH = 200
+MAX_AUTHOR_LENGTH = 100
+MAX_POEM_TYPE_LENGTH = 50
+MAX_BACHECA_PER_PAGE = 50
+MAX_BACHECA_PAGE = 1000
+MAX_FILTER_LENGTH = 100
+
 # Schemi delle poesie
 SCHEMI_POESIA = {
     "haiku": {
@@ -129,4 +153,10 @@ SCHEMI_POESIA = {
         "sillabe": [],
         "rima": []
     }
+}
+
+# Solo le chiavi canoniche (slug) possono essere selezionate dall'utente.
+ALLOWED_POEM_TYPES = {
+    key for key in SCHEMI_POESIA
+    if key == key.lower() and " " not in key and "(" not in key
 }

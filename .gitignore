@@ -1,24 +1,43 @@
 # .gitignore for Ale-s-Haikus
 # Ignore instance DB and dumps
 instance/*.db
+instance/*.sqlite
+instance/*.sqlite3
+*.db
 *.dump
 latest.dump
 
 # Ignore backups and generated artifacts
 backup/
+build/
+dist/
+*.egg-info/
 
 # Environment files and secrets
 .env
+.env.*
+!.env.example
 *.env
 
 # Python artifacts
 __pycache__/
 *.py[cod]
 *.pyc
+*.pyo
 
 # Virtualenvs
+.venv/
 venv/
 env/
+
+# Test, coverage and lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 
 # Editor and OS files
 .DS_Store
@@ -27,12 +46,12 @@ env/
 
 # IDE
 .idea/
+.vscode/
 
-# Bytecode / logs / coverage
-*.pyo
+# Logs
 *.log
-.coverage
-htmlcov/
 
 # Node
 node_modules/
+npm-debug.log*
+yarn-error.log*

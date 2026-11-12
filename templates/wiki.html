@@ -4,7 +4,7 @@
 <head>
                 <!-- Google tag (gtag.js) -->
                 <script async src="https://www.googletagmanager.com/gtag/js?id=G-D0W8P8VPVJ"></script>
-                <script>
+                <script nonce="{{ csp_nonce() }}">
                     window.dataLayer = window.dataLayer || [];
                     function gtag(){dataLayer.push(arguments);} 
                     gtag('js', new Date());
@@ -14,6 +14,7 @@
         
 
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, maximum-scale=1, viewport-fit=cover">
     <title>Wiki delle forme poetiche | Ale's Haikus</title>
     <meta name="description" content="Wiki delle forme poetiche: regole, schemi metrici e origini di haiku, tanka, sonetto, limerick, versi liberi e altre forme supportate su Ale's Haikus.">
@@ -34,7 +35,7 @@
     <link rel="alternate" hreflang="x-default" href="{{ url_for('web.wiki', _external=True, _scheme='https') }}">
     <meta name="twitter:card" content="summary_large_image">
         <!-- JSON-LD Breadcrumbs -->
-        <script type="application/ld+json">
+        <script nonce="{{ csp_nonce() }}" type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
@@ -59,7 +60,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ale's Haikus">
     <meta name="format-detection" content="telephone=no">
-    <script>document.documentElement.classList.add('js');</script>
+    <script nonce="{{ csp_nonce() }}">document.documentElement.classList.add('js');</script>
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=1.4">
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=1.4">
@@ -76,12 +77,10 @@
 
         <!-- Critical CSS ottimizzato -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/critical.css') }}?v=1.3">
-    <!-- Fallback: intero set Bootstrap Icons per eventuali classi mancanti (caricato prima) -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
+    <!-- Fallback: intero set Bootstrap Icons locale -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
     <!-- Icone locali ottimizzate (caricate dopo per prevalere sul CDN) -->
-    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=2.9" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.9"></noscript>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.9">
     <!-- Stili personalizzati -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.44">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -168,7 +167,7 @@
             <p class="app-loader__text">Caricamento…</p>
         </div>
     </div>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     (function(){
       const overlay=document.getElementById('app-loader');
       if(!overlay) return;

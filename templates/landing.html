@@ -3,7 +3,7 @@
 <head>
                 <!-- Google tag (gtag.js) -->
                 <script async src="https://www.googletagmanager.com/gtag/js?id=G-D0W8P8VPVJ"></script>
-                <script>
+                <script nonce="{{ csp_nonce() }}">
                     window.dataLayer = window.dataLayer || [];
                     function gtag(){dataLayer.push(arguments);} 
                     gtag('js', new Date());
@@ -14,6 +14,7 @@
 
         <!-- ====== META BASE / SEO ====== -->
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="robots" content="index, follow">
     <title>Ale's Haikus | Benvenuto!</title>
@@ -42,7 +43,7 @@
     <meta property="og:url" content="https://www.aleshaikus.me/">
     <meta name="twitter:card" content="summary_large_image">
         <!-- JSON-LD: Organization + WebSite -->
-        <script type="application/ld+json">
+        <script type="application/ld+json" nonce="{{ csp_nonce() }}">
         {
             "@context": "https://schema.org",
             "@type": "Organization",
@@ -54,7 +55,7 @@
             ]
         }
         </script>
-        <script type="application/ld+json">
+        <script type="application/ld+json" nonce="{{ csp_nonce() }}">
         {
             "@context": "https://schema.org",
             "@type": "WebSite",
@@ -227,25 +228,22 @@
     </style>
 
     <!-- Preload & Load Non-critical CSS (Landing specific) -->
-    <link rel="preload" href="{{ url_for('static', filename='css/landing.css') }}?v=0.94" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v=0.94"></noscript>
-    <link rel="preload" href="{{ url_for('static', filename='css/icons.css') }}?v=2.7" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.7"></noscript>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}?v=0.94">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}?v=2.7">
 
     <!-- Font Display Swap (minimal subset inline) -->
     <style>
     @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2) format('woff2');unicode-range:U+0000-00FF;}
     @font-face{font-family:'Playfair Display';font-style:italic;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/playfairdisplay/v36/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDYbtXK-F2qC0s.woff2) format('woff2');unicode-range:U+0000-00FF;}
     </style>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital@1&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital@1&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital@1&display=swap">
 
-    <script>document.documentElement.classList.add('js');</script>
+    <script nonce="{{ csp_nonce() }}">document.documentElement.classList.add('js');</script>
 
         
 
         <!-- Structured Data (WebSite + WebPage + FAQ) -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -262,7 +260,7 @@
       }
     }
     </script>
-    <script type="application/ld+json">
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -369,7 +367,7 @@
         </div>
     </section>
 
-    <!-- Share Popup Markup (fuori dallo <script>, hidden di default) -->
+    <!-- Share Popup Markup (fuori dallo script, hidden di default) -->
     <div id="sharePopupOverlay" class="share-overlay" aria-hidden="true" hidden></div>
     <div id="sharePopup" class="share-box" role="dialog" aria-label="Condividi" aria-hidden="true" tabindex="-1" hidden>
         <div class="share-header d-flex w-100 justify-content-between align-items-center">
@@ -415,11 +413,11 @@
     <p>&copy; <span id="year"></span> Ale's Haikus - presentato con orgoglio da <a href="https://github.com/aleloizz" rel="noopener noreferrer">aleloizz</a><br><small>dedicato a tutti i sognatori</small></p>
     </footer>
 
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     // Rimozione stato loading appena possibile
     window.addEventListener('DOMContentLoaded',()=>{document.body.classList.remove('loading');});
     </script>
-        <script>
+        <script nonce="{{ csp_nonce() }}">
         (function(){
             function sendEvent(name, params){
                 if (typeof window.gtag === 'function') {

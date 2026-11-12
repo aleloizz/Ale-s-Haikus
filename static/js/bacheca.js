@@ -5,7 +5,7 @@
  */
 
 // Sanificazione input lato client (riuso utilità condivisa)
-import { sanitizeInput } from './utils.js';
+import { sanitizeInput, getCsrfToken } from './utils.js?v=1.4.0';
 
 class BachecaManager {
     constructor() {
@@ -561,9 +561,13 @@ class BachecaManager {
 
             const response = await fetch(`/api/poems/${poemId}/like`, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                    'X-CSRF-Token': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: '{}'
             });
 
             if (!response.ok) {
@@ -659,10 +663,9 @@ class BachecaManager {
         const poemTextElement = poemCard.querySelector('.poem-text');
         if (!poemTextElement) return '';
 
-        let rawHtml = poemTextElement.innerHTML.replace(/<br\s*\/?>/gi, '\n');
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = rawHtml;
-        let cleanText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+        // Il template non inserisce più <br>: il testo è un text node e la
+        // formattazione è affidata a white-space: pre-line nel CSS.
+        let cleanText = (poemTextElement.textContent || '').trim();
 
         if (maxLength && cleanText.length > maxLength) {
             cleanText = cleanText.slice(0, maxLength - 1).trimEnd() + '…';
@@ -930,11 +933,8 @@ class BachecaManager {
             const author = card.getAttribute('data-poem-author')
                 || card.querySelector('.fw-medium')?.textContent?.trim()
                 || 'Poeta Anonimo';
-            let bodyHtml = card.querySelector('.poem-text')?.innerHTML || '';
-            bodyHtml = bodyHtml.replace(/<br\s*\/?>(\n)?/gi, '\n');
-            const tmp = document.createElement('div');
-            tmp.innerHTML = bodyHtml;
-            const text = (tmp.textContent || tmp.innerText || '').trim();
+            let bodyText = card.querySelector('.poem-text')?.textContent || '';
+            const text = bodyText.trim();
 
             const ver = (window.__ASSETS_VERSION__ || Date.now());
             const shareMod = await import(`./share.js?v=${ver}`);
@@ -1011,9 +1011,9 @@ class BachecaManager {
         if (!poemCard) return;
 
         const title = poemCard.querySelector('.card-title')?.textContent || 'Poesia';
-        let content = poemCard.querySelector('.poem-text')?.innerHTML || '';
+        let content = poemCard.querySelector('.poem-text')?.textContent || '';
         // Normalizza spazi iniziali causati dall'indentazione del template
-        content = this.sanitizePoemHtml(content);
+        content = this.normalizePoemText(content);
         const author = poemCard.querySelector('.fw-medium')?.textContent || 'Poeta Anonimo';
         const type = poemCard.querySelector('.badge-poem-type')?.textContent || 'Libero';
         const dateElement = poemCard.querySelector('.bi-clock')?.parentElement;
@@ -1026,14 +1026,14 @@ class BachecaManager {
             if (animate) {
                 this.elements.expandedContent.classList.add('switching');
                 setTimeout(() => {
-                    this.elements.expandedContent.innerHTML = content;
+                    this.elements.expandedContent.textContent = content;
                     this.postProcessExpandedContent();
                     this.elements.expandedContent.classList.remove('switching');
                     this.elements.expandedContent.classList.add('expanded-switching-enter');
                     setTimeout(() => this.elements.expandedContent.classList.remove('expanded-switching-enter'), 450);
                 }, 140);
             } else {
-                this.elements.expandedContent.innerHTML = content;
+                this.elements.expandedContent.textContent = content;
                 this.postProcessExpandedContent();
             }
         }
@@ -1041,11 +1041,18 @@ class BachecaManager {
             this.elements.expandedAuthor.textContent = author;
         }
         if (this.elements.expandedInfo) {
-            this.elements.expandedInfo.innerHTML = `
-                <i class="bi bi-bookmark me-1"></i>${type}
-                ${date ? ` • ${date}` : ''}
-                <span class="ms-2 small">${index + 1}/${this.expandedState.ids.length}</span>
-            `;
+            this.elements.expandedInfo.textContent = '';
+            const icon = document.createElement('i');
+            icon.className = 'bi bi-bookmark me-1';
+            const typeNode = document.createTextNode(type);
+            this.elements.expandedInfo.append(icon, typeNode);
+            if (date) {
+                this.elements.expandedInfo.append(document.createTextNode(` • ${date}`));
+            }
+            const position = document.createElement('span');
+            position.className = 'ms-2 small';
+            position.textContent = `${index + 1}/${this.expandedState.ids.length}`;
+            this.elements.expandedInfo.append(position);
         }
 
         // Pulsanti copia / like
@@ -1066,39 +1073,27 @@ class BachecaManager {
         }
     }
 
-    /** Rimuove indentazione artificiale (spazi/tab/newline iniziali) e spazi uniformi di ogni riga derivanti dal template */
-    sanitizePoemHtml(html) {
-        if (!html) return html;
-        // Rimuovi BOM/spazi iniziali
-        let cleaned = html.replace(/^([\s\u00A0]+)/, '');
-        // Suddividi sulle <br> preservando i tag
-        const parts = cleaned.split(/<br\s*\/?>/i);
-        // Calcola indentazione comune (solo spazi/tabs) tra righe non vuote
+    /** Rimuove indentazione artificiale (spazi/tab/newline iniziali) dal testo. */
+    normalizePoemText(text) {
+        if (!text) return '';
+        const lines = String(text).replace(/^([\s\u00A0]+)/, '').split('\n');
         let commonIndent = null;
-        const processed = parts.map(p => {
-            // Sostituisci &nbsp; con spazio per analisi
-            const txt = p.replace(/&nbsp;/g, ' ');
-            const match = txt.match(/^[ \t]+/);
-            if (match && txt.trim().length) {
-                if (commonIndent === null) commonIndent = match[0];
-                else {
-                    // Riduci commonIndent se differisce
-                    let ci = commonIndent;
-                    while (ci && !match[0].startsWith(ci)) {
-                        ci = ci.slice(0, -1);
-                    }
-                    commonIndent = ci;
+        lines.forEach((line) => {
+            if (!line.trim()) return;
+            const match = line.match(/^[ \t]+/);
+            if (!match) return;
+            if (commonIndent === null) {
+                commonIndent = match[0];
+            } else {
+                while (commonIndent && !match[0].startsWith(commonIndent)) {
+                    commonIndent = commonIndent.slice(0, -1);
                 }
             }
-            return p;
         });
         if (commonIndent && commonIndent.length > 1) {
-            cleaned = processed.map(p => p.replace(new RegExp('^' + commonIndent.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')), '')).join('<br>');
-        } else {
-            cleaned = processed.join('<br>');
+            return lines.map((line) => line.replace(commonIndent, '')).join('\n').replace(/^(\s|&nbsp;)+/, '');
         }
-        // Trim finale soft
-        return cleaned.replace(/^(\s|&nbsp;)+/, '');
+        return lines.join('\n').replace(/^(\s|&nbsp;)+/, '');
     }
 
     /** Post-processing del contenuto lungo: aggiunge gradient fade e pulsante toggle se necessario */
@@ -1111,11 +1106,11 @@ class BachecaManager {
 
         // Se il contenuto è molto lungo, incapsula
         if (container.scrollHeight > container.clientHeight * 1.15) {
-            const html = container.innerHTML;
-            container.innerHTML = '';
+            const text = container.textContent;
+            container.textContent = '';
             const inner = document.createElement('div');
             inner.className = 'expanded-scroll-inner';
-            inner.innerHTML = html;
+            inner.textContent = text;
             container.appendChild(inner);
 
             const fade = document.createElement('div');

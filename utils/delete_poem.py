@@ -14,11 +14,13 @@ def main():
 
     # Importi dentro al contesto app per usare la stessa config DB dell'istanza
     try:
-        from app import app
+        from app import create_app
         from models.poem import db
     except Exception as e:
         print(f"Errore: impossibile importare app/db: {e}")
         return 2
+
+    app = create_app()
 
     with app.app_context():
         if args.id is not None:

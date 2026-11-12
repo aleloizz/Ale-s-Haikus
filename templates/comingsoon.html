@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1e142c">
     <meta name="robots" content="noindex, nofollow">
@@ -261,9 +262,8 @@ body{
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Icons CSS -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"></noscript>
+    <!-- Icons CSS locale -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
     
     <!-- Font optimization -->
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
@@ -298,7 +298,7 @@ body{
 
 <body class="loading">
     <div class="main-wrapper">
-        <script>
+        <script nonce="{{ csp_nonce() }}">
             // Rimuove la classe loading quando la pagina è caricata
             window.addEventListener('load', () => {
                 document.body.classList.remove('loading');
@@ -429,7 +429,7 @@ body{
     </div>
 
     <!-- Lazy-load minimal JavaScript -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         // Funzionalità minimali per animazioni
         document.addEventListener('DOMContentLoaded', function() {
             // Aggiungi un piccolo effetto di hover ai bottoni

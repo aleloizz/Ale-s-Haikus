@@ -1,6 +1,6 @@
 from services.syllable_analyzer import conta_sillabe
 from services.rhyme_analyzer import analizza_rime, identifica_schema_poetico
-from config.constants import SCHEMI_POESIA
+from config.constants import POEM_TYPE_ALIASES, SCHEMI_POESIA
 
 def analizza_poesia_completa(testo, use_tolerance=False):
     """Analisi completa di una poesia"""
@@ -167,8 +167,10 @@ def identifica_tipo_poesia(num_versi, sillabe_per_verso, schema_rime, use_tolera
     return 'versi_liberi'  # Usa nome compatibile con SCHEMI_POESIA
 
 def verifica_metrica(tipo_poesia, num_versi, sillabe_per_verso, schema_rime, use_tolerance=False):
-    """Verifica se la poesia rispetta la metrica del tipo identificato"""
-    
+    """Verifica se la poesia rispetta la metrica del tipo identificato."""
+    tipo_poesia = (tipo_poesia or "").strip().lower()
+    tipo_poesia = POEM_TYPE_ALIASES.get(tipo_poesia, tipo_poesia)
+
     # Per i versi liberi, sempre valido
     if tipo_poesia in ['verso libero', 'versi_liberi']:
         return True
@@ -198,20 +200,9 @@ def verifica_metrica(tipo_poesia, num_versi, sillabe_per_verso, schema_rime, use
         return False
     
     if tipo_poesia not in SCHEMI_POESIA:
-        # Se il tipo non è negli schemi, ma è una variante riconosciuta, cerca il tipo base
-        tipo_base = None
-        if 'quartina' in tipo_poesia:
-            tipo_base = 'quartina'
-        elif 'terzina' in tipo_poesia:
-            tipo_base = 'terzina_dantesca'
-        elif 'distico' in tipo_poesia:
-            return True  # I distici sono sempre validi
-        
-        if tipo_base and tipo_base in SCHEMI_POESIA:
-            tipo_poesia = tipo_base
-        else:
-            return False  # Tipo non riconosciuto
-    
+        # Nessun fallback per substring: solo tipi canonici o alias espliciti.
+        return False
+
     schema = SCHEMI_POESIA[tipo_poesia]
     
     # Verifica sillabe per verso (se specificato) - con tolleranza opzionale

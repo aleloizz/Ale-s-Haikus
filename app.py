@@ -1,393 +1,616 @@
 """
-Ale's Haikus - Webapp di analisi poetica
-Versione modulare per miglior manutenibilità
+Ale's Haikus - Webapp di analisi poetica.
+
+Factory applicativa unica. Le scelte di sicurezza (proxy, CSRF, CSP, host
+fidati, logging) sono centralizzate qui e valgono per tutte le route.
 """
 import os
-from flask import Flask, request, render_template, redirect, send_from_directory, url_for, make_response
+import secrets
+import time
+import uuid
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
-import os
+from xml.sax.saxutils import escape as xml_escape
 
-# Tentativo import Flask-Compress (opzionale per sviluppo)
-try:
-    from flask_compress import Compress
-    COMPRESS_AVAILABLE = True
-except ImportError:
-    COMPRESS_AVAILABLE = False
-    print("Flask-Compress non disponibile - continuando senza compressione")
+from flask import (
+    Flask,
+    g,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
+from sqlalchemy import text
+from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Import dei moduli personalizzati
 from config.app_config import config
+from extensions import limiter
+from logging_config import configure_logging
 from models.poem import db
 from routes.api import api_bp
 from routes.web import web_bp
 from services.syllable_analyzer import conta_sillabe
+from utils.security import csrf_protect, get_csrf_token, origin_protect
+from utils.text_processing import BLEACH_AVAILABLE
 
 try:
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
-    LIMITER_AVAILABLE = True
-except ImportError:
-    Limiter = None
-    get_remote_address = None
-    LIMITER_AVAILABLE = False
+    from flask_compress import Compress
+except ImportError:  # pragma: no cover - dipendenza opzionale
+    Compress = None
+
+
+_CONFIG_ALIASES = {
+    "dev": "development",
+    "prod": "production",
+    "test": "testing",
+}
+
+
+def _resolve_config_name(config_name=None) -> str:
+    """Risolve il nome configurazione senza mai cadere su development."""
+    name = (
+        config_name
+        or os.environ.get("APP_CONFIG")
+        or os.environ.get("FLASK_ENV")
+        or "production"
+    )
+    name = _CONFIG_ALIASES.get(str(name).strip().lower(), str(name).strip().lower())
+    return name if name in config else "production"
+
+
+def _request_id() -> str:
+    """Request id fornito dal proxy se ragionevole, altrimenti generato."""
+    supplied = (request.headers.get("X-Request-ID") or "").strip()
+    if supplied and len(supplied) <= 64 and all(
+        ch.isalnum() or ch in "-_." for ch in supplied
+    ):
+        return supplied
+    return uuid.uuid4().hex
+
+
+def _is_api_request() -> bool:
+    return request.path.startswith("/api/")
+
+
+def current_base_url() -> str:
+    """Base URL canonica configurata, mai derivata dall'header Host."""
+    from flask import current_app
+
+    return (current_app.config.get("CANONICAL_BASE_URL") or "").rstrip("/")
+
 
 def create_app(config_name=None):
-    """Factory function per creare l'app Flask"""
-
-    # Determina l'ambiente (preferisci APP_CONFIG se presente)
-    if config_name is None:
-        config_name = os.environ.get('APP_CONFIG') or os.environ.get('FLASK_ENV') or 'production'
-        # Se valore non riconosciuto, NON cadere su dev: usa produzione
-        if config_name not in config:
-            config_name = 'production'
-    
-    # Crea l'app con static folder abilitato ma useremo la nostra route per override
-    app = Flask(__name__, static_folder='static', template_folder='templates')
-    
-    # Carica la configurazione
+    """Crea e configura l'applicazione Flask."""
+    config_name = _resolve_config_name(config_name)
+    app = Flask(__name__, static_folder="static", template_folder="templates")
     app.config.from_object(config[config_name])
+    app.config["APP_CONFIG_NAME"] = config_name
 
-    # Fail-fast in produzione se manca SECRET_KEY o è evidente un placeholder
-    if config_name == 'production':
-        sk = app.config.get('SECRET_KEY')
-        if not sk or sk.startswith('dev-secret-key'):
-            raise RuntimeError('SECRET_KEY non impostata correttamente per ambiente di produzione: definire variabile d\'ambiente SECRET_KEY.')
-    
-    # Inizializza le estensioni
-    db.init_app(app)
-    if LIMITER_AVAILABLE:
-        # Rate limiting per-IP con storage in memoria (Heroku: 1 dyno -> ok)
-        limiter = Limiter(
-            get_remote_address,
-            app=app,
-            default_limits=["200 per hour"],
-            storage_uri="memory://",
+    # --- Fail-fast dei requisiti di produzione ---------------------------
+    if config_name == "production":
+        secret_key = app.config.get("SECRET_KEY")
+        if not secret_key or secret_key.startswith("dev-secret-key"):
+            raise RuntimeError(
+                "SECRET_KEY non impostata correttamente per la produzione."
+            )
+        if len(secret_key) < 32:
+            raise RuntimeError(
+                "SECRET_KEY troppo corta: usare almeno 32 caratteri casuali."
+            )
+
+        database_uri = app.config.get("SQLALCHEMY_DATABASE_URI")
+        if not database_uri:
+            raise RuntimeError(
+                "DATABASE_URL non impostata: la produzione richiede PostgreSQL."
+            )
+        if not database_uri.startswith(
+            ("postgresql://", "postgresql+psycopg2://")
+        ):
+            raise RuntimeError(
+                "DATABASE_URL deve puntare a PostgreSQL in produzione."
+            )
+
+        if not BLEACH_AVAILABLE:
+            raise RuntimeError(
+                "bleach non è importabile: la sanificazione fail-closed è "
+                "obbligatoria in produzione."
+            )
+
+        if not app.config.get("TRUSTED_HOSTS"):
+            raise RuntimeError(
+                "TRUSTED_HOSTS non configurato: rifiuto di avviarsi senza "
+                "validazione dell'header Host."
+            )
+        canonical = app.config.get("CANONICAL_BASE_URL") or ""
+        if not canonical.startswith("https://"):
+            raise RuntimeError(
+                "CANONICAL_BASE_URL deve essere un URL https in produzione."
+            )
+
+        if not app.config.get("CSRF_ENABLED", True):
+            raise RuntimeError("CSRF_ENABLED non può essere disattivato in produzione.")
+        if not app.config.get("RATELIMIT_ENABLED", True):
+            raise RuntimeError(
+                "RATELIMIT_ENABLED non può essere disattivato in produzione."
+            )
+        if not app.config.get("SESSION_COOKIE_SECURE", False):
+            raise RuntimeError(
+                "SESSION_COOKIE_SECURE deve essere true in produzione."
+            )
+        if not app.config.get("SESSION_COOKIE_HTTPONLY", True):
+            raise RuntimeError(
+                "SESSION_COOKIE_HTTPONLY deve essere true in produzione."
+            )
+        if app.config.get("SESSION_COOKIE_SAMESITE") not in {"Lax", "Strict"}:
+            raise RuntimeError(
+                "SESSION_COOKIE_SAMESITE deve essere Lax o Strict in produzione."
+            )
+
+    # --- Proxy fidati ----------------------------------------------------
+    # Cloudflare Tunnel / Heroku aggiungono un solo hop. X-Forwarded-Host non
+    # viene mai usato per ricostruire l'host: l'host resta quello della
+    # richiesta e viene validato da TRUSTED_HOSTS.
+    proxy_count = int(app.config.get("TRUSTED_PROXY_COUNT") or 0)
+    if proxy_count > 0:
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=proxy_count,
+            x_proto=proxy_count,
+            x_host=0,
+            x_port=0,
+            x_prefix=0,
         )
-        print("✅ Rate limiting attivato")
-    
-    # Inizializza compressione se disponibile
-    if COMPRESS_AVAILABLE:
+
+    # --- Estensioni ------------------------------------------------------
+    db.init_app(app)
+    limiter.init_app(app)
+
+    if Compress is not None:
         Compress(app)
-        print("✅ Compressione gzip attivata")
-    
-    # Registra i blueprint
+
+    configure_logging(app)
+
+    # --- Blueprint -------------------------------------------------------
     app.register_blueprint(api_bp)
     app.register_blueprint(web_bp)
-    
-    # Crea le tabelle del database
-    with app.app_context():
-        db.create_all()
 
-    # Expose optional site verification tokens to templates (Bing/DDG via Bing, Google)
+    # Schema temporaneo: gated da AUTO_CREATE_DB. In produzione il default è
+    # False; il bootstrap iniziale può usare ``flask --app app init-db``.
+    if app.config.get("AUTO_CREATE_DB"):
+        with app.app_context():
+            db.create_all()
+
+    @app.cli.command("init-db")
+    def init_db_command():
+        """Crea lo schema iniziale (baseline temporanea, in attesa di Alembic)."""
+        db.create_all()
+        print("Schema iniziale creato.")
+
+    # --- Contesto template ----------------------------------------------
     @app.context_processor
-    def inject_verification_meta():
+    def inject_security_context():
+        def csp_nonce():
+            return getattr(g, "csp_nonce", "")
+
         return dict(
-            #BING_SITE_VERIFICATION=os.environ.get('BING_SITE_VERIFICATION'),
-            GOOGLE_SITE_VERIFICATION=os.environ.get('GOOGLE_SITE_VERIFICATION')
+            csrf_token=get_csrf_token,
+            csp_nonce=csp_nonce,
+            GOOGLE_SITE_VERIFICATION=os.environ.get("GOOGLE_SITE_VERIFICATION"),
+            BING_SITE_VERIFICATION=os.environ.get("BING_SITE_VERIFICATION"),
         )
 
-    # Helper per cache-busting basato su mtime del file statico
     @app.context_processor
     def utility_processor():
         def static_file(filename: str) -> str:
             try:
                 file_path = os.path.join(app.static_folder, filename)
-                mtime = int(os.path.getmtime(file_path))
+                version = int(os.path.getmtime(file_path))
             except Exception:
-                # Fallback: timestamp corrente per evitare hard cache in caso di errori
-                mtime = int(datetime.utcnow().timestamp())
-            return url_for('static', filename=filename, v=mtime)
+                version = int(datetime.now(timezone.utc).timestamp())
+            return url_for("static", filename=filename, v=version)
+
         return dict(static_file=static_file)
-    
-    # Routes specifiche che rimangono nel main
-    @app.route('/sitemap.xml')
-    def sitemap_index():
-        """Sitemap index che punta alle sottositemap statiche e dinamiche.
-        Conserva un profilo conservativo e non impatta altre route.
-        """
-        # Costruisce un sitemapindex minimale con due sotto-sitemaps
-        today = datetime.utcnow().date().isoformat()
-        base = request.url_root.rstrip('/')
-        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>{base + url_for('sitemap_static')}</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>{base + url_for('sitemap_poesie')}</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-</sitemapindex>"""
-        resp = make_response(xml)
-        resp.headers['Content-Type'] = 'application/xml; charset=utf-8'
-        # Cache breve per permettere refresh quotidiano
-        resp.headers['Cache-Control'] = 'public, max-age=3600'
-        return resp
 
-    @app.route('/sitemap-static.xml')
-    def sitemap_static():
-        """Sitemap con le pagine principali statiche (landing, analizzatore, bacheca, wiki)."""
-        today = datetime.utcnow().date().isoformat()
-        # Forza https negli URL assoluti
-        def abs_url(endpoint):
-            return url_for(endpoint, _external=True, _scheme='https')
+    # --- Hook di richiesta ----------------------------------------------
+    @app.before_request
+    def assign_request_context():
+        g.request_id = _request_id()
+        g.csp_nonce = secrets.token_urlsafe(16)
+        g.request_started = time.monotonic()
 
-        entries = [
-            {
-                'loc': abs_url('web.index'),
-                'lastmod': today,
-                'changefreq': 'weekly',
-                'priority': '1.0'
-            },
-            {
-                'loc': abs_url('web.analyzer'),
-                'lastmod': today,
-                'changefreq': 'weekly',
-                'priority': '0.8'
-            },
-            {
-                'loc': abs_url('web.bacheca'),
-                'lastmod': today,
-                'changefreq': 'daily',
-                'priority': '0.8'
-            },
-            {
-                'loc': abs_url('web.wiki'),
-                'lastmod': today,
-                'changefreq': 'weekly',
-                'priority': '0.7'
-            },
+    @app.before_request
+    def enforce_csrf():
+        return csrf_protect()
+
+    @app.before_request
+    def enforce_same_origin():
+        return origin_protect()
+
+    @app.before_request
+    def enforce_https():
+        """Redirect HTTPS costruito sulla base canonica, non sull'Host."""
+        if app.testing or app.debug:
+            return None
+        if request.path == "/healthz":
+            return None
+        if request.is_secure:
+            return None
+        if app.config.get("PREFERRED_URL_SCHEME") != "https":
+            return None
+
+        if _is_api_request():
+            return (
+                jsonify(
+                    {
+                        "error": True,
+                        "message": "HTTPS richiesto per le API.",
+                    }
+                ),
+                400,
+            )
+
+        base = current_base_url()
+        if not base.startswith("https://"):
+            return None
+        target = f"{base}{request.full_path.rstrip('?')}"
+        if target == request.url:
+            return None
+        return redirect(target, code=301)
+
+    @app.after_request
+    def security_headers(response):
+        nonce = getattr(g, "csp_nonce", "")
+        script_sources = "'self' https://www.googletagmanager.com"
+        if nonce:
+            script_sources = (
+                f"'self' 'nonce-{nonce}' https://www.googletagmanager.com"
+            )
+        csp_directives = [
+            "default-src 'self'",
+            f"script-src {script_sources}",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https:",
+            "connect-src 'self' https://www.google-analytics.com "
+            "https://*.google-analytics.com https://www.googletagmanager.com",
+            "manifest-src 'self'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "object-src 'none'",
         ]
+        if app.config.get("PREFERRED_URL_SCHEME") == "https":
+            csp_directives.append("upgrade-insecure-requests")
 
+        response.headers["Content-Security-Policy"] = "; ".join(csp_directives)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "0"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = (
+            "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        )
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+
+        if request.is_secure or app.config.get("PREFERRED_URL_SCHEME") == "https":
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
+
+        request_id = getattr(g, "request_id", None)
+        if request_id:
+            response.headers["X-Request-ID"] = request_id
+        return response
+
+    @app.after_request
+    def cache_headers(response):
+        """Cache esplicita: statics versionati, HTML mai in cache."""
+        path = request.path
+        if path.startswith("/static/"):
+            filename = path.rsplit("/", 1)[-1]
+            expires_one_year = format_datetime(
+                datetime.now(timezone.utc) + timedelta(days=365), usegmt=True
+            )
+            if filename.endswith((".css", ".js")):
+                response.headers["Cache-Control"] = "public, max-age=31536000"
+                response.headers["Expires"] = expires_one_year
+            elif filename.endswith(
+                (".png", ".jpg", ".jpeg", ".webp", ".avif", ".ico", ".svg")
+            ):
+                response.headers["Cache-Control"] = (
+                    "public, max-age=31536000, immutable"
+                )
+                response.headers["Expires"] = expires_one_year
+            elif filename.endswith((".woff", ".woff2", ".ttf", ".otf")):
+                response.headers["Cache-Control"] = (
+                    "public, max-age=31536000, immutable"
+                )
+            elif filename.endswith((".xml", ".txt", ".json", ".webmanifest")):
+                response.headers["Cache-Control"] = "public, max-age=3600"
+            else:
+                response.headers["Cache-Control"] = "public, max-age=86400"
+        elif response.content_type and "text/html" in response.content_type:
+            response.headers["Cache-Control"] = (
+                "no-store, no-cache, must-revalidate, max-age=0"
+            )
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        elif _is_api_request():
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
+    @app.after_request
+    def request_logging(response):
+        if request.path.startswith("/static/"):
+            return response
+        started = getattr(g, "request_started", None)
+        duration_ms = (
+            (time.monotonic() - started) * 1000 if started is not None else 0
+        )
+        app.logger.info(
+            "request_completed method=%s path=%s status=%s duration_ms=%.1f "
+            "request_id=%s",
+            request.method,
+            request.path,
+            response.status_code,
+            duration_ms,
+            getattr(g, "request_id", "-"),
+        )
+        return response
+
+    # --- Error handling --------------------------------------------------
+    @app.errorhandler(NotFound)
+    def handle_not_found(error):
+        if _is_api_request():
+            return (
+                jsonify({"error": True, "message": "Risorsa non trovata"}),
+                404,
+            )
+        return render_template("404.html"), 404
+
+    @app.errorhandler(413)
+    def handle_request_too_large(error):
+        if _is_api_request():
+            return (
+                jsonify(
+                    {
+                        "error": True,
+                        "error_type": "payload_too_large",
+                        "message": "Richiesta troppo grande.",
+                    }
+                ),
+                413,
+            )
+        return "Richiesta troppo grande.", 413
+
+    @app.errorhandler(429)
+    def handle_rate_limited(error):
+        retry_after = getattr(error, "retry_after", None)
+        response = (
+            jsonify(
+                {
+                    "error": True,
+                    "error_type": "rate_limited",
+                    "message": "Troppe richieste. Riprova più tardi.",
+                }
+            )
+            if _is_api_request()
+            else ("Troppe richieste. Riprova più tardi.", 429)
+        )
+        if isinstance(response, tuple):
+            body, status = response
+            result = app.make_response((body, status))
+        else:
+            result = app.make_response(response)
+            result.status_code = 429
+        if retry_after:
+            result.headers["Retry-After"] = str(retry_after)
+        return result
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(error):
+        if _is_api_request():
+            return (
+                jsonify(
+                    {
+                        "error": True,
+                        "message": error.description or "Errore HTTP",
+                    }
+                ),
+                error.code or 500,
+            )
+        return error
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_exception(error):
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        app.logger.exception(
+            "unhandled_exception request_id=%s path=%s",
+            getattr(g, "request_id", "-"),
+            request.path,
+        )
+        if _is_api_request():
+            return (
+                jsonify(
+                    {
+                        "error": True,
+                        "message": "Errore interno del server.",
+                    }
+                ),
+                500,
+            )
+        return render_template("500.html"), 500
+
+    # --- Sitemap, PWA e file speciali -----------------------------------
+    def _sitemap_response(xml: str, max_age: int):
+        response = make_response(xml)
+        response.headers["Content-Type"] = "application/xml; charset=utf-8"
+        response.headers["Cache-Control"] = f"public, max-age={max_age}"
+        return response
+
+    @app.route("/sitemap.xml")
+    def sitemap_index():
+        today = datetime.now(timezone.utc).date().isoformat()
+        base = current_base_url()
+        xml = "\n".join(
+            [
+                '<?xml version="1.0" encoding="UTF-8"?>',
+                '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+                "  <sitemap>",
+                f"    <loc>{xml_escape(base + url_for('sitemap_static'))}</loc>",
+                f"    <lastmod>{today}</lastmod>",
+                "  </sitemap>",
+                "  <sitemap>",
+                f"    <loc>{xml_escape(base + url_for('sitemap_poesie'))}</loc>",
+                f"    <lastmod>{today}</lastmod>",
+                "  </sitemap>",
+                "</sitemapindex>",
+            ]
+        )
+        return _sitemap_response(xml, 3600)
+
+    @app.route("/sitemap-static.xml")
+    def sitemap_static():
+        today = datetime.now(timezone.utc).date().isoformat()
+        base = current_base_url()
+        entries = [
+            (url_for("web.index"), "weekly", "1.0"),
+            (url_for("web.analyzer"), "weekly", "0.8"),
+            (url_for("web.bacheca"), "daily", "0.8"),
+            (url_for("web.wiki"), "weekly", "0.7"),
+        ]
         parts = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
-            '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
-            '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         ]
-        for e in entries:
-            parts.append('  <url>')
-            parts.append(f"    <loc>{e['loc']}</loc>")
-            parts.append(f"    <lastmod>{e['lastmod']}</lastmod>")
-            parts.append(f"    <changefreq>{e['changefreq']}</changefreq>")
-            parts.append(f"    <priority>{e['priority']}</priority>")
-            parts.append('  </url>')
-        parts.append('</urlset>')
-        xml = "\n".join(parts)
+        for path, changefreq, priority in entries:
+            parts.extend(
+                [
+                    "  <url>",
+                    f"    <loc>{xml_escape(base + path)}</loc>",
+                    f"    <lastmod>{today}</lastmod>",
+                    f"    <changefreq>{changefreq}</changefreq>",
+                    f"    <priority>{priority}</priority>",
+                    "  </url>",
+                ]
+            )
+        parts.append("</urlset>")
+        return _sitemap_response("\n".join(parts), 3600)
 
-        resp = make_response(xml)
-        resp.headers['Content-Type'] = 'application/xml; charset=utf-8'
-        resp.headers['Cache-Control'] = 'public, max-age=3600'
-        return resp
-
-    @app.route('/sitemap-poesie.xml')
+    @app.route("/sitemap-poesie.xml")
     def sitemap_poesie():
-        """Sitemap dinamica per le poesie pubblicate.
-        Limita a un massimo ragionevole per non appesantire la risposta.
-        """
-        # Import locale per evitare cicli e carichi all'avvio
         from models.poem import Poem
-        # Limite conservativo (modificabile in futuro)
-        LIMIT = 5000
+
+        base = current_base_url()
         try:
-            poems = Poem.query.order_by(Poem.created_at.desc()).limit(LIMIT).all()
-        except Exception as e:
-            print(f"Errore caricamento poesie per sitemap: {e}")
+            poems = (
+                Poem.query.order_by(Poem.created_at.desc()).limit(5000).all()
+            )
+        except Exception:
+            app.logger.exception("sitemap_poems_query_failed")
             poems = []
 
-        def poem_url(pid: int) -> str:
-            return url_for('web.dettaglio_poesia', poesia_id=pid, _external=True, _scheme='https')
-
-        def to_date(dt) -> str:
-            try:
-                return (dt or datetime.utcnow()).date().isoformat()
-            except Exception:
-                return datetime.utcnow().date().isoformat()
-
         parts = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
-            '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
-            '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         ]
-        for p in poems:
-            parts.append('  <url>')
-            parts.append(f"    <loc>{poem_url(p.id)}</loc>")
-            parts.append(f"    <lastmod>{to_date(p.created_at)}</lastmod>")
-            parts.append("    <changefreq>weekly</changefreq>")
-            parts.append("    <priority>0.6</priority>")
-            parts.append('  </url>')
-        parts.append('</urlset>')
-        xml = "\n".join(parts)
+        for poem in poems:
+            try:
+                lastmod = (poem.created_at or datetime.now(timezone.utc)).date().isoformat()
+            except Exception:
+                lastmod = datetime.now(timezone.utc).date().isoformat()
+            parts.extend(
+                [
+                    "  <url>",
+                    f"    <loc>{xml_escape(base + url_for('web.dettaglio_poesia', poesia_id=poem.id))}</loc>",
+                    f"    <lastmod>{lastmod}</lastmod>",
+                    "    <changefreq>weekly</changefreq>",
+                    "    <priority>0.6</priority>",
+                    "  </url>",
+                ]
+            )
+        parts.append("</urlset>")
+        return _sitemap_response("\n".join(parts), 1800)
 
-        resp = make_response(xml)
-        resp.headers['Content-Type'] = 'application/xml; charset=utf-8'
-        # Le poesie cambiano con frequenza, mantenere cache breve
-        resp.headers['Cache-Control'] = 'public, max-age=1800'
-        return resp
-
-    # Service Worker route (served from root scope)
-    @app.route('/sw.js')
+    @app.route("/sw.js")
     def service_worker():
-        response = send_from_directory('static', 'sw.js')
-        # Ensure no caching so updates roll out
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-        response.mimetype = 'application/javascript'
+        response = send_from_directory("static", "sw.js")
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        response.mimetype = "application/javascript"
         return response
-    
-    # robots.txt dalla root per i crawler
-    @app.route('/robots.txt')
+
+    @app.route("/robots.txt")
     def robots_txt():
-        response = send_from_directory('static', 'robots.txt')
-        # Cache breve: facilita aggiornamenti e riduce rischi di contenuto "stale"
-        response.headers['Cache-Control'] = 'public, max-age=300'
-        response.mimetype = 'text/plain'
+        response = send_from_directory("static", "robots.txt")
+        response.headers["Cache-Control"] = "public, max-age=300"
+        response.mimetype = "text/plain"
         return response
-    
-    def _http_expires_one_year_from_now() -> str:
-        """Restituisce una data Expires HTTP (RFC 1123) a +1 anno da ora (UTC)."""
-        return format_datetime(datetime.now(timezone.utc) + timedelta(days=365), usegmt=True)
 
-    # Override della route built-in per static files con cache ottimizzata
-    @app.route('/static/<path:filename>')
-    def static_files(filename):
-        response = send_from_directory(app.static_folder, filename)
-        expires_one_year = _http_expires_one_year_from_now()
-        
-        # Configurazione cache per diversi tipi di file
-        if filename.endswith(('.css', '.js')):
-            # CSS e JS: cache per 1 anno con validazione
-            response.cache_control.max_age = 31536000  # 1 anno
-            response.cache_control.public = True
-            response.cache_control.must_revalidate = False
-            # Aggiungi ETag per validazione
-            response.add_etag()
-            # Header espliciti per sovrascrivere proxy
-            response.headers['Cache-Control'] = 'public, max-age=31536000'
-            response.headers['Expires'] = expires_one_year
-        elif filename.endswith(('.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg')):
-            # Immagini e icone: cache per 1 anno
-            response.cache_control.max_age = 31536000  # 1 anno
-            response.cache_control.public = True
-            response.cache_control.immutable = True
-            # Header espliciti
-            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-            response.headers['Expires'] = expires_one_year
-        elif filename.endswith(('.woff', '.woff2', '.ttf', '.otf')):
-            # Font: cache per 1 anno
-            response.cache_control.max_age = 31536000  # 1 anno
-            response.cache_control.public = True
-            response.cache_control.immutable = True
-        elif filename.endswith(('.xml', '.txt', '.json')):
-            # File di configurazione: cache breve con validazione
-            response.cache_control.max_age = 3600  # 1 ora
-            response.cache_control.public = True
-            response.add_etag()
-        else:
-            # Altri file: cache media
-            response.cache_control.max_age = 86400  # 1 giorno
-            response.cache_control.public = True
-            
+    @app.route("/healthz")
+    def healthz():
+        try:
+            db.session.execute(text("SELECT 1"))
+        except Exception:
+            app.logger.exception(
+                "healthcheck_failed request_id=%s", getattr(g, "request_id", "-")
+            )
+            response = jsonify({"status": "error"})
+            response.status_code = 503
+            response.headers["Cache-Control"] = "no-store"
+            return response
+        response = jsonify({"status": "ok"})
+        response.headers["Cache-Control"] = "no-store"
         return response
-    
-    @app.before_request
-    def enforce_https_and_www():
-        """Forza HTTPS (solo in produzione reale) evitando loop in test/local."""
-        # Evita su test client / strumenti locali e se già HTTPS
-        if app.testing:
-            return None
-        if app.debug:
-            return None
-        proto = request.headers.get('X-Forwarded-Proto', 'http')
-        if proto != 'https':
-            # Evita redirect infinito se host è localhost/heroku local
-            target = request.url.replace('http://', 'https://', 1)
-            if target == request.url:
-                return None
-            return redirect(target, code=301)
-    
-    @app.after_request
-    def add_security_headers(response):
-        """Aggiunge header di sicurezza e cache ottimizzati"""
-        # Header di sicurezza
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options'] = 'DENY'
-        response.headers['X-XSS-Protection'] = '1; mode=block'
-        
-        # FORZA CACHE HEADERS per static files anche se serviti da Heroku
-        path = request.path
-        if path.startswith('/static/'):
-            filename = path.split('/')[-1]
-            expires_one_year = _http_expires_one_year_from_now()
-            
-            if any(filename.endswith(ext) for ext in ['.css', '.js']):
-                # CSS e JS: cache per 1 anno
-                response.headers['Cache-Control'] = 'public, max-age=31536000'
-                response.headers['Expires'] = expires_one_year
-            elif any(filename.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.webp', '.ico', '.svg']):
-                # Immagini: cache per 1 anno con immutable
-                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-                response.headers['Expires'] = expires_one_year
-            elif any(filename.endswith(ext) for ext in ['.woff', '.woff2', '.ttf', '.otf']):
-                # Font: cache per 1 anno con immutable
-                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-            elif any(filename.endswith(ext) for ext in ['.xml', '.txt', '.json']):
-                # Configurazioni: cache breve
-                response.headers['Cache-Control'] = 'public, max-age=3600'
-            else:
-                # Altri static: cache media
-                response.headers['Cache-Control'] = 'public, max-age=86400'
-        
-        # Pagine HTML dinamiche: niente cache per evitare contenuti stantii (bacheca, dettagli, ecc.)
-        elif response.content_type and 'text/html' in response.content_type:
-            # Disabilita cache per assicurare che azioni come delete siano visibili subito
-            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-            response.headers['Pragma'] = 'no-cache'
-            response.headers['Expires'] = '0'
-        
-        return response
-    
-    # Route legacy per analisi haiku (mantenuta per compatibilità)
-    @app.route('/analizza', methods=['POST'])
+
+    # --- Route legacy ----------------------------------------------------
+    @app.route("/analizza", methods=["POST"])
     def analizza_haiku():
-        """Analisi specifica per haiku - route legacy"""
-        text = request.form.get("text", "").strip()
-        
-        if not text:
+        """Analisi specifica per haiku - route legacy."""
+        text_input = request.form.get("text", "").strip()
+
+        if not text_input:
             return render_template("index.html", haiku="", message="Inserisci del testo!")
-        
-        versi = [verso.strip() for verso in text.split('\n') if verso.strip()]
-        
+
+        versi = [verso.strip() for verso in text_input.split("\n") if verso.strip()]
+
         if len(versi) != 3:
-            return render_template("index.html", haiku=text, 
-                                 message="Devi inserire esattamente 3 versi! >:(")
-        
+            return render_template(
+                "index.html",
+                haiku=text_input,
+                message="Devi inserire esattamente 3 versi! >:(",
+            )
+
         results = []
-        for i, verso in enumerate(versi):
-            count = conta_sillabe(verso.strip())
-            results.append({
-                'verse': i+1,
-                'syllables': count,
-                'target': [5,7,5][i]
-            })
-        
+        for index, verso in enumerate(versi):
+            results.append(
+                {
+                    "verse": index + 1,
+                    "syllables": conta_sillabe(verso),
+                    "target": [5, 7, 5][index],
+                }
+            )
+
         errors = [
-            f"Il verso {res['verse']} dovrebbe avere {res['target']} sillabe, ne ha {res['syllables']}."
-            for res in results if res['syllables'] != res['target']
+            f"Il verso {result['verse']} dovrebbe avere {result['target']} sillabe, ne ha {result['syllables']}."
+            for result in results
+            if result["syllables"] != result["target"]
         ]
-        
-        message = "Il tuo haiku è perfetto! :3" if not errors else "<br>".join(errors)
-        return render_template("index.html", haiku=text, message=message)
-    
+
+        message = (
+            "Il tuo haiku è perfetto! :3"
+            if not errors
+            else "\n".join(errors)
+        )
+        return render_template("index.html", haiku=text_input, message=message)
+
     return app
-
-# Crea l'istanza dell'app
-app = create_app()
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)

@@ -4,7 +4,32 @@
  */
 
 /**
- * Sanifica l'input dell'utente rimuovendo caratteri pericolosi
+ * Recupera il token CSRF dalla meta tag iniettata dal server.
+ * @returns {string}
+ */
+export function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? (meta.getAttribute('content') || '') : '';
+}
+
+/**
+ * Escape per valori dinamici inseriti in template HTML statici.
+ * Non sostituisce textContent, ma evita injection dove l'HTML è necessario.
+ * @param {*} value
+ * @returns {string}
+ */
+export function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Sanifica l'input dell'utente rimuovendo caratteri pericolosi.
+ * È solo un'aiuto UX: la difesa autoritativa è lato server.
  * @param {string} input - Testo da sanificare
  * @returns {string} Testo sanificato
  */
