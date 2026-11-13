@@ -29,9 +29,11 @@ Questo step introduce i file di deployment. La scelta di collocazione è:
 - `web`: app + Gunicorn, reti `public_net` e `internal_net`, porta solo su
   `127.0.0.1`.
 - `db`: PostgreSQL 17 Alpine pinnato, solo `internal_net`, volume nominato,
-  password da Docker secret.
+  password da Docker secret. L'healthcheck usa TCP (`127.0.0.1:5432`) per non
+  confondere il server temporaneo di `initdb` con il database pronto.
 - `redis`: Redis 7 Alpine pinnato, solo `internal_net`, password e configurazione
   da Docker secret, persistenza disabilitata per non consumare la microSD.
+  `maxmemory` è 64 MB, sotto il limite container di 128 MB.
 - `db-init`: servizio one-shot nel profilo `tools` per creare lo schema
   iniziale.
 - Limiti: web 384 MB / 1.5 CPU, DB 512 MB / 1 CPU, Redis 128 MB / 0.5 CPU.
@@ -54,11 +56,12 @@ permessi `0600` e la directory `0700`, senza stampare i valori.
 Senza Docker Engine nell'ambiente di creazione:
 
 ```bash
+# dalla cartella aleshaikus-deploy
 docker compose config --quiet
 docker compose --profile tools config --quiet
-hadolint ../Ale-s-Haikus/Dockerfile
-trivy config Ale-s-Haikus/Dockerfile
-trivy fs Ale-s-Haikus
+hadolint ../Ale-s-Haikus/Dockerfile   # solo x86_64/arm64, non ARMv7
+trivy config ../Ale-s-Haikus/Dockerfile
+trivy fs ../Ale-s-Haikus
 ```
 
 Risultati:
@@ -67,10 +70,15 @@ Risultati:
 - Hadolint: nessun warning/errore.
 - Trivy config: 0 misconfigurazioni HIGH/CRITICAL sul Dockerfile.
 - Trivy fs: 0 vulnerabilità HIGH/CRITICAL su `requirements.txt`.
+- `pip-audit`: nessuna vulnerabilità nota.
 - Factory di produzione avviata con i segreti letti da file.
-- Test applicativi: 41 passed.
+- Test applicativi: 42 passed.
 
-La build e l'avvio effettivi vanno eseguiti sul Tinker Board.
+La build e l'avvio effettivi vanno eseguiti sul Tinker Board. Hadolint non
+pubblica binari per `linux/arm/v7` e l'immagine Docker ufficiale non supporta
+questa architettura: va eseguito su laptop o in CI. Trivy invece ha un pacchetto
+`armhf` (binario statico) utilizzabile sul Tinker Board, ma resta opzionale.
+Il repository include un workflow CI che esegue Hadolint, build e Trivy.
 
 Nota: Trivy segnala CVE HIGH non corrette nelle immagini base Debian/Alpine
 (per lo più senza patch). Il Dockerfile applica `apt-get upgrade` per le patch

@@ -56,8 +56,12 @@ def _database_url():
     progetto installa psycopg2, quindi il driver viene reso esplicito.
     """
     url = env_value("DATABASE_URL")
-    if url and url.startswith("postgres://"):
-        url = "postgresql+psycopg2://" + url[len("postgres://") :]
+    if not url:
+        return url
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://") :]
+    if url.startswith("postgresql://"):
+        url = "postgresql+psycopg2://" + url[len("postgresql://") :]
     return url
 
 

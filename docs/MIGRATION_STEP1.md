@@ -115,7 +115,7 @@ APP_CONFIG=production gunicorn 'app:create_app()' \
 
 ```bash
 APP_CONFIG=testing python -m pytest -q
-# 41 passed
+# 42 passed
 ```
 
 I test coprono: payload XSS H-01, sanitizer fail-closed, escaping in bacheca e

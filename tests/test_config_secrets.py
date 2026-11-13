@@ -48,3 +48,13 @@ def test_database_url_forces_psycopg2_driver(monkeypatch):
         app_config._database_url()
         == "postgresql+psycopg2://user:pass@db:5432/app"
     )
+
+
+def test_postgresql_url_forces_psycopg2_driver(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL_FILE", raising=False)
+    monkeypatch.setenv("DATABASE_URL", "postgresql://user:pass@db:5432/app")
+
+    assert (
+        app_config._database_url()
+        == "postgresql+psycopg2://user:pass@db:5432/app"
+    )
