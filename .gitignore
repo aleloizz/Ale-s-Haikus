@@ -20,6 +20,12 @@ dist/
 *.env
 secrets/
 
+# Operational documentation must stay out of the public repo.
+# This is only a safety net: keep runbooks in aleshaikus-deploy/docs/.
+docs/private/
+docs/migration/
+docs/MIGRATION_STEP[3-9]*.md
+
 # Python artifacts
 __pycache__/
 *.py[cod]

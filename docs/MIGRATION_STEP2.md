@@ -48,8 +48,11 @@ Il compose monta file da `aleshaikus-deploy/secrets/` e l'app li legge tramite:
 - `RATELIMIT_STORAGE_URI_FILE`
 
 PostgreSQL usa `POSTGRES_PASSWORD_FILE`; Redis usa `redis.conf` e
-`redis_password`. Lo script `scripts/generate_secrets.py` crea i file con
-permessi `0600` e la directory `0700`, senza stampare i valori.
+`redis_password`. I file secret di Compose sono bind mount e conservano owner
+e mode dell'host: lo script `scripts/generate_secrets.py`, eseguito come root,
+crea la directory `0700` e assegna `10001:10001 0440` ai segreti di web/db-init,
+`999:1000 0440` a quelli di Redis e `root:root 0400` alla password PostgreSQL.
+Non stampa mai i valori.
 
 ## Validazione eseguita
 
@@ -72,7 +75,7 @@ Risultati:
 - Trivy fs: 0 vulnerabilità HIGH/CRITICAL su `requirements.txt`.
 - `pip-audit`: nessuna vulnerabilità nota.
 - Factory di produzione avviata con i segreti letti da file.
-- Test applicativi: 42 passed.
+- Test applicativi: 46 passed.
 
 La build e l'avvio effettivi vanno eseguiti sul Tinker Board. Hadolint non
 pubblica binari per `linux/arm/v7` e l'immagine Docker ufficiale non supporta
@@ -87,7 +90,12 @@ periodicamente l'immagine.
 
 ## Passi successivi
 
-1. Step 3: aggiungere `cloudflared` su `public_net` con token secret.
-2. Step 4: verificare `request.remote_addr` e regolare `TRUSTED_PROXY_COUNT`.
-3. Step 5: backup cifrato del volume PostgreSQL e di `secrets/`.
+1. Step 3: `cloudflared` su `public_net` con token secret e tunnel reale.
+2. Step 4: completato; `ProxyFix` usa l'IP reale del client e il rate limiter
+   applica chiavi distinte.
+3. Step 5: backup cifrato di database, configurazione e `secrets/`.
 4. Sostituire `db-init` con Alembic/Flask-Migrate.
+
+La documentazione operativa dettagliata degli Step 3-5, del backup, del deploy
+e del cutover è mantenuta nella cartella privata `aleshaikus-deploy/docs/`,
+fuori da questa repository pubblica.
