@@ -36,6 +36,16 @@ jobs:
             APP_VERSION=ci
           platforms: linux/amd64
 
+      - name: Trivy report (non-blocking)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: aleshaikus-web:ci
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "0"
+          version: v0.76.2
+
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -45,6 +55,7 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: "1"
+          version: v0.76.2
 
       - name: Upload Trivy SARIF
         if: always()
