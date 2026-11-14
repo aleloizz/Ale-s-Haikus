@@ -3,7 +3,7 @@
 <head>
                 <!-- Google tag (gtag.js) -->
                 <script async src="https://www.googletagmanager.com/gtag/js?id=G-D0W8P8VPVJ"></script>
-                <script>
+                <script nonce="{{ csp_nonce() }}">
                     window.dataLayer = window.dataLayer || [];
                     function gtag(){dataLayer.push(arguments);} 
                     gtag('js', new Date());
@@ -13,6 +13,7 @@
         
 
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#1e142c">
     <meta name="robots" content="index, follow">
@@ -33,7 +34,7 @@
     <link rel="alternate" hreflang="x-default" href="{{ url_for('web.bacheca', _external=True, _scheme='https') }}">
     <meta name="twitter:card" content="summary_large_image">
         <!-- JSON-LD Breadcrumbs -->
-        <script type="application/ld+json">
+        <script nonce="{{ csp_nonce() }}" type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
@@ -76,7 +77,7 @@
 
         <!-- OTTIMIZZAZIONE SEZIONE HEAD in bacheca.html -->
 
-        <script>document.documentElement.classList.add('js');</script>
+        <script nonce="{{ csp_nonce() }}">document.documentElement.classList.add('js');</script>
     <!-- CSS critico in cima per blocking immediato -->
     <style>
 /* Above-the-fold Critical CSS - OTTIMIZZATO */
@@ -163,26 +164,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 @media (prefers-reduced-motion: reduce){.app-loader__spinner{animation:none;border-top-color:transparent}.app-loader__text{opacity:1}}
 </style>
 
-    <!-- Preload essential resources -->
-    <!-- CARICA PRIMA bacheca.css per maggiore specificità -->
-    <link rel="preload" href="{{ static_file('css/bacheca.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ static_file('css/bacheca.css') }}"></noscript>
-
-    <!-- POI critical.css -->
-    <link rel="preload" href="{{ static_file('css/critical.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ static_file('css/critical.css') }}"></noscript>
-
-    <!-- INFINE main.css -->
-    <link rel="preload" href="{{ static_file('css/main.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ static_file('css/main.css') }}"></noscript>
-
-    <!-- Icons - load async -->
-    <link rel="preload" href="{{ static_file('css/icons.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ static_file('css/icons.css') }}"></noscript>
-
-    <!-- Bootstrap Icons CDN fallback (ensures correct coloring and coverage) -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></noscript>
+    <!-- Stylesheets locali (niente handler inline bloccati da CSP) -->
+    <link rel="stylesheet" href="{{ static_file('css/bacheca.css') }}">
+    <link rel="stylesheet" href="{{ static_file('css/critical.css') }}">
+    <link rel="stylesheet" href="{{ static_file('css/main.css') }}">
+    <link rel="stylesheet" href="{{ static_file('css/icons.css') }}">
+    <link rel="stylesheet" href="{{ static_file('vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
 
         <style>
             /* Prefer Bootstrap Icons glyphs on this page; avoid double-render with local background-images */
@@ -193,7 +180,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
     
@@ -240,7 +226,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
             <p class="app-loader__text">Caricamento…</p>
         </div>
     </div>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     (function(){
       const overlay=document.getElementById('app-loader');
       if(!overlay) return;
@@ -261,7 +247,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     })();
     </script>
     <div class="main-wrapper">
-        <script>
+        <script nonce="{{ csp_nonce() }}">
             // Rimuove la classe loading quando l'immagine è caricata
             window.addEventListener('load', () => {
             document.body.classList.remove('loading');
@@ -397,8 +383,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             {% if search_query and search_query.strip() %}
                             <span class="badge rounded-pill text-bg-light" title="Filtro testo">
                                 Testo: {{ search_query }}
-                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro testo"
-                                    onclick="(function(){var el=document.getElementById('searchText'); if(el){el.value=''; el.dispatchEvent(new Event('input',{bubbles:true}));}})()">
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline js-clear-filter" data-filter-target="searchText" data-filter-event="input" aria-label="Rimuovi filtro testo">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </span>
@@ -406,8 +391,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             {% if tipo_filtro and tipo_filtro.strip() %}
                             <span class="badge rounded-pill text-bg-light" title="Filtro tipologia">
                                 Tipo: {{ tipo_filtro }}
-                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro tipologia"
-                                    onclick="(function(){var el=document.getElementById('typeFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline js-clear-filter" data-filter-target="typeFilter" data-filter-event="change" aria-label="Rimuovi filtro tipologia">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </span>
@@ -415,8 +399,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                             {% if autore_filtro and autore_filtro.strip() %}
                             <span class="badge rounded-pill text-bg-light" title="Filtro autore">
                                 Autore: {{ autore_filtro }}
-                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" aria-label="Rimuovi filtro autore"
-                                    onclick="(function(){var el=document.getElementById('authorFilter'); if(el){el.value=''; el.dispatchEvent(new Event('change',{bubbles:true}));}})()">
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline js-clear-filter" data-filter-target="authorFilter" data-filter-event="change" aria-label="Rimuovi filtro autore">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </span>
@@ -461,7 +444,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                         </div>
                         
                         <div class="d-flex gap-2 actions-right">
-                            <button type="button" class="btn btn-haiku btn-accent btn-sm" onclick="window.location.reload()">
+                            <button type="button" class="btn btn-haiku btn-accent btn-sm" data-action="reload">
                                 <i class="bi bi-arrow-clockwise"></i> Aggiorna
                             </button>
                             <a href="{{ url_for('web.analyzer') }}" class="btn btn-haiku btn-primary">
@@ -528,7 +511,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
                                 <!-- Contenuto poesia -->
                                 <div class="poem-content flex-grow-1 mb-3">
                                     <div class="poem-text text-white-75" style="font-family: 'Playfair Display', serif; font-style: italic; line-height: 1.6;">
-                                        {{ poem.content|replace('\n', '<br>')|safe }}
+                                        {{ poem.content }}
                                     </div>
                                 </div>
                                 
@@ -769,7 +752,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
         </div>
     </div>
 
-    <!-- Share Popup Markup (fuori dallo <script>, hidden di default) -->
+    <!-- Share Popup Markup (fuori dallo script, hidden di default) -->
     <div id="sharePopupOverlay" class="share-overlay" aria-hidden="true"></div>
     <div id="sharePopup" class="share-box" role="dialog" aria-label="Condividi" aria-hidden="true" tabindex="-1">
         <div class="share-header d-flex w-100 justify-content-between align-items-center">
@@ -819,7 +802,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     </div>
 
         <!-- JavaScript Module loading ottimizzato -->
-<script id="bacheca-config" type="application/json">
+<script id="bacheca-config" type="application/json" nonce="{{ csp_nonce() }}">
 {
     "currentPage": {{ (poesie.page if poesie and poesie.page else 1)|tojson }},
     "totalPages": {{ (poesie.pages if poesie and poesie.pages else 1)|tojson }},
@@ -833,244 +816,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     "baseUrl": {{ url_for('web.bacheca')|tojson }}
 }
 </script>
-<script>
-// Configurazione SICURA e IMMEDIATA
-window.BACHECA_CONFIG = JSON.parse(document.getElementById('bacheca-config').textContent);
-
-// Definisci SUBITO le funzioni globali per evitare errori
-window.goToSpecificPage = function() {
-    const pageNum = document.getElementById('goToPage')?.value;
-    if (pageNum && pageNum >= 1 && pageNum <= window.BACHECA_CONFIG.totalPages) {
-        const params = new URLSearchParams(window.location.search);
-        params.set('page', pageNum);
-        window.location.href = `${window.location.pathname}?${params.toString()}`;
-    } else {
-        alert('Numero pagina non valido');
-    }
-};
-
-window.expandPoem = function(poemId) {
-    console.log('Expand poem:', poemId);
-    // Funzionalità base di fallback
-    const modal = document.getElementById('expandedPoemModal');
-    if (modal && window.bootstrap) {
-        const bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
-    }
-};
-
-// Caricamento differito del modulo completo
-function loadBachecaModule() {
-    // Verifica se il file esistere prima di caricarlo
-    fetch('{{ static_file("js/bacheca.js") }}', { method: 'HEAD' })
-        .then(response => {
-            if (response.ok) {
-                return import('{{ static_file("js/bacheca.js") }}');
-            } else {
-                throw new Error('bacheca.js non trovato');
-            }
-        })
-        .then(module => {
-            console.log('✅ Modulo bacheca caricato');
-            // Sostituisci le funzioni globali con quelle del modulo
-            if (window.bachecaManager) {
-                window.goToSpecificPage = () => window.bachecaManager.goToSpecificPage();
-                window.expandPoem = (id) => window.bachecaManager.expandPoem(id);
-            }
-        })
-        .catch(error => {
-            console.warn('⚠️ Modulo bacheca non disponibile, uso fallback:', error);
-            // Le funzioni di fallback sono già definite sopra
-        });
-}
-
-// Caricamento Bootstrap con gestione errori
-function loadBootstrap() {
-    if (window.bootstrap) {
-        loadBachecaModule();
-        return;
-    }
-    
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
-    script.defer = true;
-    script.crossOrigin = 'anonymous';
-    script.onload = function() {
-        console.log('✅ Bootstrap caricato');
-        loadBachecaModule();
-    };
-    script.onerror = function() {
-        console.error('❌ Errore caricamento Bootstrap');
-        // L'app funziona comunque con funzionalità base
-    };
-    document.head.appendChild(script);
-}
-
-// Strategia di caricamento intelligente
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadBootstrap);
-} else {
-    // DOM già pronto
-    loadBootstrap();
-}
-
-// Gestione errori globali
-window.addEventListener('error', function(e) {
-    if (e.filename && e.filename.includes('bacheca.js')) {
-        console.warn('Errore in bacheca.js, uso funzionalità base');
-    }
-});
-
-// ===== GESTIONE DROPDOWN SEMPLIFICATA ===== 
-function initDropdowns() {
-    console.log('Inizializzazione dropdown semplificati');
-    
-    // NON interferire con Bootstrap - lascia che gestisca tutto
-    // Aggiungi solo gestione ESC personalizzata se necessaria
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            // Chiudi tutti i dropdown aperti usando Bootstrap API
-            if (window.bootstrap && bootstrap.Dropdown) {
-                document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(toggle => {
-                    const dropdown = bootstrap.Dropdown.getInstance(toggle);
-                    if (dropdown) {
-                        dropdown.hide();
-                    }
-                });
-            }
-        }
-    });
-    
-    console.log('✅ Gestione ESC per dropdown configurata');
-}
-
-// Inizializza dropdown quando Bootstrap è carico
-function loadBachecaModule() {
-    console.log('Inizializzazione modulo bacheca');
-    
-    // Debug Bootstrap Dropdown
-    if (window.bootstrap && bootstrap.Dropdown) {
-        console.log('✅ Bootstrap Dropdown disponibile');
-        
-        // Test: trova tutti i dropdown e verifica che siano inizializzati
-        document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach((toggle, index) => {
-            console.log(`Dropdown ${index + 1}:`, toggle);
-            
-            // Assicurati che Bootstrap gestisca il dropdown
-            const dropdown = new bootstrap.Dropdown(toggle);
-            console.log(`Bootstrap instance creata per dropdown ${index + 1}`);
-        });
-    } else {
-        console.error('❌ Bootstrap Dropdown NON disponibile');
-    }
-    
-    initDropdowns();
-    
-    // Carica il modulo completo se disponibile
-    fetch('{{ static_file("js/bacheca.js") }}', { method: 'HEAD' })
-        .then(response => {
-            if (response.ok) {
-                return import('{{ static_file("js/bacheca.js") }}');
-            } else {
-                throw new Error('bacheca.js non trovato');
-            }
-        })
-        .then(module => {
-            console.log('✅ Modulo bacheca avanzato caricato');
-        })
-        .catch(error => {
-            console.log('!! Modulo avanzato non disponibile, uso funzioni base');
-        });
-}
-
-// ===== GESTIONE HEART LIKES ===== 
-function initHeartLikes() {
-    console.log('Inizializzazione pulsante likes');
-    
-    // Gestione click sui checkbox heart
-    document.querySelectorAll('.heart-container .checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', async function() {
-            const poemId = this.closest('.heart-container').dataset.poemId;
-            const likeCountElement = this.closest('.like-container').querySelector('.like-count');
-            const liked = this.checked;
-            
-            try {
-                const url = liked ? `/api/poems/${poemId}/like` : `/api/poems/${poemId}/unlike`;
-                const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                const data = await resp.json();
-                if (data && data.success) {
-                    if (typeof data.likes === 'number' && likeCountElement) {
-                        likeCountElement.textContent = data.likes;
-                    }
-                } else {
-                    throw new Error(data && data.error ? data.error : 'Errore sconosciuto');
-                }
-            } catch (err) {
-                console.error('Errore toggle like:', err);
-                // rollback UI
-                this.checked = !liked;
-            }
-        });
-    });
-}
-
-// Sincronizza stato like da server (per sessione corrente)
-async function initHeartLikeStatus() {
-    try {
-        const containers = document.querySelectorAll('.like-container[data-poem-id]');
-        const fetches = Array.from(containers).map(async (container) => {
-            const poemId = container.getAttribute('data-poem-id');
-            if (!poemId) return;
-            try {
-                const resp = await fetch(`/api/poems/${poemId}/like/status`);
-                if (!resp.ok) return;
-                const data = await resp.json();
-                const checkbox = container.querySelector('.heart-container .checkbox');
-                const countEl = container.querySelector('.like-count');
-                if (data && data.success) {
-                    if (checkbox && typeof data.liked === 'boolean') {
-                        checkbox.checked = data.liked;
-                    }
-                    if (countEl && typeof data.likes === 'number') {
-                        countEl.textContent = data.likes;
-                    }
-                }
-            } catch (e) {
-                // silenzia errori di rete per non bloccare la pagina
-                console.debug('Status like non disponibile per', poemId);
-            }
-        });
-        await Promise.all(fetches);
-        console.log('✅ Stato like sincronizzato');
-    } catch (e) {
-        console.debug('Impossibile sincronizzare lo stato like');
-    }
-}
-
-// Funzione per API like (da implementare)
-// Deprecato: toggleLikePoem ora gestito direttamente nel change handler
-
-// Inizializza i heart likes quando il DOM è pronto
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { initHeartLikes(); initHeartLikeStatus(); });
-} else {
-    initHeartLikes();
-    initHeartLikeStatus();
-}
-
-// ===== RENDI TUTTO IL LIKE-CONTAINER CLICCABILE =====
-document.querySelectorAll('.like-container').forEach(container => {
-    container.addEventListener('click', function(e) {
-        // Trova il checkbox del cuore
-        const checkbox = this.querySelector('.heart-container .checkbox');
-        if (checkbox && e.target !== checkbox) {
-            // Simula click sul checkbox
-            checkbox.click();
-        }
-    });
-});
-</script>
+<script defer src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+<script type="module" src="{{ static_file('js/bacheca-page.js') }}"></script>
     <script defer src="{{ url_for('static', filename='js/pwa-install.js') }}?v=1.5"></script>
 </body>
 </html>

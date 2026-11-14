@@ -1,4 +1,6 @@
+import html
 import string
+
 from config.constants import VOCALI, VOCALI_FORTI, VOCALI_DEBOLI, PREFISSI_COMUNI
 
 try:
@@ -15,21 +17,25 @@ def pulisci_testo(testo):
 
 
 def sanitize_user_text(value: str) -> str:
-        """Sanitizza input utente per ridurre il rischio XSS.
+        """Riporta l'input utente a testo semplice, in modo fail-closed.
 
-        - Se bleach è disponibile, rimuove qualsiasi tag HTML e attributo
-            mantenendo solo testo semplice.
-        - In fallback (senza bleach) restituisce il valore originale per non
-            rompere la logica, confidando nell'escaping predefinito di Jinja.
+        - Con bleach disponibile rimuove qualsiasi tag/attributo e converte le
+          entità in testo: il risultato è testo puro, mai HTML da rendere con
+          ``|safe``.
+        - Senza bleach esegue comunque l'escaping HTML. Non esiste un percorso
+          che restituisca markup grezzo; in produzione l'app rifiuta di partire
+          se bleach non è importabile.
         """
         if not isinstance(value, str):
                 return value
 
         if BLEACH_AVAILABLE:
                 # Nessun tag consentito: vogliamo solo testo.
-                return bleach.clean(value, tags=[], attributes={}, strip=True)
+                cleaned = bleach.clean(value, tags=[], attributes={}, strip=True)
+                return html.unescape(cleaned)
 
-        return value
+        # Fail-closed: nessun markup grezzo anche se la dipendenza manca.
+        return html.escape(value, quote=True)
 
 def gestisci_apostrofi(parola):
     """Gestisce parole con apostrofi dividendole correttamente"""

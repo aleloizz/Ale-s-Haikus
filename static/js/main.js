@@ -3,10 +3,10 @@
  * @author Poetry Analyzer App
  */
 
-import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js';
-import { saveSelectionState, restoreSelectionState } from './storage.js';
-import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js';
-import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js?v=1.3.8';
+import { copyToClipboard, vibrate, showBootstrapToast } from './utils.js?v=1.4.0';
+import { saveSelectionState, restoreSelectionState } from './storage.js?v=1.4.0';
+import { poemTypes, updatePatternDisplay, initBadges, populatePoemTypes } from './patterns.js?v=1.4.0';
+import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValidationHandlers } from './validation.js?v=1.3.9';
 /**
  * @fileoverview Entry point principale per l'applicazione di analisi poetica
  * Version tracking & cache busting:
@@ -14,9 +14,9 @@ import { validateCurrentInput, renderIssues, markAnalysisCompleted, attachValida
  */
 
 // Increment this to force a new network fetch (mirrors ?v= query in index.html)
-export const APP_VERSION = '1.3.8';
-import { handlePublishToggle } from './publish.js?v=1.3.8';
-import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js?v=1.3.8';
+export const APP_VERSION = '1.4.0';
+import { handlePublishToggle } from './publish.js?v=1.3.9';
+import { handleFormSubmit, showResults, handlePoemTextInput } from './form.js?v=1.4.0';
     console.log(`🚀 Inizializzazione app.js modulare v${APP_VERSION}`);
 
 console.log(`📚 Poetry Analyzer App - Versione modulare caricata (v${APP_VERSION})`);
@@ -81,6 +81,12 @@ function getDOMElements() {
  */
 function setupEventListeners(elements) {
     const { poemNation, poemTypeSelect, poemText, poemForm, copyBtn, publishCheckbox, patternDisplay } = elements;
+
+    // Impedisce il submit nativo del form: l'analisi passa sempre da fetch e
+    // il token CSRF viene inviato nell'header.
+    if (poemForm) {
+        poemForm.addEventListener('submit', (event) => event.preventDefault());
+    }
     
     // Event listener per cambio nazione
     if (poemNation) {

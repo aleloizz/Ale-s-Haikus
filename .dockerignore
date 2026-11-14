@@ -1,0 +1,61 @@
+# Build context: solo sorgenti e asset necessari all'app.
+.git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+
+# Segreti, database locali e backup
+.env
+.env.*
+*.env
+secrets/
+instance/
+backup/
+*.db
+*.dump
+latest.dump
+
+# Virtualenv e cache Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+build/
+dist/
+
+# Node, IDE e cache locali
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.idea/
+.vscode/
+
+# Test, coverage e lint
+tests/
+pytest.ini
+requirements-dev.txt
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.log
+
+# Documentazione e residui hosting precedente
+docs/
+*.md
+static.json
+CNAME
+.purge_history.sh
+SECURITY_CLEANUP.md
+
+# Script legacy Heroku/migrazione non usati a runtime
+migrate_database.py
+emergency_recreate_db.py
+check_database_schema.py

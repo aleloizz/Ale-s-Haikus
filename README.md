@@ -13,7 +13,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Heroku](https://img.shields.io/badge/Heroku-430098?style=flat-square&logo=heroku&logoColor=white)](https://heroku.com)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
 </div>
 
@@ -116,7 +116,7 @@ Palette colori
 ```
 aleshaikus/
 +-- app.py                  # Flask application factory
-+-- Procfile                # Configurazione deploy Heroku
++-- Procfile                # Processo WSGI (factory app:create_app())
 +-- requirements.txt        # Dipendenze Python
 +-- static.json             # Regole cache file statici
 +-- CNAME                   # Dominio personalizzato
@@ -219,24 +219,38 @@ app.run(debug=True, host='0.0.0.0', port=5000)
 "
 ```
 
-### Deploy in produzione (Heroku)
+### Avvio in produzione (factory)
 
-L'app e configurata per il deploy su **Heroku** tramite `Procfile`:
+L'app usa una factory e non espone più una variabile globale `app`:
 
 ```bash
-web: gunicorn app:app
+APP_CONFIG=production gunicorn 'app:create_app()' \
+  --bind 0.0.0.0:8000 --workers 2 --threads 4 --timeout 60
 ```
 
-**Variabili d'ambiente richieste:**
+Il dettaglio delle modifiche per Docker/PostgreSQL è in
+[`docs/MIGRATION_STEP1.md`](docs/MIGRATION_STEP1.md) e
+[`docs/MIGRATION_STEP2.md`](docs/MIGRATION_STEP2.md).
+
+Il `Dockerfile` è versionato nel repository; `docker-compose.yml`, `.env` e i
+segreti vivono nella cartella esterna `aleshaikus-deploy/`, accanto al clone.
+
+**Variabili d'ambiente richieste in produzione:**
 | Variabile | Descrizione |
 |-----------|-------------|
-| `DATABASE_URL` | Stringa di connessione PostgreSQL |
-| `SECRET_KEY` | Chave segreta per le sessioni |
+| `DATABASE_URL` | Stringa di connessione PostgreSQL (nessun fallback SQLite) |
+| `SECRET_KEY` | Chiave segreta ≥ 32 caratteri casuali |
 | `APP_CONFIG` | Impostare a `production` |
+| `TRUSTED_HOSTS` | Domini accettati nell'header Host, separati da virgola |
+| `CANONICAL_BASE_URL` | URL canonico HTTPS usato da sitemap e redirect |
 
 **Opzionali:**
 | Variabile | Descrizione |
 |-----------|-------------|
+| `AUTO_CREATE_DB` | `true` solo per bootstrap temporaneo; default `false` in produzione |
+| `TRUSTED_PROXY_COUNT` | Numero di proxy fidati davanti a Flask (default `1`) |
+| `RATELIMIT_STORAGE_URI` | Storage Flask-Limiter; in produzione usare Redis |
+| `LOG_JSON` | Log strutturati JSON (default `true` in produzione) |
 | `GOOGLE_SITE_VERIFICATION` | Codice di verifica Google Search Console |
 
 ---
@@ -247,13 +261,13 @@ web: gunicorn app:app
 |---------|-----------|
 | **Backend** | Python 3, Flask 3.1, Gunicorn 26 |
 | **Database** | PostgreSQL (produzione), SQLite (sviluppo) tramite SQLAlchemy 3.1 |
-| **Sicurezza** | Flask-Limiter (rate limiting, 200 req/h per IP), Bleach (sanificazione XSS) |
+| **Sicurezza** | Flask-Limiter (rate limit per endpoint), Bleach (sanificazione fail-closed), CSRF, CSP con nonce |
 | **Frontend** | Vanilla JavaScript ES6 Modules, CSS3 Custom Properties |
-| **Icone** | Sistema SVG inline personalizzato (oltre 60 icone, zero dipendenze esterne) |
+| **Icone** | Bootstrap Icons e set locale, serviti da `static/vendor/` (nessun CDN jsDelivr) |
 | **Font** | Inter (UI) + Playfair Display (accento) tramite Google Fonts |
 | **PWA** | Service Worker, Web App Manifest, meta tag iOS |
 | **Analytics** | Google Analytics 4 (gtag.js) |
-| **Hosting** | Heroku |
+| **Hosting** | Heroku in dismissione → home server Docker/DietPi (Step 1-2 completati) |
 | **Compressione** | Flask-Compress (gzip automatico) |
 | **SEO** | Sitemap XML dinamici, JSON-LD, Open Graph, Twitter Cards, URL canonici |
 
@@ -267,10 +281,11 @@ Flask-SQLAlchemy==3.1.1   # ORM per database
 Flask-Compress==1.24      # Compressione gzip
 Flask-Limiter==4.1.1      # Rate limiting
 gunicorn==26.0.0          # Server WSGI per produzione
-psycopg2-binary==2.9.12   # Driver PostgreSQL
+psycopg2-binary==2.9.12   # Driver PostgreSQL (Docker usa psycopg2 compilato)
+redis==6.4.0              # Storage condiviso Flask-Limiter
 bleach==6.4.0             # Sanificazione HTML
 Jinja2==3.1.6             # Motore template
-Werkzeug==3.1.8           # Toolkit WSGI
+Werkzeug==3.1.9           # Toolkit WSGI
 ```
 
 ---
